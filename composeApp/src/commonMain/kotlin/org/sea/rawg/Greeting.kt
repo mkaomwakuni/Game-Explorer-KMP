@@ -1,0 +1,9 @@
+package org.sea.rawg
+
+class Greeting {
+    private val platform = getPlatform()
+
+    fun greet(): String {
+        return "Hello, ${platform.name}!"
+    }
+}
