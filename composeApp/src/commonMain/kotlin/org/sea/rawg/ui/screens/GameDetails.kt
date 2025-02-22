@@ -43,8 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
+import org.sea.rawg.ui.component.AsyncImage
 import moe.tlaster.precompose.navigation.Navigator
 import org.sea.rawg.data.model.Game
 import org.sea.rawg.data.repository.GameState
@@ -56,7 +55,7 @@ import org.sea.rawg.theme.MediumRating
 import org.sea.rawg.theme.Taupe
 import org.sea.rawg.theme.Wheat
 import org.sea.rawg.ui.component.ErrorState
-import org.sea.rawg.ui.component.LoadingState
+import org.sea.rawg.ui.component.FullScreenLoading
 import org.sea.rawg.ui.viewmodel.GameDetailsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,7 +95,7 @@ fun GameDetails(navigator: Navigator, gameId: Int) {
         ) {
             when (gameState) {
                 is GameState.Loading -> {
-                    LoadingState()
+                    FullScreenLoading()
                 }
 
                 is GameState.Error -> {
@@ -134,13 +133,11 @@ private fun GameDetailsContent(game: Game) {
                 .height(250.dp)
         ) {
             if (game.background_image != null) {
-                KamelImage(
-                    resource = asyncPainterResource(game.background_image),
+                AsyncImage(
+                    url = game.background_image,
                     contentDescription = game.name,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                    onLoading = { GameImagePlaceholder() },
-                    onFailure = { GameImagePlaceholder() }
+                    modifier = Modifier.fillMaxSize()
                 )
             } else {
                 GameImagePlaceholder()

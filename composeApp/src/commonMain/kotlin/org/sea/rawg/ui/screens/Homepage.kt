@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.dp
 import moe.tlaster.precompose.navigation.Navigator
 import org.sea.rawg.data.repository.GamesState
 import org.sea.rawg.ui.component.ErrorState
+import org.sea.rawg.ui.component.FullScreenLoading
 import org.sea.rawg.ui.component.GameCard
-import org.sea.rawg.ui.component.LoadingState
 import org.sea.rawg.ui.component.SectionHeader
 import org.sea.rawg.ui.viewmodel.HomeViewModel
 
@@ -78,7 +78,7 @@ fun Homepage(navigator: Navigator) {
         ) {
             when (gamesState) {
                 is GamesState.Loading -> {
-                    LoadingState()
+                    FullScreenLoading()
                 }
 
                 is GamesState.Error -> {
@@ -100,7 +100,7 @@ fun Homepage(navigator: Navigator) {
                             // Popular Games Section
                             SectionHeader(
                                 title = "Latest Releases",
-                                onViewAllClick = { /* TODO: Navigate to full list */ }
+                                actionText = "View All"
                             )
 
                             LazyRow(
@@ -110,8 +110,8 @@ fun Homepage(navigator: Navigator) {
                                 items(games.take(10)) { game ->
                                     GameCard(
                                         game = game,
-                                        onClick = { gameId ->
-                                            navigator.navigate("/details/$gameId")
+                                        onClick = {
+                                            navigator.navigate("/details/${game.id}")
                                         },
                                         modifier = Modifier.width(280.dp)
                                     )
@@ -122,8 +122,7 @@ fun Homepage(navigator: Navigator) {
 
                             // All Games Section
                             SectionHeader(
-                                title = "All Games",
-                                onViewAllClick = null
+                                title = "All Games"
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -133,8 +132,8 @@ fun Homepage(navigator: Navigator) {
                         items(games) { game ->
                             GameCard(
                                 game = game,
-                                onClick = { gameId ->
-                                    navigator.navigate("/details/$gameId")
+                                onClick = {
+                                    navigator.navigate("/details/${game.id}")
                                 },
                                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                             )

@@ -1,140 +1,138 @@
 package org.sea.rawg.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
-// Light Theme ColorScheme - Mid/Faint Brown based
+// Define LocalSpacing composition local
+val LocalSpacing = compositionLocalOf { Spacing() }
+
+/**
+ * Light theme color scheme
+ */
 private val LightColorScheme = lightColorScheme(
-    primary = CoffeeBean,
-    onPrimary = White,
-    primaryContainer = Tan,
-    onPrimaryContainer = DeepBrown,
+    primary = RAWGColors.Primary,
+    onPrimary = RAWGColors.Neutral.Light,
+    primaryContainer = RAWGColors.Primary.withAlpha(0.1f),
+    onPrimaryContainer = RAWGColors.Primary,
 
-    secondary = BrownSugar,
-    onSecondary = White,
-    secondaryContainer = Wheat,
-    onSecondaryContainer = DarkBrown,
+    secondary = RAWGColors.Secondary,
+    onSecondary = RAWGColors.Neutral.Light,
+    secondaryContainer = RAWGColors.Secondary.withAlpha(0.1f),
+    onSecondaryContainer = RAWGColors.Secondary,
 
-    tertiary = MutedGold,
-    onTertiary = White,
-    tertiaryContainer = Linen,
-    onTertiaryContainer = DarkBrown,
+    tertiary = RAWGColors.Tertiary,
+    onTertiary = RAWGColors.Neutral.Light,
+    tertiaryContainer = RAWGColors.Tertiary.withAlpha(0.1f),
+    onTertiaryContainer = RAWGColors.Tertiary,
 
-    background = Sand,
-    onBackground = DeepBrown,
-    surface = Linen,
-    onSurface = DeepBrown,
+    background = RAWGColors.Neutral.Light,
+    onBackground = RAWGColors.Neutral.TextPrimary,
 
-    surfaceVariant = Wheat,
-    onSurfaceVariant = Taupe,
-    outline = Khaki,
-    outlineVariant = Tan,
+    surface = RAWGColors.Neutral.LightSurface,
+    onSurface = RAWGColors.Neutral.TextPrimary,
+    surfaceVariant = RAWGColors.Neutral.LightSurfaceVariant,
+    onSurfaceVariant = RAWGColors.Neutral.TextSecondary,
 
-    error = BerryRed,
-    onError = White,
-    errorContainer = BerryRed.copy(alpha = 0.1f),
-    onErrorContainer = BerryRed
+    error = RAWGColors.Feedback.Error,
+    onError = RAWGColors.Neutral.Light,
+    errorContainer = RAWGColors.Feedback.Error.withAlpha(0.1f),
+    onErrorContainer = RAWGColors.Feedback.Error
 )
 
-// Dark Theme ColorScheme - Deeper Brown based
+/**
+ * Dark theme color scheme
+ */
 private val DarkColorScheme = darkColorScheme(
-    primary = LightCoffeeBean,
-    onPrimary = DarkSand,
-    primaryContainer = DarkTan,
-    onPrimaryContainer = LightBeige,
+    primary = RAWGColors.Primary,
+    onPrimary = RAWGColors.Neutral.Light,
+    primaryContainer = RAWGColors.Primary.withAlpha(0.2f),
+    onPrimaryContainer = RAWGColors.Primary,
 
-    secondary = LightBrown,
-    onSecondary = DarkSand,
-    secondaryContainer = DarkBrownSugar,
-    onSecondaryContainer = LightBeige,
+    secondary = RAWGColors.Secondary,
+    onSecondary = RAWGColors.Neutral.Light,
+    secondaryContainer = RAWGColors.Secondary.withAlpha(0.2f),
+    onSecondaryContainer = RAWGColors.Secondary,
 
-    tertiary = MutedGold,
-    onTertiary = DarkSand,
-    tertiaryContainer = DarkKhaki,
-    onTertiaryContainer = LightBeige,
+    tertiary = RAWGColors.Tertiary,
+    onTertiary = RAWGColors.Neutral.Light,
+    tertiaryContainer = RAWGColors.Tertiary.withAlpha(0.2f),
+    onTertiaryContainer = RAWGColors.Tertiary,
 
-    background = DarkSand,
-    onBackground = LightBeige,
-    surface = DarkLinen,
-    onSurface = LightBeige,
+    background = RAWGColors.Neutral.Dark,
+    onBackground = RAWGColors.Neutral.TextInversePrimary,
 
-    surfaceVariant = DarkWheat,
-    onSurfaceVariant = LightBrown,
-    outline = DarkTaupe,
-    outlineVariant = DarkTan,
+    surface = RAWGColors.Neutral.DarkSurface,
+    onSurface = RAWGColors.Neutral.TextInversePrimary,
+    surfaceVariant = RAWGColors.Neutral.DarkSurfaceVariant,
+    onSurfaceVariant = RAWGColors.Neutral.TextInverseSecondary,
 
-    error = BerryRed,
-    onError = DarkSand,
-    errorContainer = BerryRed.copy(alpha = 0.2f),
-    onErrorContainer = LightBeige
+    error = RAWGColors.Feedback.Error,
+    onError = RAWGColors.Neutral.Light,
+    errorContainer = RAWGColors.Feedback.Error.withAlpha(0.2f),
+    onErrorContainer = RAWGColors.Feedback.Error
 )
 
-// Data class to hold dynamic colors that aren't part of the standard Material3 ColorScheme
-data class ExtendedColors(
-    val ratingHigh: Color,
-    val ratingMedium: Color,
-    val ratingLow: Color,
-    val accent1: Color,
-    val accent2: Color,
-    val accent3: Color,
-)
-
-// Composition Local to provide extended colors
-val LocalExtendedColors = compositionLocalOf {
-    ExtendedColors(
-        ratingHigh = HighRating,
-        ratingMedium = MediumRating,
-        ratingLow = LowRating,
-        accent1 = TerraCotta,
-        accent2 = SageGreen,
-        accent3 = DustyBlue
-    )
-}
-
-// Accessor for extended colors
-object GameExplorerTheme {
-    val extendedColors: ExtendedColors
-        @Composable
-        get() = LocalExtendedColors.current
-}
-
+/**
+ * RAWG application theme
+ * Provides consistent theming across the entire application
+ */
 @Composable
-fun GameExplorerTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+fun RAWGTheme(
+    useDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = if (useDarkTheme) DarkColorScheme else LightColorScheme
 
-    val extendedColors = remember {
-        ExtendedColors(
-            ratingHigh = HighRating,
-            ratingMedium = MediumRating,
-            ratingLow = LowRating,
-            accent1 = TerraCotta,
-            accent2 = SageGreen,
-            accent3 = DustyBlue
-        )
-    }
-
-    CompositionLocalProvider(
-        LocalExtendedColors provides extendedColors
-    ) {
+    CompositionLocalProvider(LocalSpacing provides Spacing()) {
         MaterialTheme(
             colorScheme = colorScheme,
-            shapes = GameExplorerShapes,
-            typography = GameExplorerTypography,
+            typography = RAWGTypography.default,
+            shapes = RAWGShapes,
             content = content
         )
     }
+}
+
+/**
+ * Object to access theme values from anywhere in the application
+ */
+object RAWGTheme {
+    /**
+     * Access to spacing values from anywhere in the application
+     */
+    val spacing: Spacing
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalSpacing.current
+
+    /**
+     * Access to typography from the MaterialTheme
+     */
+    val typography: androidx.compose.material3.Typography
+        @Composable
+        @ReadOnlyComposable
+        get() = MaterialTheme.typography
+
+    /**
+     * Access to color scheme from the MaterialTheme
+     */
+    val colorScheme: androidx.compose.material3.ColorScheme
+        @Composable
+        @ReadOnlyComposable
+        get() = MaterialTheme.colorScheme
+
+    /**
+     * Access to shapes from the MaterialTheme
+     */
+    val shapes: androidx.compose.material3.Shapes
+        @Composable
+        @ReadOnlyComposable
+        get() = MaterialTheme.shapes
 }

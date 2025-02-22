@@ -25,7 +25,10 @@ fun App() {
         color = MaterialTheme.colorScheme.background
     ) {
         Scaffold { paddingValues ->
-            NavGraph(navigator = navigator)
+            NavGraph(
+                navigator = navigator,
+                modifier = Modifier.padding(paddingValues)
+            )
         }
     }
 }
