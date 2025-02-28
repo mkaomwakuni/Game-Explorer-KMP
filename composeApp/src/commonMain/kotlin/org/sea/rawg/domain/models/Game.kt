@@ -1,13 +1,11 @@
-package org.sea.rawg.data.model
+package org.sea.rawg.domain.models
 
 import kotlinx.serialization.Serializable
-import org.sea.rawg.data.model.gamedetail.AddedByStatus
 import org.sea.rawg.data.model.gamedetail.Developer
 import org.sea.rawg.data.model.gamedetail.EsrbRating
-import org.sea.rawg.data.model.gamedetail.Genre
 import org.sea.rawg.data.model.gamedetail.GamePlatformInfo
+import org.sea.rawg.data.model.gamedetail.Genre
 import org.sea.rawg.data.model.gamedetail.Publisher
-import org.sea.rawg.data.model.gamedetail.Rating
 import org.sea.rawg.data.model.gamedetail.StoreInfo
 import org.sea.rawg.data.model.gamedetail.Tag
 

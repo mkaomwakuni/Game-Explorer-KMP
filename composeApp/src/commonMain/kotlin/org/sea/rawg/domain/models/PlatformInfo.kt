@@ -1,9 +1,9 @@
-package org.sea.rawg.data.model.gamedetail
+package org.sea.rawg.domain.models
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GamePlatformInfo(
+data class PlatformInfo(
     val platform: Platform = Platform(),
     val released_at: String? = null,
     val requirements_en: Requirements? = null,

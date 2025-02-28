@@ -1,4 +1,4 @@
-package org.sea.rawg.data.model.gamedetail
+package org.sea.rawg.domain.models
 
 import kotlinx.serialization.Serializable
 
