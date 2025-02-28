@@ -11,29 +11,34 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.seconds
 
-val client = HttpClient {
-    install(ContentNegotiation) {
-        json(Json {
-            prettyPrint = true
-            isLenient = true
-            ignoreUnknownKeys = true
-            useAlternativeNames = false
-        }, contentType = ContentType.Application.Json)
-    }
+/**
+ * ApiClient singleton for managing HTTP client configuration
+ */
+object ApiClient {
+    val client = HttpClient {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+                ignoreUnknownKeys = true
+                useAlternativeNames = false
+            }, contentType = ContentType.Application.Json)
+        }
 
-    install(HttpTimeout) {
-        requestTimeoutMillis = 30.seconds.inWholeMilliseconds
-        connectTimeoutMillis = 15.seconds.inWholeMilliseconds
-        socketTimeoutMillis = 30.seconds.inWholeMilliseconds
-    }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30.seconds.inWholeMilliseconds
+            connectTimeoutMillis = 15.seconds.inWholeMilliseconds
+            socketTimeoutMillis = 30.seconds.inWholeMilliseconds
+        }
 
-    install(Logging) {
-        logger = Logger.DEFAULT
-        level = LogLevel.ALL
-    }
+        install(Logging) {
+            logger = Logger.DEFAULT
+            level = LogLevel.ALL
+        }
 
-    defaultRequest {
-        contentType(ContentType.Application.Json)
-        accept(ContentType.Application.Json)
+        defaultRequest {
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+        }
     }
 }
