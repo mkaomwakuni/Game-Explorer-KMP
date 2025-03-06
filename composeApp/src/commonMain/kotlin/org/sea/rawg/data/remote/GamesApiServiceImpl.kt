@@ -6,7 +6,9 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.json.Json
+import org.sea.rawg.data.mappers.GameMapper
 import org.sea.rawg.domain.models.*
+import org.sea.rawg.data.remote.dto.*
 import org.sea.rawg.utils.AppConstant
 
 class GamesApiServiceImpl(
@@ -68,29 +70,48 @@ class GamesApiServiceImpl(
         pageSize: Int,
         ordering: String
     ): PagedResponse<Game> {
-        return executeRequest {
+        val response: PagedResponseDto<GameDto> = executeRequest {
             appendPathSegments("games")
             parameters.append("page", page.toString())
             parameters.append("page_size", pageSize.toString())
             parameters.append("ordering", ordering)
         }
+
+        // Debug logging for image URLs
+        response.results.forEach { gameDto ->
+            println("Game image URL: ${gameDto.backgroundImage}")
+        }
+
+        return PagedResponse(
+            count = response.count,
+            next = response.next,
+            previous = response.previous,
+            results = response.results.map { GameMapper.mapToDomain(it) }
+        )
     }
 
     override suspend fun getGameDetails(gameId: Int): Game {
-        return executeRequest {
+        val response: GameDto = executeRequest {
             appendPathSegments("games", gameId.toString())
         }
+        return GameMapper.mapToDomain(response)
     }
 
     override suspend fun searchGames(
         query: String,
         page: Int
     ): PagedResponse<Game> {
-        return executeRequest {
+        val response: PagedResponseDto<GameDto> = executeRequest {
             appendPathSegments("games")
             parameters.append("search", query)
             parameters.append("page", page.toString())
         }
+        return PagedResponse(
+            count = response.count,
+            next = response.next,
+            previous = response.previous,
+            results = response.results.map { GameMapper.mapToDomain(it) }
+        )
     }
 
     // Genres endpoints
@@ -98,11 +119,25 @@ class GamesApiServiceImpl(
         page: Int,
         pageSize: Int
     ): PagedResponse<Genre> {
-        return executeRequest {
+        val response: PagedResponseDto<GenreDto> = executeRequest {
             appendPathSegments("genres")
             parameters.append("page", page.toString())
             parameters.append("page_size", pageSize.toString())
         }
+        return PagedResponse(
+            count = response.count,
+            next = response.next,
+            previous = response.previous,
+            results = response.results.map {
+                Genre(
+                    id = it.id,
+                    name = it.name,
+                    slug = it.slug ?: "",
+                    games_count = it.games_count ?: 0,
+                    image_background = it.image_background
+                )
+            }
+        )
     }
 
     // Platforms endpoints
@@ -110,11 +145,28 @@ class GamesApiServiceImpl(
         page: Int,
         pageSize: Int
     ): PagedResponse<Platform> {
-        return executeRequest {
+        val response: PagedResponseDto<PlatformDto> = executeRequest {
             appendPathSegments("platforms")
             parameters.append("page", page.toString())
             parameters.append("page_size", pageSize.toString())
         }
+        return PagedResponse(
+            count = response.count,
+            next = response.next,
+            previous = response.previous,
+            results = response.results.map {
+                Platform(
+                    id = it.id,
+                    name = it.name,
+                    slug = it.slug ?: "",
+                    games_count = 0, // Default value
+                    image_background = null,
+                    image = null,
+                    year_start = null,
+                    year_end = null
+                )
+            }
+        )
     }
 
     // Developers endpoints
@@ -122,11 +174,25 @@ class GamesApiServiceImpl(
         page: Int,
         pageSize: Int
     ): PagedResponse<Developer> {
-        return executeRequest {
+        val response: PagedResponseDto<DeveloperDto> = executeRequest {
             appendPathSegments("developers")
             parameters.append("page", page.toString())
             parameters.append("page_size", pageSize.toString())
         }
+        return PagedResponse(
+            count = response.count,
+            next = response.next,
+            previous = response.previous,
+            results = response.results.map {
+                Developer(
+                    id = it.id,
+                    name = it.name,
+                    slug = it.slug ?: "",
+                    games_count = it.games_count ?: 0,
+                    image_background = it.image_background
+                )
+            }
+        )
     }
 
     // Publishers endpoints
@@ -134,11 +200,25 @@ class GamesApiServiceImpl(
         page: Int,
         pageSize: Int
     ): PagedResponse<Publisher> {
-        return executeRequest {
+        val response: PagedResponseDto<PublisherDto> = executeRequest {
             appendPathSegments("publishers")
             parameters.append("page", page.toString())
             parameters.append("page_size", pageSize.toString())
         }
+        return PagedResponse(
+            count = response.count,
+            next = response.next,
+            previous = response.previous,
+            results = response.results.map {
+                Publisher(
+                    id = it.id,
+                    name = it.name,
+                    slug = it.slug ?: "",
+                    games_count = it.games_count ?: 0,
+                    image_background = it.image_background
+                )
+            }
+        )
     }
 
     // Tags endpoints
@@ -146,11 +226,25 @@ class GamesApiServiceImpl(
         page: Int,
         pageSize: Int
     ): PagedResponse<Tag> {
-        return executeRequest {
+        val response: PagedResponseDto<TagDto> = executeRequest {
             appendPathSegments("tags")
             parameters.append("page", page.toString())
             parameters.append("page_size", pageSize.toString())
         }
+        return PagedResponse(
+            count = response.count,
+            next = response.next,
+            previous = response.previous,
+            results = response.results.map {
+                Tag(
+                    id = it.id,
+                    name = it.name,
+                    slug = it.slug ?: "",
+                    games_count = it.games_count ?: 0,
+                    image_background = it.image_background
+                )
+            }
+        )
     }
 
     // Stores endpoints
@@ -158,10 +252,25 @@ class GamesApiServiceImpl(
         page: Int,
         pageSize: Int
     ): PagedResponse<Store> {
-        return executeRequest {
+        val response: PagedResponseDto<StoreDto> = executeRequest {
             appendPathSegments("stores")
             parameters.append("page", page.toString())
             parameters.append("page_size", pageSize.toString())
         }
+        return PagedResponse(
+            count = response.count,
+            next = response.next,
+            previous = response.previous,
+            results = response.results.map {
+                Store(
+                    id = it.id,
+                    name = it.name,
+                    slug = it.slug ?: "",
+                    domain = null, // Default value
+                    games_count = 0, // Default value
+                    image_background = null
+                )
+            }
+        )
     }
 }
