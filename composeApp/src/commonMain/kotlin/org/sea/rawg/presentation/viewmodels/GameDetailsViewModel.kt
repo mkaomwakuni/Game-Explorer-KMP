@@ -1,6 +1,5 @@
-package org.sea.rawg.ui.viewmodel
+package org.sea.rawg.presentation.viewmodels
 
-import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -10,12 +9,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sea.rawg.data.remote.GamesApiService
 import org.sea.rawg.data.remote.GamesApiServiceImpl
-import org.sea.rawg.data.repository.GameState
 import org.sea.rawg.data.repository.RawgRepositoryImpl
 import org.sea.rawg.domain.usecases.GetGameDetailsUseCase
+import org.sea.rawg.presentation.models.GameState
 import org.sea.rawg.utils.NetworkResource
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 
 /**
  * ViewModel for Game Details screen
@@ -31,8 +28,7 @@ class GameDetailsViewModel {
 
     // UI state
     private val _gameDetails = MutableStateFlow<GameState>(GameState.Loading)
-    val gameDetails: StateFlow<GameState>
-        get() = _gameDetails.asStateFlow()
+    val gameDetails: StateFlow<GameState> = _gameDetails.asStateFlow()
 
     fun loadGameDetails(gameId: Int) {
         _gameDetails.value = GameState.Loading
