@@ -17,66 +17,66 @@ val LocalSpacing = compositionLocalOf { Spacing() }
  * Light theme color scheme
  */
 private val LightColorScheme = lightColorScheme(
-    primary = RAWGColors.Primary,
-    onPrimary = RAWGColors.Neutral.Light,
-    primaryContainer = RAWGColors.Primary.withAlpha(0.1f),
-    onPrimaryContainer = RAWGColors.Primary,
+    primary = Color(0xFF8750FC), // Primary purple
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFF8750FC).copy(alpha = 0.1f),
+    onPrimaryContainer = Color(0xFF8750FC),
 
-    secondary = RAWGColors.Secondary,
-    onSecondary = RAWGColors.Neutral.Light,
-    secondaryContainer = RAWGColors.Secondary.withAlpha(0.1f),
-    onSecondaryContainer = RAWGColors.Secondary,
+    secondary = Color(0xFFD72638), // Secondary red
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFFD72638).copy(alpha = 0.1f),
+    onSecondaryContainer = Color(0xFFD72638),
 
-    tertiary = RAWGColors.Tertiary,
-    onTertiary = RAWGColors.Neutral.Light,
-    tertiaryContainer = RAWGColors.Tertiary.withAlpha(0.1f),
-    onTertiaryContainer = RAWGColors.Tertiary,
+    tertiary = Color(0xFF26A69A), // Tertiary teal
+    onTertiary = Color.White,
+    tertiaryContainer = Color(0xFF26A69A).copy(alpha = 0.1f),
+    onTertiaryContainer = Color(0xFF26A69A),
 
-    background = RAWGColors.Neutral.Light,
-    onBackground = RAWGColors.Neutral.TextPrimary,
+    background = Color.White,
+    onBackground = Color(0xFF1A1A1A),
 
-    surface = RAWGColors.Neutral.LightSurface,
-    onSurface = RAWGColors.Neutral.TextPrimary,
-    surfaceVariant = RAWGColors.Neutral.LightSurfaceVariant,
-    onSurfaceVariant = RAWGColors.Neutral.TextSecondary,
+    surface = Color(0xFFF5F5F5),
+    onSurface = Color(0xFF1A1A1A),
+    surfaceVariant = Color(0xFFEEEEEE),
+    onSurfaceVariant = Color(0xFF555555),
 
-    error = RAWGColors.Feedback.Error,
-    onError = RAWGColors.Neutral.Light,
-    errorContainer = RAWGColors.Feedback.Error.withAlpha(0.1f),
-    onErrorContainer = RAWGColors.Feedback.Error
+    error = Color(0xFFB00020),
+    onError = Color.White,
+    errorContainer = Color(0xFFB00020).copy(alpha = 0.1f),
+    onErrorContainer = Color(0xFFB00020)
 )
 
 /**
  * Dark theme color scheme
  */
 private val DarkColorScheme = darkColorScheme(
-    primary = RAWGColors.Primary,
-    onPrimary = RAWGColors.Neutral.Light,
-    primaryContainer = RAWGColors.Primary.withAlpha(0.2f),
-    onPrimaryContainer = RAWGColors.Primary,
+    primary = Color(0xFF8750FC), // Primary purple
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFF8750FC).copy(alpha = 0.2f),
+    onPrimaryContainer = Color(0xFF8750FC),
 
-    secondary = RAWGColors.Secondary,
-    onSecondary = RAWGColors.Neutral.Light,
-    secondaryContainer = RAWGColors.Secondary.withAlpha(0.2f),
-    onSecondaryContainer = RAWGColors.Secondary,
+    secondary = Color(0xFFD72638), // Secondary red
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFFD72638).copy(alpha = 0.2f),
+    onSecondaryContainer = Color(0xFFD72638),
 
-    tertiary = RAWGColors.Tertiary,
-    onTertiary = RAWGColors.Neutral.Light,
-    tertiaryContainer = RAWGColors.Tertiary.withAlpha(0.2f),
-    onTertiaryContainer = RAWGColors.Tertiary,
+    tertiary = Color(0xFF26A69A), // Tertiary teal
+    onTertiary = Color.White,
+    tertiaryContainer = Color(0xFF26A69A).copy(alpha = 0.2f),
+    onTertiaryContainer = Color(0xFF26A69A),
 
-    background = RAWGColors.Neutral.Dark,
-    onBackground = RAWGColors.Neutral.TextInversePrimary,
+    background = Color(0xFF121212),
+    onBackground = Color(0xFFEEEEEE),
 
-    surface = RAWGColors.Neutral.DarkSurface,
-    onSurface = RAWGColors.Neutral.TextInversePrimary,
-    surfaceVariant = RAWGColors.Neutral.DarkSurfaceVariant,
-    onSurfaceVariant = RAWGColors.Neutral.TextInverseSecondary,
+    surface = Color(0xFF1E1E1E),
+    onSurface = Color(0xFFEEEEEE),
+    surfaceVariant = Color(0xFF2D2D2D),
+    onSurfaceVariant = Color(0xFFAAAAAA),
 
-    error = RAWGColors.Feedback.Error,
-    onError = RAWGColors.Neutral.Light,
-    errorContainer = RAWGColors.Feedback.Error.withAlpha(0.2f),
-    onErrorContainer = RAWGColors.Feedback.Error
+    error = Color(0xFFCF6679),
+    onError = Color.White,
+    errorContainer = Color(0xFFCF6679).copy(alpha = 0.2f),
+    onErrorContainer = Color(0xFFCF6679)
 )
 
 /**
@@ -90,13 +90,15 @@ fun RAWGTheme(
 ) {
     val colorScheme = if (useDarkTheme) DarkColorScheme else LightColorScheme
 
-    CompositionLocalProvider(LocalSpacing provides Spacing()) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = RAWGTypography.default,
-            shapes = RAWGShapes,
-            content = content
-        )
+    SystemUiControllerProvider {
+        // No need for LocalSystemUiController here since platform-specific implementations
+        // will handle the status bar appropriately
+        CompositionLocalProvider(LocalSpacing provides Spacing()) {
+            MaterialTheme(
+                colorScheme = colorScheme,
+                content = content
+            )
+        }
     }
 }
 
