@@ -56,7 +56,12 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
             implementation(libs.kamel)
+            // Add direct Coil implementation for better image loading
+            implementation("io.coil-kt:coil:2.4.0")
+            implementation("io.coil-kt:coil-compose:2.4.0")
         }
+        // Declare variables for KMP target name
+        val kmpTargetName = kotlin.targets.find { it.platformType.name == "common" }?.name ?: ""
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
