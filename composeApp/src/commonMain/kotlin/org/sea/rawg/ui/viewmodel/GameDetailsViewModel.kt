@@ -10,12 +10,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sea.rawg.data.remote.GamesApiService
 import org.sea.rawg.data.remote.GamesApiServiceImpl
-import org.sea.rawg.data.repository.GameState
 import org.sea.rawg.data.repository.RawgRepositoryImpl
 import org.sea.rawg.domain.usecases.GetGameDetailsUseCase
 import org.sea.rawg.utils.NetworkResource
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import org.sea.rawg.presentation.models.GameState
 
 /**
  * ViewModel for Game Details screen

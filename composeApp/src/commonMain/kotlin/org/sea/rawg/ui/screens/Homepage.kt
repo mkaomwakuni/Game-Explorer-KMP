@@ -3,6 +3,7 @@ package org.sea.rawg.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,62 +51,52 @@ fun Homepage(navigator: Navigator) {
         viewModel.refresh()
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                        Text(
-                            "Game Explorer",
-                            style = MaterialTheme.typography.headlineMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            "Discover amazing games",
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        // Navigate to search when implemented
-                        navigator.navigate("/search")
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                modifier = Modifier.height(100.dp)
-            )
-        }
-    ) { paddingValues ->
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(
+            title = {
+                Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                    Text(
+                        "Game Explorer",
+                        style = MaterialTheme.typography.headlineMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        "Discover amazing games",
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                }
+            },
+            actions = {
+                IconButton(onClick = {
+                    // Navigate to search when implemented
+                    navigator.navigate("/search")
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = MaterialTheme.colorScheme.onSurface
+            ),
+            modifier = Modifier.height(100.dp)
+        )
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
         ) {
             when (gamesState) {
-                is GamesState.Loading -> {
-                    FullScreenLoading()
-                }
-
-                is GamesState.Error -> {
-                    ErrorState(
-                        message = (gamesState as GamesState.Error).message,
-                        onRetry = { viewModel.refresh() }
-                    )
-                }
-
+                is GamesState.Loading -> FullScreenLoading()
+                is GamesState.Error -> ErrorState(
+                    message = (gamesState as GamesState.Error).message,
+                    onRetry = { viewModel.refresh() }
+                )
                 is GamesState.Success -> {
                     val games = (gamesState as GamesState.Success).data.results
 

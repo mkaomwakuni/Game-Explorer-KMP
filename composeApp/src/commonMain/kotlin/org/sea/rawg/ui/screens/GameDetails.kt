@@ -69,8 +69,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import moe.tlaster.precompose.navigation.Navigator
-import org.sea.rawg.data.repository.GameState
 import org.sea.rawg.domain.models.Game
+import org.sea.rawg.presentation.models.GameState
 import org.sea.rawg.ui.component.AsyncImage
 import org.sea.rawg.ui.component.ErrorState
 import org.sea.rawg.ui.component.FullScreenLoading
