@@ -1,5 +1,6 @@
 package org.sea.rawg.ui.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
@@ -23,16 +25,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import org.sea.rawg.data.model.Game
-import org.sea.rawg.data.model.gamedetail.GamePlatformInfo
-import org.sea.rawg.theme.CustomShapes
-import org.sea.rawg.theme.RAWGColors
-import org.sea.rawg.theme.RAWGTheme
-import org.sea.rawg.theme.RAWGTypography
+import org.sea.rawg.domain.models.Game
+
+// Constants for reuse
+private val CARD_CORNER_SHAPE = RoundedCornerShape(2.dp)
+private val INNER_CORNER_SHAPE = RoundedCornerShape(2.dp)
+private val EXTRA_SMALL_PADDING = 4.dp
+private val SMALL_PADDING = 8.dp
+private val MEDIUM_PADDING = 16.dp
 
 /**
  * Game card component for displaying game information in lists
@@ -51,45 +57,80 @@ fun GameCard(
     showRating: Boolean = true,
     compact: Boolean = false
 ) {
-    val spacing = RAWGTheme.spacing
-
     Card(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = CustomShapes.GameCard,
+        shape = CARD_CORNER_SHAPE,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
         )
     ) {
         Column {
-            // Game image
+            // Game image section
             Box {
+                // Game cover image
                 AsyncImage(
                     url = game.background_image ?: "",
                     contentDescription = "Cover image for ${game.name}",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(if (compact) 120.dp else 180.dp),
-                    shape = CustomShapes.GameCard,
-                    contentScale = ContentScale.Crop
+                        .height(if (compact) 120.dp else 180.dp)
+                        .clip(
+                            RoundedCornerShape(
+                                2.dp
+                            )
+                        ),
+                    contentScale = ContentScale.Crop,
+                    placeholder = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(if (compact) 120.dp else 180.dp)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                        )
+                    }
                 )
 
+                // Gradient overlay for better text visibility
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.5f)
+                                )
+                            )
+                        )
+                )
+
+                // Rating badge if enabled and available
                 if (showRating && game.rating > 0) {
-                    // Rating badge
+                    val isExceptional = game.rating >= 4.5
                     val ratingColor = when {
-                        game.rating >= 4.5 -> RAWGColors.Rating.Exceptional
-                        game.rating >= 3.5 -> RAWGColors.Rating.Recommended
-                        game.rating >= 2.5 -> RAWGColors.Rating.Meh
-                        else -> RAWGColors.Rating.Skip
+                        game.rating >= 4.5 -> Color(0xFF66CC33) // Exceptional
+                        game.rating >= 3.5 -> Color(0xFF0066CC) // Recommended
+                        game.rating >= 2.5 -> Color(0xFFFFCC33) // Meh
+                        else -> Color(0xFFCC3333) // Skip
                     }
 
                     Surface(
                         modifier = Modifier
-                            .padding(spacing.small)
+                            .padding(SMALL_PADDING)
                             .align(Alignment.TopEnd),
-                        shape = CustomShapes.RatingPill,
-                        color = ratingColor.copy(alpha = 0.9f)
+                        shape = INNER_CORNER_SHAPE,
+                        color = ratingColor.copy(alpha = 0.9f),
+                        border = if (isExceptional) BorderStroke(
+                            1.dp,
+                            Color.White.copy(alpha = 0.7f)
+                        ) else null
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -105,7 +146,8 @@ fun GameCard(
                             Text(
                                 text = game.rating.toString(),
                                 color = Color.White,
-                                style = MaterialTheme.typography.labelMedium
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = if (isExceptional) FontWeight.Bold else FontWeight.Normal
                             )
                         }
                     }
@@ -114,35 +156,40 @@ fun GameCard(
                 // Platform tags
                 Row(
                     modifier = Modifier
-                        .padding(spacing.small)
+                        .padding(SMALL_PADDING)
                         .align(Alignment.BottomStart),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Extract platform names from the platforms list
-                    val platformNames = game.platforms.map { it.platform.name }
-                    platformNames.take(if (compact) 2 else 3).forEach { platformName ->
-                        PlatformTag(platformName)
+                    // Display limited platforms based on space
+                    val platformCount = if (compact) 2 else 3
+                    game.platforms.take(platformCount).forEach { platform ->
+                        PlatformTag(text = platform, shape = INNER_CORNER_SHAPE)
                     }
 
-                    if (platformNames.size > (if (compact) 2 else 3)) {
-                        PlatformTag("+${platformNames.size - (if (compact) 2 else 3)}")
+                    // Show "+X" if there are more platforms
+                    if (game.platforms.size > platformCount) {
+                        PlatformTag(
+                            text = "+${game.platforms.size - platformCount}",
+                            shape = INNER_CORNER_SHAPE
+                        )
                     }
                 }
             }
 
-            // Game info
+            // Game info section
             Column(
-                modifier = Modifier.padding(spacing.medium)
+                modifier = Modifier.padding(MEDIUM_PADDING)
             ) {
                 // Game name
                 Text(
                     text = game.name,
-                    style = RAWGTypography.gameTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.height(spacing.extraSmall))
+                Spacer(modifier = Modifier.height(EXTRA_SMALL_PADDING))
 
                 // Release date
                 if (game.released != null) {
@@ -153,19 +200,16 @@ fun GameCard(
                     )
                 }
 
-                if (!compact) {
-                    Spacer(modifier = Modifier.height(spacing.small))
-
-                    // Game genres
-                    if (game.genres.isNotEmpty()) {
-                        Text(
-                            text = game.genres.joinToString(", ") { it.name },
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                // Game genres (if not in compact mode)
+                if (!compact && game.genres.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(SMALL_PADDING))
+                    Text(
+                        text = game.genres.joinToString(", "),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }
@@ -173,9 +217,11 @@ fun GameCard(
 }
 
 @Composable
-fun PlatformTag(text: String) {
+fun PlatformTag(
+    text: String,
+    shape: RoundedCornerShape = RoundedCornerShape(8.dp)) {
     Surface(
-        shape = CustomShapes.PlatformTag,
+        shape = shape,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
     ) {
         Text(
@@ -187,66 +233,3 @@ fun PlatformTag(text: String) {
     }
 }
 
-/**
- * Skeleton loading placeholder for game card
- */
-@Composable
-fun GameCardSkeleton(
-    modifier: Modifier = Modifier,
-    compact: Boolean = false
-) {
-    val spacing = RAWGTheme.spacing
-
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = CustomShapes.GameCard,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column {
-            // Image placeholder
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(if (compact) 120.dp else 180.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            )
-
-            // Content placeholders
-            Column(
-                modifier = Modifier.padding(spacing.medium)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.7f)
-                        .height(20.dp)
-                        .clip(MaterialTheme.shapes.small)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                )
-
-                Spacer(modifier = Modifier.height(spacing.small))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.4f)
-                        .height(16.dp)
-                        .clip(MaterialTheme.shapes.small)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                )
-
-                if (!compact) {
-                    Spacer(modifier = Modifier.height(spacing.small))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
-                            .height(16.dp)
-                            .clip(MaterialTheme.shapes.small)
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                    )
-                }
-            }
-        }
-    }
-}

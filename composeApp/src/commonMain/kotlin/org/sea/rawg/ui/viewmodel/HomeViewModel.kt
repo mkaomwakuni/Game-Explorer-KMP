@@ -1,21 +1,32 @@
 package org.sea.rawg.ui.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.sea.rawg.data.model.BaseGameModel
-import org.sea.rawg.data.repository.GameRepository
+import org.sea.rawg.data.remote.GamesApiService
+import org.sea.rawg.data.remote.GamesApiServiceImpl
 import org.sea.rawg.data.repository.GamesState
+import org.sea.rawg.data.repository.RawgRepositoryImpl
+import org.sea.rawg.utils.NetworkResource
 
-class HomeViewModel(
-    private val repository: GameRepository = GameRepository()
-) {
-    private val viewModelScope = CoroutineScope(Dispatchers.Main)
+/**
+ * ViewModel for Home screen
+ * Using StateFlow for reactive UI updates
+ */
+class HomeViewModel {
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    // State for released games
-    val releasedGames = mutableStateOf<GamesState>(GamesState.Loading)
+    // Create repository and use case
+    private val apiService: GamesApiService = GamesApiServiceImpl()
+    private val repository = RawgRepositoryImpl(apiService)
+
+    // UI state
+    private val _releasedGames = MutableStateFlow<GamesState>(GamesState.Loading)
+    val releasedGames: StateFlow<GamesState> = _releasedGames.asStateFlow()
 
     // Current page for pagination
     private var currentPage = 1
@@ -26,12 +37,30 @@ class HomeViewModel(
     }
 
     fun loadReleasedGames(page: Int = 1) {
-        viewModelScope.launch {
-            repository.getReleasedGames(page).collectLatest { state ->
-                releasedGames.value = state
-                if (state is GamesState.Success) {
-                    currentPage = page
+        _releasedGames.value = GamesState.Loading
+
+        coroutineScope.launch {
+            try {
+                val result = repository.getGames(page, 20, "-released")
+                when (result) {
+                    is NetworkResource.Success -> {
+                        println("Released games loaded successfully")
+                        _releasedGames.value = GamesState.Success(result.data)
+                        currentPage = page
+                    }
+
+                    is NetworkResource.Error -> {
+                        println("Error loading released games: ${result.message}")
+                        _releasedGames.value = GamesState.Error(result.message)
+                    }
+
+                    else -> {
+                        println("Unexpected state in released games")
+                    }
                 }
+            } catch (e: Exception) {
+                println("Exception in loadReleasedGames: ${e.message}")
+                _releasedGames.value = GamesState.Error(e.message ?: "Unknown error occurred")
             }
         }
     }
