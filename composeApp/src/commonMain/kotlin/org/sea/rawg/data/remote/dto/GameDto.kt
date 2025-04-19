@@ -3,11 +3,6 @@ package org.sea.rawg.data.remote.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Data Transfer Object for Game from network API
- * This keeps network concerns separate from domain models
- * Updated to match exact RAWG API structure
- */
 @Serializable
 data class GameDto(
     val id: Int,
@@ -36,12 +31,12 @@ data class GameDto(
     val saturatedColor: String? = null,
     @SerialName("dominant_color")
     val dominantColor: String? = null,
-    val platforms: List<PlatformInfoDto> = emptyList(),
-    val stores: List<StoreInfoDto> = emptyList(),
-    val developers: List<DeveloperItemDto> = emptyList(),
-    val genres: List<GenreItemDto> = emptyList(),
-    val tags: List<TagItemDto> = emptyList(),
-    val publishers: List<PublisherItemDto> = emptyList(),
+    val platforms: List<PlatformInfoDto>? = emptyList(),
+    val stores: List<StoreInfoDto>? = emptyList(),
+    val developers: List<DeveloperItemDto>? = emptyList(),
+    val genres: List<GenreItemDto>? = emptyList(),
+    val tags: List<TagItemDto>? = emptyList(),
+    val publishers: List<PublisherItemDto>? = emptyList(),
     @SerialName("esrb_rating")
     val esrbRating: EsrbRatingDto? = null,
     val clip: ClipDto? = null,
@@ -50,17 +45,11 @@ data class GameDto(
     val description: String? = null
 )
 
-/**
- * Platform info with nested platform object
- */
 @Serializable
 data class PlatformInfoDto(
     val platform: PlatformDto? = null
 )
 
-/**
- * Simple platform data
- */
 @Serializable
 data class PlatformDto(
     val id: Int,
@@ -68,9 +57,6 @@ data class PlatformDto(
     val slug: String? = null
 )
 
-/**
- * Simple genre data
- */
 @Serializable
 data class GenreItemDto(
     val id: Int,
@@ -78,9 +64,6 @@ data class GenreItemDto(
     val slug: String? = null
 )
 
-/**
- * Simple developer data
- */
 @Serializable
 data class DeveloperItemDto(
     val id: Int,
@@ -88,9 +71,6 @@ data class DeveloperItemDto(
     val slug: String? = null
 )
 
-/**
- * Simple publisher data
- */
 @Serializable
 data class PublisherItemDto(
     val id: Int,
@@ -98,9 +78,6 @@ data class PublisherItemDto(
     val slug: String? = null
 )
 
-/**
- * Simple tag data
- */
 @Serializable
 data class TagItemDto(
     val id: Int,
@@ -108,17 +85,11 @@ data class TagItemDto(
     val slug: String? = null
 )
 
-/**
- * Store info with nested store object
- */
 @Serializable
 data class StoreInfoDto(
     val store: StoreDto? = null
 )
 
-/**
- * Simple store data
- */
 @Serializable
 data class StoreDto(
     val id: Int,
