@@ -160,16 +160,19 @@ fun GameCard(
                         .align(Alignment.BottomStart),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Display limited platforms based on space
+                    // Display limited platforms based on space, using the convenience method
+                    val platformNames = game.getPlatformNames()
                     val platformCount = if (compact) 2 else 3
-                    game.platforms.take(platformCount).forEach { platform ->
-                        PlatformTag(text = platform, shape = INNER_CORNER_SHAPE)
+
+                    // Take only as many platforms as we have space for
+                    platformNames.take(platformCount).forEach { platformName ->
+                        PlatformTag(text = platformName, shape = INNER_CORNER_SHAPE)
                     }
 
                     // Show "+X" if there are more platforms
-                    if (game.platforms.size > platformCount) {
+                    if (platformNames.size > platformCount) {
                         PlatformTag(
-                            text = "+${game.platforms.size - platformCount}",
+                            text = "+${platformNames.size - platformCount}",
                             shape = INNER_CORNER_SHAPE
                         )
                     }
@@ -200,11 +203,12 @@ fun GameCard(
                     )
                 }
 
-                // Game genres (if not in compact mode)
-                if (!compact && game.genres.isNotEmpty()) {
+                // Game genres (if not in compact mode), using the convenience method
+                val genreNames = game.getGenreNames()
+                if (!compact && genreNames.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(SMALL_PADDING))
                     Text(
-                        text = game.genres.joinToString(", "),
+                        text = genreNames.joinToString(", "),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,

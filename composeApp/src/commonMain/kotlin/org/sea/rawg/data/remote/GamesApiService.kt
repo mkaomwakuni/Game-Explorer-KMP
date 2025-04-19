@@ -10,7 +10,8 @@ interface GamesApiService {
     suspend fun getGames(
         page: Int,
         pageSize: Int = 20,
-        ordering: String = "-released"
+        ordering: String = "-released",
+        dates: String? = null
     ): PagedResponse<Game>
 
     suspend fun getGameDetails(gameId: Int): Game

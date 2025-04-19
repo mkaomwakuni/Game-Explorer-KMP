@@ -6,12 +6,9 @@ import kotlinx.coroutines.withContext
 import org.sea.rawg.data.remote.GamesApiService
 import org.sea.rawg.domain.models.*
 import org.sea.rawg.domain.repository.RawgRepository
+import org.sea.rawg.utils.DateUtils
 import org.sea.rawg.utils.NetworkResource
 
-/**
- * Implementation of RawgRepository
- * Handles data operations and provides clean data to the domain layer
- */
 class RawgRepositoryImpl(
     private val apiService: GamesApiService,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
@@ -21,11 +18,18 @@ class RawgRepositoryImpl(
     override suspend fun getGames(
         page: Int,
         pageSize: Int,
-        ordering: String
+        ordering: String,
+        additionalParams: Map<String, String>
     ): NetworkResource<PagedResponse<Game>> {
         return withContext(ioDispatcher) {
             try {
-                val response = apiService.getGames(page, pageSize, ordering)
+                val dates = additionalParams["dates"]
+                val response = apiService.getGames(
+                    page = page,
+                    pageSize = pageSize,
+                    ordering = ordering,
+                    dates = dates
+                )
                 NetworkResource.Success(response)
             } catch (e: Exception) {
                 NetworkResource.Error(e.message ?: "Unknown error occurred")
@@ -56,6 +60,76 @@ class RawgRepositoryImpl(
                 NetworkResource.Error(e.message ?: "Unknown error occurred")
             }
         }
+    }
+
+    override suspend fun getUpcomingGames(
+        page: Int,
+        pageSize: Int,
+        yearsAhead: Int
+    ): NetworkResource<PagedResponse<Game>> {
+        val tomorrow = DateUtils.getTomorrowDate()
+        val futureDate = DateUtils.getFutureDate(yearsAhead)
+        
+        return getGames(
+            page = page,
+            pageSize = pageSize,
+            ordering = "released", 
+            additionalParams = mapOf(
+                "dates" to "$tomorrow,$futureDate"
+            )
+        )
+    }
+
+    override suspend fun getRecentReleases(
+        page: Int,
+        pageSize: Int,
+        daysBack: Int
+    ): NetworkResource<PagedResponse<Game>> {
+        val today = DateUtils.getCurrentDate()
+        val pastDate = DateUtils.getDateDaysAgo(daysBack)
+        
+        return getGames(
+            page = page,
+            pageSize = pageSize,
+            ordering = "-released",
+            additionalParams = mapOf(
+                "dates" to "$pastDate,$today"
+            )
+        )
+    }
+
+    override suspend fun getGamesByDateRange(
+        startDate: String,
+        endDate: String,
+        page: Int,
+        pageSize: Int,
+        ordering: String
+    ): NetworkResource<PagedResponse<Game>> {
+        return getGames(
+            page = page,
+            pageSize = pageSize,
+            ordering = ordering,
+            additionalParams = mapOf(
+                "dates" to "$startDate,$endDate"
+            )
+        )
+    }
+
+    override suspend fun getMostAnticipatedGames(
+        page: Int,
+        pageSize: Int
+    ): NetworkResource<PagedResponse<Game>> {
+        val tomorrow = DateUtils.getTomorrowDate()
+        val futureDate = DateUtils.getFutureDate(2)
+        
+        return getGames(
+            page = page,
+            pageSize = pageSize,
+            ordering = "-added",
+            additionalParams = mapOf(
+                "dates" to "$tomorrow,$futureDate"
+            )
+        )
     }
 
     // Genres

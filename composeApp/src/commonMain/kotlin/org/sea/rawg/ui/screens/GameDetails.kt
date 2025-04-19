@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.StarHalf
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -43,6 +44,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -74,6 +76,12 @@ import org.sea.rawg.presentation.models.GameState
 import org.sea.rawg.ui.component.AsyncImage
 import org.sea.rawg.ui.component.ErrorState
 import org.sea.rawg.ui.component.FullScreenLoading
+import org.sea.rawg.ui.component.GenreChip
+import org.sea.rawg.ui.component.PlatformChip
+import org.sea.rawg.ui.component.TagChip
+import org.sea.rawg.ui.component.DeveloperChip
+import org.sea.rawg.ui.component.PublisherChip
+import org.sea.rawg.ui.component.StoreChip
 import org.sea.rawg.ui.viewmodel.GameDetailsViewModel
 import kotlin.math.min
 
@@ -173,7 +181,7 @@ private fun ImmersiveGameDetailsContent(
         ) {
             // Back button at top-start
             IconButton(
-                onClick = { navigator.goBack() },
+                onClick = { navigator.popBackStack() },
                 modifier = Modifier.align(Alignment.TopStart)
             ) {
                 Icon(
@@ -332,18 +340,18 @@ private fun ImmersiveGameDetailsContent(
 
                     SectionDivider()
 
-                    // Platforms section
-                    PlatformsSection(game.platforms)
+                    // Platforms section - using getPlatformNames() from Game model
+                    PlatformsSection(game.getPlatformNames())
 
                     SectionDivider()
 
-                    // Genres and tags in a grid
-                    CategoriesSection(game.genres, game.tags)
+                    // Genres and tags in a grid - using getGenreNames() and getTagNames() from Game model
+                    CategoriesSection(game.getGenreNames(), game.getTagNames())
 
                     SectionDivider()
 
-                    // Credits section (developers and publishers)
-                    CreditsSection(game.developers, game.publishers)
+                    // Credits section (developers and publishers) - using getDeveloperNames() and getPublisherNames() from Game model
+                    CreditsSection(game.getDeveloperNames(), game.getPublisherNames())
 
                     SectionDivider()
 
@@ -381,7 +389,7 @@ private fun RatingBar(rating: Float, reviewCount: Int) {
 
         if (hasHalfStar) {
             Icon(
-                imageVector = Icons.Default.StarHalf,
+                imageVector = Icons.AutoMirrored.Filled.StarHalf,
                 contentDescription = null,
                 tint = Color(0xFFFFD700),
                 modifier = Modifier.size(24.dp)
@@ -670,7 +678,9 @@ private fun AdditionalInfoSection(game: Game) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (game.stores.isEmpty()) {
+        // Use getStoreNames() from Game model
+        val storeNames = game.getStoreNames()
+        if (storeNames.isEmpty()) {
             Text(
                 text = "Store information unavailable",
                 style = MaterialTheme.typography.bodyMedium,
@@ -681,8 +691,8 @@ private fun AdditionalInfoSection(game: Game) {
                 contentPadding = PaddingValues(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(game.stores) { store ->
-                    StoreChip(name = store)
+                items(storeNames) { storeName ->
+                    StoreChip(name = storeName)
                 }
             }
         }
@@ -757,100 +767,6 @@ private fun SectionTitle(title: String, icon: ImageVector?) {
 }
 
 @Composable
-private fun PlatformChip(name: String) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
-    ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            color = MaterialTheme.colorScheme.primary
-        )
-    }
-}
-
-@Composable
-private fun GenreChip(name: String) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f))
-    ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            color = MaterialTheme.colorScheme.tertiary
-        )
-    }
-}
-
-@Composable
-private fun TagChip(name: String) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant
-    ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-private fun DeveloperChip(name: String) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f))
-    ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            color = MaterialTheme.colorScheme.secondary
-        )
-    }
-}
-
-@Composable
-private fun PublisherChip(name: String) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f))
-    ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            color = MaterialTheme.colorScheme.secondary
-        )
-    }
-}
-
-@Composable
-private fun StoreChip(name: String) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant
-    ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
 private fun GameImagePlaceholder() {
     Box(
         modifier = Modifier
@@ -876,9 +792,9 @@ private fun GameImagePlaceholder() {
 
 @Composable
 private fun SectionDivider() {
-    Divider(
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+    HorizontalDivider(
+        modifier = Modifier.padding(vertical = 24.dp),
         thickness = 1.dp,
-        modifier = Modifier.padding(vertical = 24.dp)
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
     )
 }
