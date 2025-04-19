@@ -5,6 +5,7 @@ import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.Gamepad
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -19,15 +20,15 @@ sealed class BottomNavItem(
         icon = Icons.Default.Gamepad
     )
 
-    object Collections : BottomNavItem(
-        route = NavigationRoutes.COLLECTIONS,
-        title = "Collections",
-        icon = Icons.Default.Collections
-    )
 
     object Genres : BottomNavItem(
         route = NavigationRoutes.GENRES,
         title = "Genres",
+        icon = Icons.Default.Extension
+    )
+    object Collections : BottomNavItem(
+        route = NavigationRoutes.COLLECTIONS,
+        title = "Collections",
         icon = Icons.Default.Category
     )
 

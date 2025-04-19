@@ -1,7 +1,7 @@
 package org.sea.rawg.data.mappers
 
 import org.sea.rawg.data.remote.dto.GameDto
-import org.sea.rawg.domain.models.Game
+import org.sea.rawg.domain.models.*
 
 /**
  * Mapper for converting Game DTOs to domain models
@@ -35,13 +35,73 @@ object GameMapper {
             rating = dto.rating.toFloat(),
             ratings_count = dto.ratingsCount,
             playtime = dto.playtime,
-            // Extract data from nested objects
-            platforms = dto.platforms.mapNotNull { it.platform?.name },
-            genres = dto.genres.map { it.name },
-            developers = dto.developers.map { it.name },
-            publishers = dto.publishers.map { it.name },
-            tags = dto.tags.map { it.name },
-            stores = dto.stores.mapNotNull { it.store?.name }
+
+            // Map the nested objects correctly with null safety
+            platforms = dto.platforms?.map {
+                PlatformResponse(
+                    platform = it.platform?.let { p ->
+                        PlatformDetail(
+                            id = p.id,
+                            name = p.name,
+                            slug = p.slug ?: ""
+                        )
+                    }
+                )
+            } ?: emptyList(),
+
+            stores = dto.stores?.map {
+                StoreResponse(
+                    store = it.store?.let { s ->
+                        StoreDetail(
+                            id = s.id,
+                            name = s.name,
+                            slug = s.slug ?: ""
+                        )
+                    }
+                )
+            } ?: emptyList(),
+
+            // Map to the full model classes with all required fields
+            developers = dto.developers?.map {
+                Developer(
+                    id = it.id,
+                    name = it.name,
+                    slug = it.slug ?: "",
+                    games_count = 0,
+                    image_background = null
+                )
+            } ?: emptyList(),
+
+            genres = dto.genres?.map {
+                Genre(
+                    id = it.id,
+                    name = it.name,
+                    slug = it.slug ?: "",
+                    games_count = 0,
+                    image_background = null,
+                    description = null
+                )
+            } ?: emptyList(),
+
+            tags = dto.tags?.map {
+                Tag(
+                    id = it.id,
+                    name = it.name,
+                    slug = it.slug ?: "",
+                    games_count = 0,
+                    image_background = null
+                )
+            } ?: emptyList(),
+
+            publishers = dto.publishers?.map {
+                Publisher(
+                    id = it.id,
+                    name = it.name,
+                    slug = it.slug ?: "",
+                    games_count = 0,
+                    image_background = null
+                )
+            } ?: emptyList()
         )
     }
 }

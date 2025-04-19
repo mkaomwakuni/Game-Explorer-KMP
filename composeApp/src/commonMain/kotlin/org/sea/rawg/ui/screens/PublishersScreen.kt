@@ -19,10 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import moe.tlaster.precompose.navigation.Navigator
+import org.sea.rawg.navigation.NavigationRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PublishersScreen() {
+fun PublishersScreen(navigator: Navigator = Navigator()) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             title = {
@@ -44,7 +46,7 @@ fun PublishersScreen() {
             },
             actions = {
                 IconButton(onClick = {
-                    // Navigate to search when implemented
+                    navigator.navigate(NavigationRoutes.SEARCH)
                 }) {
                     Icon(
                         imageVector = Icons.Default.Search,

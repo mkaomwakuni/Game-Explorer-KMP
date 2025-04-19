@@ -8,6 +8,7 @@ object NavigationRoutes {
     const val SETTINGS = "settings"
     const val GAME_DETAILS = "game_details"
     const val SEARCH = "search"
+    const val UPCOMING_GAMES = "upcoming_games"
 
     // Routes with parameters
     const val GAME_DETAILS_WITH_PARAM = "game_details/{gameId}"

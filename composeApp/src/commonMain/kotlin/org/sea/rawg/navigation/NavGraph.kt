@@ -12,18 +12,18 @@ import org.sea.rawg.ui.screens.Homepage
 fun NavGraph(
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    initialRoute: String = "/homepage"
+    initialRoute: String = NavigationRoutes.HOME
 ) {
     NavHost(
         navigator = navigator,
         initialRoute = initialRoute,
         modifier = modifier
     ) {
-        scene(route = "/homepage") {
+        scene(route = NavigationRoutes.HOME) {
             Homepage(navigator)
         }
-        scene(route = "/details/{id}") { backStackEntry ->
-            val id: Int? = backStackEntry.path<Int>("id")
+        scene(route = NavigationRoutes.GAME_DETAILS_WITH_PARAM) { backStackEntry ->
+            val id: Int? = backStackEntry.path<Int>("gameId")
             id?.let {
                 GameDetails(navigator, it)
             }

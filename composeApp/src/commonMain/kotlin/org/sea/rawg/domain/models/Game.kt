@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 /**
  * Domain model for Game
- * Simplified version for initial implementation
+ * Includes support to ignore unknown keys and parse nested structures
  */
 @Serializable
 data class Game(
@@ -16,11 +16,48 @@ data class Game(
     val rating: Float = 0f,
     val ratings_count: Int = 0,
     val playtime: Int = 0,
-    val platforms: List<String> = emptyList(),
-    val stores: List<String> = emptyList(),
-    val developers: List<String> = emptyList(),
-    val genres: List<String> = emptyList(),
-    val tags: List<String> = emptyList(),
-    val publishers: List<String> = emptyList(),
+
+    // Make all list fields nullable with default empty lists
+    val platforms: List<PlatformResponse>? = emptyList(),
+    val stores: List<StoreResponse>? = emptyList(),
+    val developers: List<Developer>? = emptyList(),
+    val genres: List<Genre>? = emptyList(),
+    val tags: List<Tag>? = emptyList(),
+    val publishers: List<Publisher>? = emptyList(),
     val description_raw: String? = null
+) {
+    // Convenience methods to safely access list fields
+    fun getPlatformNames(): List<String> =
+        platforms?.mapNotNull { it.platform?.name } ?: emptyList()
+
+    fun getStoreNames(): List<String> = stores?.mapNotNull { it.store?.name } ?: emptyList()
+    fun getDeveloperNames(): List<String> = developers?.map { it.name } ?: emptyList()
+    fun getGenreNames(): List<String> = genres?.map { it.name } ?: emptyList()
+    fun getTagNames(): List<String> = tags?.map { it.name } ?: emptyList()
+    fun getPublisherNames(): List<String> = publishers?.map { it.name } ?: emptyList()
+}
+
+
+@Serializable
+data class PlatformResponse(
+    val platform: PlatformDetail? = null
+)
+
+@Serializable
+data class PlatformDetail(
+    val id: Int = 0,
+    val name: String = "",
+    val slug: String = ""
+)
+
+@Serializable
+data class StoreResponse(
+    val store: StoreDetail? = null
+)
+
+@Serializable
+data class StoreDetail(
+    val id: Int = 0,
+    val name: String = "",
+    val slug: String = ""
 )

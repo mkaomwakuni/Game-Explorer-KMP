@@ -68,13 +68,17 @@ class GamesApiServiceImpl(
     override suspend fun getGames(
         page: Int,
         pageSize: Int,
-        ordering: String
+        ordering: String,
+        dates: String?
     ): PagedResponse<Game> {
         val response: PagedResponseDto<GameDto> = executeRequest {
             appendPathSegments("games")
             parameters.append("page", page.toString())
             parameters.append("page_size", pageSize.toString())
             parameters.append("ordering", ordering)
+            if (dates != null) {
+                parameters.append("dates", dates)
+            }
         }
 
         // Debug logging for image URLs

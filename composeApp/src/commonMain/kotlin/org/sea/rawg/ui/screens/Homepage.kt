@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.tlaster.precompose.navigation.Navigator
 import org.sea.rawg.data.repository.GamesState
+import org.sea.rawg.navigation.NavigationRoutes
 import org.sea.rawg.ui.component.ErrorState
 import org.sea.rawg.ui.component.FullScreenLoading
 import org.sea.rawg.ui.component.GameCard
@@ -44,7 +45,12 @@ import org.sea.rawg.ui.viewmodel.HomeViewModel
 @Composable
 fun Homepage(navigator: Navigator) {
     val viewModel = remember { HomeViewModel() }
-    val gamesState by viewModel.releasedGames.collectAsState()
+
+    // Collect all four game category states
+    val upcomingGamesState by viewModel.upcomingGames.collectAsState()
+    val topRatedGamesState by viewModel.topRatedGames.collectAsState()
+    val recentReleasesState by viewModel.recentReleases.collectAsState()
+    val popularGamesState by viewModel.popularGames.collectAsState()
 
     // Load data initially
     LaunchedEffect(Unit) {
@@ -52,6 +58,7 @@ fun Homepage(navigator: Navigator) {
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+        // App Bar
         TopAppBar(
             title = {
                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
@@ -72,8 +79,7 @@ fun Homepage(navigator: Navigator) {
             },
             actions = {
                 IconButton(onClick = {
-                    // Navigate to search when implemented
-                    navigator.navigate("/search")
+                    navigator.navigate(NavigationRoutes.SEARCH)
                 }) {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -87,80 +93,151 @@ fun Homepage(navigator: Navigator) {
             ),
             modifier = Modifier.height(100.dp)
         )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
+
+        // Content
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            when (gamesState) {
-                is GamesState.Loading -> FullScreenLoading()
-                is GamesState.Error -> ErrorState(
-                    message = (gamesState as GamesState.Error).message,
-                    onRetry = { viewModel.refresh() }
+            // 1. Upcoming Games Section (Future Releases)
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                SectionHeader(
+                    title = viewModel.upcomingGamesTitle,
+                    actionText = "View All",
+                    onActionClick = { navigator.navigate(NavigationRoutes.UPCOMING_GAMES) },
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
-                is GamesState.Success -> {
-                    val games = (gamesState as GamesState.Success).data.results
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        item {
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // Popular Games Section
-                            SectionHeader(
-                                title = "Latest Releases",
-                                actionText = "View All",
-                                modifier = Modifier.padding(horizontal = 16.dp)
+                GameCategoryRow(
+                    gamesState = upcomingGamesState,
+                    onRetry = { viewModel.refresh() },
+                    onGameClick = { gameId ->
+                        navigator.navigate(
+                            NavigationRoutes.gameDetailsRoute(
+                                gameId
                             )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            LazyRow(
-                                contentPadding = PaddingValues(horizontal = 16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                items(games.take(10)) { game ->
-                                    GameCard(
-                                        game = game,
-                                        onClick = {
-                                            navigator.navigate("/details/${game.id}")
-                                        },
-                                        modifier = Modifier.width(280.dp)
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(24.dp))
-
-                            // All Games Section
-                            SectionHeader(
-                                title = "All Games",
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-
-                        // Show games in a column instead
-                        items(games) { game ->
-                            GameCard(
-                                game = game,
-                                onClick = {
-                                    navigator.navigate("/details/${game.id}")
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp)
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
-
-                        item {
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
+                        )
                     }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // 2. Recent Releases Section (Past Releases)
+            item {
+                SectionHeader(
+                    title = viewModel.recentReleasesTitle,
+                    actionText = "View All",
+                    onActionClick = { /* Navigate to full list */ },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                GameCategoryRow(
+                    gamesState = recentReleasesState,
+                    onRetry = { viewModel.refresh() },
+                    onGameClick = { gameId ->
+                        navigator.navigate(
+                            NavigationRoutes.gameDetailsRoute(
+                                gameId
+                            )
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // 3. Top Rated Games Section
+            item {
+                SectionHeader(
+                    title = viewModel.topRatedGamesTitle,
+                    actionText = "View All",
+                    onActionClick = { /* Navigate to full list */ },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                GameCategoryRow(
+                    gamesState = topRatedGamesState,
+                    onRetry = { viewModel.refresh() },
+                    onGameClick = { gameId ->
+                        navigator.navigate(
+                            NavigationRoutes.gameDetailsRoute(
+                                gameId
+                            )
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // 4. Popular Games Section
+            item {
+                SectionHeader(
+                    title = viewModel.popularGamesTitle,
+                    actionText = "View All",
+                    onActionClick = { /* Navigate to full list */ },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                GameCategoryRow(
+                    gamesState = popularGamesState,
+                    onRetry = { viewModel.refresh() },
+                    onGameClick = { gameId ->
+                        navigator.navigate(
+                            NavigationRoutes.gameDetailsRoute(
+                                gameId
+                            )
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun GameCategoryRow(
+    gamesState: GamesState,
+    onRetry: () -> Unit,
+    onGameClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    when (gamesState) {
+        is GamesState.Loading -> {
+            Box(modifier = Modifier.fillMaxWidth().height(200.dp)) {
+                FullScreenLoading()
+            }
+        }
+
+        is GamesState.Error -> {
+            Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                ErrorState(
+                    message = gamesState.message,
+                    onRetry = onRetry
+                )
+            }
+        }
+
+        is GamesState.Success -> {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(gamesState.data.results) { game ->
+                    GameCard(
+                        game = game,
+                        onClick = { onGameClick(game.id) },
+                        modifier = Modifier.width(260.dp)
+                    )
                 }
             }
         }

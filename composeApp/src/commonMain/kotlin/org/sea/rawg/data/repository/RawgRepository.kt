@@ -20,11 +20,12 @@ class RawgRepository(
     suspend fun getGames(
         page: Int,
         pageSize: Int = 20,
-        ordering: String = "-released"
+        ordering: String = "-released",
+        dates: String? = null
     ): NetworkResource<PagedResponse<Game>> {
         return withContext(ioDispatcher) {
             try {
-                val response = apiService.getGames(page, pageSize, ordering)
+                val response = apiService.getGames(page, pageSize, ordering, dates)
                 NetworkResource.Success(response)
             } catch (e: Exception) {
                 NetworkResource.Error(e.message ?: "Unknown error occurred")
