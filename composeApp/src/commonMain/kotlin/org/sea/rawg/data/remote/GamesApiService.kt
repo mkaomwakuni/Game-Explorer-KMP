@@ -27,6 +27,16 @@ interface GamesApiService {
         pageSize: Int = 20
     ): PagedResponse<Genre>
 
+    /**
+     * Get games by genre ID
+     */
+    suspend fun getGamesByGenre(
+        genreId: Int,
+        page: Int,
+        pageSize: Int = 20,
+        ordering: String = "-added"
+    ): PagedResponse<Game>
+
     // Platforms
     suspend fun getPlatforms(
         page: Int,

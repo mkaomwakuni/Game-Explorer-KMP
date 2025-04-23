@@ -85,6 +85,12 @@ interface RawgRepository {
         pageSize: Int = 20
     ): NetworkResource<PagedResponse<Genre>>
 
+    suspend fun getGamesByGenreId(
+        genreId: Int,
+        page: Int,
+        pageSize: Int = 20
+    ): NetworkResource<PagedResponse<Game>>
+
     // Platforms
     suspend fun getPlatforms(
         page: Int,

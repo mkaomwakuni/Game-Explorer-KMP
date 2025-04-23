@@ -72,6 +72,14 @@ fun MainScreen() {
             scene(NavigationRoutes.UPCOMING_GAMES) {
                 UpcomingGamesScreen(navigator = navigator)
             }
+            scene(NavigationRoutes.GENRE_DETAILS_WITH_PARAM) { backStackEntry ->
+                // Extract the genreId parameter from the route parameters
+                val genreId = backStackEntry.pathMap["genreId"]?.toIntOrNull()
+                // If genreId exists, display the genre details screen
+                if (genreId != null) {
+                    GenreDetailsScreen(navigator = navigator, genreId = genreId)
+                }
+            }
         }
     }
 }

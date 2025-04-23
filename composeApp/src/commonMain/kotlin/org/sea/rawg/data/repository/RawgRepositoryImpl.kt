@@ -147,6 +147,26 @@ class RawgRepositoryImpl(
         }
     }
 
+    override suspend fun getGamesByGenreId(
+        genreId: Int,
+        page: Int,
+        pageSize: Int
+    ): NetworkResource<PagedResponse<Game>> {
+        return withContext(ioDispatcher) {
+            try {
+                val response = apiService.getGamesByGenre(
+                    genreId = genreId,
+                    page = page,
+                    pageSize = pageSize,
+                    ordering = "-added"
+                )
+                NetworkResource.Success(response)
+            } catch (e: Exception) {
+                NetworkResource.Error(e.message ?: "Unknown error occurred")
+            }
+        }
+    }
+
     // Platforms
     override suspend fun getPlatforms(
         page: Int,
