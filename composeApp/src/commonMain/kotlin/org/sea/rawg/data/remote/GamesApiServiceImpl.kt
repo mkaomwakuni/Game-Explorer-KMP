@@ -144,6 +144,28 @@ class GamesApiServiceImpl(
         )
     }
 
+    override suspend fun getGamesByGenre(
+        genreId: Int,
+        page: Int,
+        pageSize: Int,
+        ordering: String
+    ): PagedResponse<Game> {
+        val response: PagedResponseDto<GameDto> = executeRequest {
+            appendPathSegments("games")
+            parameters.append("genres", genreId.toString())
+            parameters.append("page", page.toString())
+            parameters.append("page_size", pageSize.toString())
+            parameters.append("ordering", ordering)
+        }
+
+        return PagedResponse(
+            count = response.count,
+            next = response.next,
+            previous = response.previous,
+            results = response.results.map { GameMapper.mapToDomain(it) }
+        )
+    }
+
     // Platforms endpoints
     override suspend fun getPlatforms(
         page: Int,

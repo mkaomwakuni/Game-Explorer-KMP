@@ -47,8 +47,8 @@ sealed class BottomNavItem(
     companion object {
         val items = listOf(
             Home,
-            Collections,
             Genres,
+            Collections,
             Publishers,
             Settings
         )
