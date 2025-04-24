@@ -1,30 +1,19 @@
 package org.sea.rawg.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -32,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -46,21 +34,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.Navigator
 import org.sea.rawg.domain.models.Game
 import org.sea.rawg.navigation.NavigationRoutes
-import org.sea.rawg.ui.component.AsyncImage
+import org.sea.rawg.ui.component.EmptyGamesState
 import org.sea.rawg.ui.component.ErrorState
-import org.sea.rawg.ui.component.PlatformChip
+import org.sea.rawg.ui.component.LoadingState
+import org.sea.rawg.ui.component.cards.MonthHeader
+import org.sea.rawg.ui.component.cards.UpcomingGameCard
+import org.sea.rawg.ui.component.cards.getMonthName
 import org.sea.rawg.ui.viewmodel.UpcomingGamesViewModel
 
 /**
@@ -132,12 +118,10 @@ fun UpcomingGamesScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             when (val state = gamesState) {
                 is UpcomingGamesViewModel.UpcomingGamesState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                    LoadingState(
+                        message = "Loading upcoming games...",
+                        onRetry = { viewModel.loadUpcomingGames() }
+                    )
                 }
 
                 is UpcomingGamesViewModel.UpcomingGamesState.LoadingMore -> {
@@ -170,7 +154,10 @@ fun UpcomingGamesScreen(
 
                 is UpcomingGamesViewModel.UpcomingGamesState.Success -> {
                     if (state.games.isEmpty()) {
-                        EmptyGamesState()
+                        EmptyGamesState(
+                            title = "No upcoming games found",
+                            message = "Check back later for upcoming game releases"
+                        )
                     } else {
                         UpcomingGamesGrid(
                             games = state.games,
@@ -247,7 +234,7 @@ fun UpcomingGamesGrid(
                 val monthGames = entry.value
 
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    MonthHeader(month)
+                    MonthHeader(text = month)
                 }
 
                 // Display games for this month
@@ -285,195 +272,5 @@ fun UpcomingGamesGrid(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun MonthHeader(month: String) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        color = MaterialTheme.colorScheme.primaryContainer,
-        shape = RoundedCornerShape(2.dp)
-    ) {
-        Text(
-            text = month,
-            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
-        )
-    }
-}
-
-@Composable
-fun UpcomingGameCard(
-    game: Game,
-    onClick: () -> Unit
-) {
-    val cornerRadius = 2.dp
-    val scale = remember { androidx.compose.animation.core.Animatable(1f) }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(0.7f)
-            .padding(8.dp)
-            .clickable { onClick() }
-            .graphicsLayer {
-                scaleX = scale.value
-                scaleY = scale.value
-            },
-        shape = RoundedCornerShape(cornerRadius),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Game image
-            AsyncImage(
-                url = game.background_image ?: "",
-                contentDescription = game.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = cornerRadius,
-                            topEnd = cornerRadius,
-                            bottomStart = 0.dp,
-                            bottomEnd = 0.dp
-                        )
-                    ),
-                contentScale = ContentScale.Crop
-            )
-
-            // Release date badge
-            game.released?.let { releaseDate ->
-                Surface(
-                    shape = RoundedCornerShape(4.dp),
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                ) {
-                    Text(
-                        text = formatReleaseDate(releaseDate),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onTertiary,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-            }
-
-            // Game info overlay
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(12.dp)
-            ) {
-                Text(
-                    text = game.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Platforms row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    game.platforms?.take(3)?.forEach { platformResponse ->
-                        platformResponse.platform?.let { platform ->
-                            PlatformChip(name = platform.name)
-                            Spacer(modifier = Modifier.width(4.dp))
-                        }
-                    }
-
-                    // Show +X more if there are more platforms
-                    if ((game.platforms?.size ?: 0) > 3) {
-                        Text(
-                            "+${(game.platforms?.size ?: 0) - 3}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-/**
- * Empty state when no games are found
- */
-@Composable
-fun EmptyGamesState() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = "No upcoming games found",
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Check back later for upcoming game releases",
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-        }
-    }
-}
-
-// Helper functions
-private fun getMonthName(month: Int): String {
-    return when (month) {
-        1 -> "January"
-        2 -> "February"
-        3 -> "March"
-        4 -> "April"
-        5 -> "May"
-        6 -> "June"
-        7 -> "July"
-        8 -> "August"
-        9 -> "September"
-        10 -> "October"
-        11 -> "November"
-        12 -> "December"
-        else -> "Unknown"
-    }
-}
-
-private fun formatReleaseDate(dateString: String): String {
-    return try {
-        // Simple parsing of YYYY-MM-DD format
-        val parts = dateString.split("-")
-        if (parts.size == 3) {
-            val month = getMonthName(parts[1].toInt()).substring(0, 3)
-            val day = parts[2].toInt().toString()
-            "$month $day"
-        } else {
-            dateString
-        }
-    } catch (e: Exception) {
-        dateString
     }
 }
