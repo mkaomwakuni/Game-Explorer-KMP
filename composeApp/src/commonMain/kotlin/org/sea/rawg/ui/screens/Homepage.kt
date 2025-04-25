@@ -3,7 +3,6 @@ package org.sea.rawg.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +19,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -35,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import moe.tlaster.precompose.navigation.Navigator
 import org.sea.rawg.data.repository.GamesState
 import org.sea.rawg.navigation.NavigationRoutes
+import org.sea.rawg.ui.FullScreenLoading
 import org.sea.rawg.ui.component.ErrorState
-import org.sea.rawg.ui.component.FullScreenLoading
 import org.sea.rawg.ui.component.GameCard
 import org.sea.rawg.ui.component.SectionHeader
 import org.sea.rawg.ui.viewmodel.HomeViewModel

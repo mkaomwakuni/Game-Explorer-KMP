@@ -10,6 +10,7 @@ import org.sea.rawg.domain.repository.RawgRepository
 import org.sea.rawg.domain.usecases.GetGameDetailsUseCase
 import org.sea.rawg.presentation.viewmodels.GameDetailsViewModel
 import org.sea.rawg.ui.viewmodel.GenresViewModel
+import org.sea.rawg.ui.viewmodel.PublishersViewModel
 
 /**
  * Dependency injection module for the app
@@ -69,6 +70,8 @@ object AppModule {
         factory { GameDetailsViewModel() }
         // Genres view model
         factory { GenresViewModel(get()) }
+        // Publishers view model
+        factory { PublishersViewModel(get()) }
 
         // Other view models would be defined here
     }

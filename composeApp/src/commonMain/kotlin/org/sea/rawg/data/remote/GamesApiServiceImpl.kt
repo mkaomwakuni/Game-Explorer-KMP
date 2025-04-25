@@ -22,15 +22,21 @@ class GamesApiServiceImpl(
         crossinline urlBuilder: URLBuilder.() -> Unit
     ): T {
         try {
+            val url = URLBuilder().apply {
+                takeFrom(AppConstant.BASE_URL)
+                urlBuilder()
+
+                // Append API key
+                if (!parameters.contains("key")) {
+                    parameters.append("key", AppConstant.API_KEY)
+                }
+            }.build()
+
+            println("ApiService: Making request to $url")
+
             val response = client.get {
                 url {
-                    takeFrom(AppConstant.BASE_URL)
-                    urlBuilder()
-
-                    // Append API key
-                    if (!parameters.contains("key")) {
-                        parameters.append("key", AppConstant.API_KEY)
-                    }
+                    takeFrom(url)
                 }
 
                 headers {
@@ -40,26 +46,46 @@ class GamesApiServiceImpl(
 
             if (!response.status.isSuccess()) {
                 val errorText = response.bodyAsText()
+                println("ApiService: Error response - ${response.status}: $errorText")
+
+                // Check for common API key issues
+                if (response.status == HttpStatusCode.Unauthorized ||
+                    response.status == HttpStatusCode.Forbidden ||
+                    errorText.contains("key") ||
+                    errorText.contains("api") ||
+                    errorText.contains("auth") ||
+                    errorText.contains("token")
+                ) {
+                    throw Exception("API key error: Please check your RAWG API key - ${response.status}")
+                }
+
                 throw Exception("API error: ${response.status} - $errorText")
             }
 
             // Try standard deserialization first
             return try {
-                response.body()
+                val body: T = response.body()
+                println("ApiService: Successful response and deserialization")
+                body
             } catch (e: Exception) {
                 // If that fails, try manual deserialization with our more lenient parser
                 val responseText = response.bodyAsText()
                 try {
                     // Log error details for debugging
-                    println("Original error: ${e.message}")
-                    println("Response excerpt: ${responseText.take(200)}...")
+                    println("ApiService: Deserialization error: ${e.message}")
+                    println("ApiService: Response excerpt: ${responseText.take(200)}...")
 
-                    Json.decodeFromString<T>(responseText)
+                    val result = Json.decodeFromString<T>(responseText)
+                    println("ApiService: Manual deserialization successful")
+                    result
                 } catch (e2: Exception) {
+                    println("ApiService: Both deserialization methods failed")
+                    println("ApiService: Secondary error: ${e2.message}")
                     throw Exception("Failed to parse API response: ${e2.message}\nOriginal error: ${e.message}")
                 }
             }
         } catch (e: Exception) {
+            println("ApiService: Network or other error: ${e.message}")
             throw Exception("Network error: ${e.message}")
         }
     }
@@ -69,16 +95,32 @@ class GamesApiServiceImpl(
         page: Int,
         pageSize: Int,
         ordering: String,
-        dates: String?
+        dates: String?,
+        platforms: String?,
+        developers: String?,
+        publishers: String?,
+        genres: String?,
+        tags: String?,
+        search: String?,
+        search_exact: String?,
+        search_precise: String?
     ): PagedResponse<Game> {
         val response: PagedResponseDto<GameDto> = executeRequest {
             appendPathSegments("games")
             parameters.append("page", page.toString())
             parameters.append("page_size", pageSize.toString())
             parameters.append("ordering", ordering)
-            if (dates != null) {
-                parameters.append("dates", dates)
-            }
+
+            // Add all optional filters that aren't null
+            if (dates != null) parameters.append("dates", dates)
+            if (platforms != null) parameters.append("platforms", platforms)
+            if (developers != null) parameters.append("developers", developers)
+            if (publishers != null) parameters.append("publishers", publishers)
+            if (genres != null) parameters.append("genres", genres)
+            if (tags != null) parameters.append("tags", tags)
+            if (search != null) parameters.append("search", search)
+            if (search_exact != null) parameters.append("search_exact", search_exact)
+            if (search_precise != null) parameters.append("search_precise", search_precise)
         }
 
         // Debug logging for image URLs
@@ -231,6 +273,7 @@ class GamesApiServiceImpl(
             parameters.append("page", page.toString())
             parameters.append("page_size", pageSize.toString())
         }
+
         return PagedResponse(
             count = response.count,
             next = response.next,

@@ -80,6 +80,14 @@ fun MainScreen() {
                     GenreDetailsScreen(navigator = navigator, genreId = genreId)
                 }
             }
+            scene(NavigationRoutes.PUBLISHER_DETAILS_WITH_PARAM) { backStackEntry ->
+                // Extract the publisherId parameter from the route parameters
+                val publisherId = backStackEntry.pathMap["publisherId"]?.toIntOrNull()
+                // If publisherId exists, display the publisher details screen
+                if (publisherId != null) {
+                    PublisherDetailsScreen(navigator = navigator, publisherId = publisherId)
+                }
+            }
         }
     }
 }

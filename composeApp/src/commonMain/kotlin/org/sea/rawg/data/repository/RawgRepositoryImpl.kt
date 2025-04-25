@@ -23,12 +23,19 @@ class RawgRepositoryImpl(
     ): NetworkResource<PagedResponse<Game>> {
         return withContext(ioDispatcher) {
             try {
-                val dates = additionalParams["dates"]
                 val response = apiService.getGames(
                     page = page,
                     pageSize = pageSize,
                     ordering = ordering,
-                    dates = dates
+                    dates = additionalParams["dates"],
+                    platforms = additionalParams["platforms"],
+                    developers = additionalParams["developers"],
+                    publishers = additionalParams["publishers"],
+                    genres = additionalParams["genres"],
+                    tags = additionalParams["tags"],
+                    search = additionalParams["search"],
+                    search_exact = additionalParams["search_exact"],
+                    search_precise = additionalParams["search_precise"]
                 )
                 NetworkResource.Success(response)
             } catch (e: Exception) {

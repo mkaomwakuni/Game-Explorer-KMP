@@ -27,18 +27,23 @@ object ApiClient {
 
         install(HttpTimeout) {
             requestTimeoutMillis = 30.seconds.inWholeMilliseconds
-            connectTimeoutMillis = 15.seconds.inWholeMilliseconds
+            connectTimeoutMillis = 20.seconds.inWholeMilliseconds
             socketTimeoutMillis = 30.seconds.inWholeMilliseconds
         }
 
         install(Logging) {
-            logger = Logger.DEFAULT
+            logger = object : Logger {
+                override fun log(message: String) {
+                    println("ApiClient HTTP: $message")
+                }
+            }
             level = LogLevel.ALL
         }
 
         defaultRequest {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
+            header("User-Agent", "RAWG/API/KMP-GameExplorer-App")
         }
     }
 }

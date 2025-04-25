@@ -40,7 +40,6 @@ fun GenreDetailsScreen(
 ) {
     val gamesByGenreState by viewModel.gamesByGenreState.collectAsState()
     val genresState by viewModel.genresState.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
     val gridState = rememberLazyGridState()
 
     // Selected genre (if available from the genres list)
