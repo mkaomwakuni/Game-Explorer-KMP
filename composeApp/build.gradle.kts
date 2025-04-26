@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.libs
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -22,10 +23,7 @@ kotlin {
             }
         }
         binaries.executable()
-        compilerOptions {
-            // Disable deprecation warnings for the web target
-            freeCompilerArgs.add("-Xsuppress-deprecated-call-warnings")
-        }
+        // Remove the unsupported compiler flag options
     }
 
     androidTarget {
@@ -60,8 +58,6 @@ kotlin {
             implementation("io.coil-kt:coil:2.4.0")
             implementation("io.coil-kt:coil-compose:2.4.0")
         }
-        // Declare variables for KMP target name
-        val kmpTargetName = kotlin.targets.find { it.platformType.name == "common" }?.name ?: ""
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -98,6 +94,10 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
             implementation(libs.kamel)
+        }
+        wasmJsMain.dependencies {
+            // Add only compatible dependencies for WasmJs
+            implementation(compose.runtime)
         }
     }
 }
@@ -143,12 +143,22 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "org.sea.rawg"
             packageVersion = "1.0.0"
+            windows {
+                // Ensure proper file association and executable settings
+                menuGroup = "KMP-Game Explorer"
+            }
         }
+        // Set JVM arguments if needed
+        jvmArgs("-Xmx2G")
     }
 }
 buildConfig {
     packageName = "org.sea.rawg"
-    val apiKey = loadLocalProperty("local.properties", "API_KEY")
+    val apiKey = try {
+        loadLocalProperty("local.properties", "API_KEY")
+    } catch (e: Exception) {
+        "DEMO_API_KEY"
+    }
     buildConfigField("API_KEY", apiKey)
 }
 
@@ -161,7 +171,8 @@ fun Project.loadLocalProperty(
     if (localPropertiesFile.exists()) {
         localProperties.load(localPropertiesFile.inputStream())
         return localProperties.getProperty(propertyName)
+            ?: throw GradleException("Property $propertyName not found in $path")
     } else {
-        throw GradleException("can not find property : $propertyName")
+        throw GradleException("File not found: $path")
     }
 }
