@@ -10,14 +10,13 @@ import org.sea.rawg.data.mappers.GameMapper
 import org.sea.rawg.domain.models.*
 import org.sea.rawg.data.remote.dto.*
 import org.sea.rawg.utils.AppConstant
+import org.sea.rawg.data.model.ScreenshotsResponse
+import org.sea.rawg.data.model.RedditResponse
 
 class GamesApiServiceImpl(
     private val client: HttpClient = ApiClient.client
 ) : GamesApiService {
 
-    /*
-     * Generic request builder with common parameters and error handling
-     */
     private suspend inline fun <reified T> executeRequest(
         crossinline urlBuilder: URLBuilder.() -> Unit
     ): T {
@@ -26,13 +25,10 @@ class GamesApiServiceImpl(
                 takeFrom(AppConstant.BASE_URL)
                 urlBuilder()
 
-                // Append API key
                 if (!parameters.contains("key")) {
                     parameters.append("key", AppConstant.API_KEY)
                 }
             }.build()
-
-            println("ApiService: Making request to $url")
 
             val response = client.get {
                 url {
@@ -46,9 +42,7 @@ class GamesApiServiceImpl(
 
             if (!response.status.isSuccess()) {
                 val errorText = response.bodyAsText()
-                println("ApiService: Error response - ${response.status}: $errorText")
 
-                // Check for common API key issues
                 if (response.status == HttpStatusCode.Unauthorized ||
                     response.status == HttpStatusCode.Forbidden ||
                     errorText.contains("key") ||
@@ -62,35 +56,23 @@ class GamesApiServiceImpl(
                 throw Exception("API error: ${response.status} - $errorText")
             }
 
-            // Try standard deserialization first
             return try {
                 val body: T = response.body()
-                println("ApiService: Successful response and deserialization")
                 body
             } catch (e: Exception) {
-                // If that fails, try manual deserialization with our more lenient parser
                 val responseText = response.bodyAsText()
                 try {
-                    // Log error details for debugging
-                    println("ApiService: Deserialization error: ${e.message}")
-                    println("ApiService: Response excerpt: ${responseText.take(200)}...")
-
                     val result = Json.decodeFromString<T>(responseText)
-                    println("ApiService: Manual deserialization successful")
                     result
                 } catch (e2: Exception) {
-                    println("ApiService: Both deserialization methods failed")
-                    println("ApiService: Secondary error: ${e2.message}")
                     throw Exception("Failed to parse API response: ${e2.message}\nOriginal error: ${e.message}")
                 }
             }
         } catch (e: Exception) {
-            println("ApiService: Network or other error: ${e.message}")
             throw Exception("Network error: ${e.message}")
         }
     }
 
-    // Games endpoints
     override suspend fun getGames(
         page: Int,
         pageSize: Int,
@@ -111,7 +93,6 @@ class GamesApiServiceImpl(
             parameters.append("page_size", pageSize.toString())
             parameters.append("ordering", ordering)
 
-            // Add all optional filters that aren't null
             if (dates != null) parameters.append("dates", dates)
             if (platforms != null) parameters.append("platforms", platforms)
             if (developers != null) parameters.append("developers", developers)
@@ -121,11 +102,6 @@ class GamesApiServiceImpl(
             if (search != null) parameters.append("search", search)
             if (search_exact != null) parameters.append("search_exact", search_exact)
             if (search_precise != null) parameters.append("search_precise", search_precise)
-        }
-
-        // Debug logging for image URLs
-        response.results.forEach { gameDto ->
-            println("Game image URL: ${gameDto.backgroundImage}")
         }
 
         return PagedResponse(
@@ -160,7 +136,6 @@ class GamesApiServiceImpl(
         )
     }
 
-    // Genres endpoints
     override suspend fun getGenres(
         page: Int,
         pageSize: Int
@@ -208,7 +183,6 @@ class GamesApiServiceImpl(
         )
     }
 
-    // Platforms endpoints
     override suspend fun getPlatforms(
         page: Int,
         pageSize: Int
@@ -227,7 +201,7 @@ class GamesApiServiceImpl(
                     id = it.id,
                     name = it.name,
                     slug = it.slug ?: "",
-                    games_count = 0, // Default value
+                    games_count = 0,
                     image_background = null,
                     image = null,
                     year_start = null,
@@ -237,7 +211,6 @@ class GamesApiServiceImpl(
         )
     }
 
-    // Developers endpoints
     override suspend fun getDevelopers(
         page: Int,
         pageSize: Int
@@ -263,7 +236,6 @@ class GamesApiServiceImpl(
         )
     }
 
-    // Publishers endpoints
     override suspend fun getPublishers(
         page: Int,
         pageSize: Int
@@ -290,7 +262,6 @@ class GamesApiServiceImpl(
         )
     }
 
-    // Tags endpoints
     override suspend fun getTags(
         page: Int,
         pageSize: Int
@@ -316,7 +287,6 @@ class GamesApiServiceImpl(
         )
     }
 
-    // Stores endpoints
     override suspend fun getStores(
         page: Int,
         pageSize: Int
@@ -335,11 +305,51 @@ class GamesApiServiceImpl(
                     id = it.id,
                     name = it.name,
                     slug = it.slug ?: "",
-                    domain = null, // Default value
-                    games_count = 0, // Default value
+                    domain = null,
+                    games_count = 0,
                     image_background = null
                 )
             }
+        )
+    }
+
+    override suspend fun getGameDLCs(gameId: Int, page: Int, pageSize: Int): PagedResponse<Game> {
+        val response: PagedResponseDto<GameDto> = executeRequest {
+            appendPathSegments("games", gameId.toString(), "additions")
+            parameters.append("page", page.toString())
+            parameters.append("page_size", pageSize.toString())
+        }
+
+        return PagedResponse(
+            count = response.count,
+            next = response.next,
+            previous = response.previous,
+            results = response.results.map { GameMapper.mapToDomain(it) }
+        )
+    }
+
+    override suspend fun getGameScreenshots(gameId: Int): ScreenshotsResponse {
+        return executeRequest {
+            appendPathSegments("games", gameId.toString(), "screenshots")
+        }
+    }
+
+    override suspend fun getGameRedditPosts(gameId: Int): RedditResponse {
+        return executeRequest {
+            appendPathSegments("games", gameId.toString(), "reddit")
+        }
+    }
+
+    override suspend fun getSimilarGames(gameId: Int): PagedResponse<Game> {
+        val response: PagedResponseDto<GameDto> = executeRequest {
+            appendPathSegments("games", gameId.toString(), "game-series")
+        }
+
+        return PagedResponse(
+            count = response.count,
+            next = response.next,
+            previous = response.previous,
+            results = response.results.map { GameMapper.mapToDomain(it) }
         )
     }
 }

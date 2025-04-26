@@ -1,7 +1,9 @@
 package org.sea.rawg.domain.repository
 
 import org.sea.rawg.domain.models.*
-import org.sea.rawg.utils.NetworkResource
+import org.sea.rawg.data.model.DLC
+import org.sea.rawg.data.model.RedditPost
+import org.sea.rawg.utils.Result
 
 /**
  * Repository interface for accessing RAWG API data
@@ -14,14 +16,14 @@ interface RawgRepository {
         pageSize: Int = 20,
         ordering: String = "-released",
         additionalParams: Map<String, String> = emptyMap()
-    ): NetworkResource<PagedResponse<Game>>
+    ): Result<PagedResponse<Game>>
 
-    suspend fun getGameDetails(gameId: Int): NetworkResource<Game>
+    suspend fun getGameDetails(gameId: Int): Result<Game>
 
     suspend fun searchGames(
         query: String,
         page: Int
-    ): NetworkResource<PagedResponse<Game>>
+    ): Result<PagedResponse<Game>>
 
     // Date-specific game filtering methods
 
@@ -36,7 +38,7 @@ interface RawgRepository {
         page: Int,
         pageSize: Int = 20,
         yearsAhead: Int = 5
-    ): NetworkResource<PagedResponse<Game>>
+    ): Result<PagedResponse<Game>>
 
     /**
      * Get recent releases from current day backward
@@ -49,7 +51,7 @@ interface RawgRepository {
         page: Int,
         pageSize: Int = 20,
         daysBack: Int = 30
-    ): NetworkResource<PagedResponse<Game>>
+    ): Result<PagedResponse<Game>>
 
     /**
      * Get games released within a specific date range
@@ -66,7 +68,7 @@ interface RawgRepository {
         page: Int,
         pageSize: Int = 20,
         ordering: String = "-released"
-    ): NetworkResource<PagedResponse<Game>>
+    ): Result<PagedResponse<Game>>
 
     /**
      * Get most anticipated upcoming games (sorted by community interest)
@@ -77,47 +79,74 @@ interface RawgRepository {
     suspend fun getMostAnticipatedGames(
         page: Int,
         pageSize: Int = 20
-    ): NetworkResource<PagedResponse<Game>>
+    ): Result<PagedResponse<Game>>
 
     // Genres
     suspend fun getGenres(
         page: Int,
         pageSize: Int = 20
-    ): NetworkResource<PagedResponse<Genre>>
+    ): Result<PagedResponse<Genre>>
 
     suspend fun getGamesByGenreId(
         genreId: Int,
         page: Int,
         pageSize: Int = 20
-    ): NetworkResource<PagedResponse<Game>>
+    ): Result<PagedResponse<Game>>
 
     // Platforms
     suspend fun getPlatforms(
         page: Int,
         pageSize: Int = 20
-    ): NetworkResource<PagedResponse<Platform>>
+    ): Result<PagedResponse<Platform>>
 
     // Developers
     suspend fun getDevelopers(
         page: Int,
         pageSize: Int = 20
-    ): NetworkResource<PagedResponse<Developer>>
+    ): Result<PagedResponse<Developer>>
 
     // Publishers
     suspend fun getPublishers(
         page: Int,
         pageSize: Int = 20
-    ): NetworkResource<PagedResponse<Publisher>>
+    ): Result<PagedResponse<Publisher>>
 
     // Tags
     suspend fun getTags(
         page: Int,
         pageSize: Int = 20
-    ): NetworkResource<PagedResponse<Tag>>
+    ): Result<PagedResponse<Tag>>
 
     // Stores
     suspend fun getStores(
         page: Int,
         pageSize: Int = 20
-    ): NetworkResource<PagedResponse<Store>>
+    ): Result<PagedResponse<Store>>
+
+    // DLCs
+    suspend fun getGameDLCs(
+        gameId: Int,
+        page: Int = 1,
+        pageSize: Int = 5
+    ): Result<List<DLC>>
+
+    // Reddit posts
+    suspend fun getGameRedditPosts(
+        gameName: String,
+        count: Int = 5
+    ): Result<List<RedditPost>>
+
+    // Screenshots
+    suspend fun getGameScreenshots(
+        gameId: Int,
+        page: Int = 1,
+        pageSize: Int = 10
+    ): Result<List<Screenshot>>
+
+    // Similar games
+    suspend fun getSimilarGames(
+        gameId: Int,
+        page: Int = 1,
+        pageSize: Int = 8
+    ): Result<List<Game>>
 }

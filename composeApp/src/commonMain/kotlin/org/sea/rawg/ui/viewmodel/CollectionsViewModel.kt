@@ -19,7 +19,7 @@ class CollectionsViewModel(
     private val getCollectionsUseCase: GetCollectionsUseCase,
     private val getCollectionByIdUseCase: GetCollectionByIdUseCase,
     private val getGamesForCollectionUseCase: GetGamesForCollectionUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     // Collections list UI state
     private val _collectionsListState =
@@ -52,15 +52,18 @@ class CollectionsViewModel(
      * Load all collections for the collections screen
      */
     fun loadCollections() {
-        viewModelScope.launch {
-            try {
+        launchWithErrorHandling(
+            block = {
                 _collectionsListState.value = DataState.Loading
-                val collections = getCollectionsUseCase()
+                getCollectionsUseCase()
+            },
+            onSuccess = { collections ->
                 _collectionsListState.value = DataState.Success(collections)
-            } catch (e: Exception) {
-                _collectionsListState.value = DataState.Error(e.message ?: "Unknown error")
+            },
+            onError = { errorState ->
+                _collectionsListState.value = DataState.Error(errorState.message ?: "Unknown error")
             }
-        }
+        )
     }
 
     /**
@@ -74,19 +77,22 @@ class CollectionsViewModel(
             currentCollectionId = collectionId
         }
 
-        viewModelScope.launch {
-            try {
+        launchWithErrorHandling(
+            block = {
                 _collectionState.value = DataState.Loading
-                val collection = getCollectionByIdUseCase(collectionId)
+                getCollectionByIdUseCase(collectionId)
+            },
+            onSuccess = { collection ->
                 if (collection != null) {
                     _collectionState.value = DataState.Success(collection)
                 } else {
                     _collectionState.value = DataState.Error("Collection not found")
                 }
-            } catch (e: Exception) {
-                _collectionState.value = DataState.Error(e.message ?: "Unknown error")
+            },
+            onError = { errorState ->
+                _collectionState.value = DataState.Error(errorState.message ?: "Unknown error")
             }
-        }
+        )
 
         // Also load games for this collection
         loadGamesForCollection(resetList = true)
@@ -107,35 +113,35 @@ class CollectionsViewModel(
             return
         }
 
-        viewModelScope.launch {
-            try {
-                // Get existing games if we're loading more
-                val existingGames =
-                    if (_gamesState.value is PagedDataState.Success && !resetList) {
-                        (_gamesState.value as PagedDataState.Success<PagedResponse<Game>>).data.results
-                    } else {
-                        emptyList()
-                    }
+        // Get existing games if we're loading more
+        val existingGames =
+            if (_gamesState.value is PagedDataState.Success && !resetList) {
+                (_gamesState.value as PagedDataState.Success<PagedResponse<Game>>).data.results
+            } else {
+                emptyList()
+            }
 
-                // If loading more, show the loading more state
-                if (!resetList) {
-                    _gamesState.value = PagedDataState.LoadingMore(
-                        PagedResponse(
-                            count = existingGames.size,
-                            next = null,
-                            previous = null,
-                            results = existingGames
-                        )
-                    )
-                }
+        // If loading more, show the loading more state
+        if (!resetList) {
+            _gamesState.value = PagedDataState.LoadingMore(
+                PagedResponse(
+                    count = existingGames.size,
+                    next = null,
+                    previous = null,
+                    results = existingGames
+                )
+            )
+        }
 
-                // Load games for the collection
-                val gamesResponse = getGamesForCollectionUseCase(
+        launchWithErrorHandling(
+            block = {
+                getGamesForCollectionUseCase(
                     collectionId = collectionId,
                     page = currentPage,
                     pageSize = pageSize
                 )
-
+            },
+            onSuccess = { gamesResponse ->
                 // Update pagination state
                 hasMoreGames = gamesResponse.next != null
                 if (hasMoreGames) currentPage++
@@ -156,10 +162,11 @@ class CollectionsViewModel(
                         results = combinedResults
                     )
                 )
-            } catch (e: Exception) {
-                _gamesState.value = PagedDataState.Error(e.message ?: "Unknown error")
+            },
+            onError = { errorState ->
+                _gamesState.value = PagedDataState.Error(errorState.message ?: "Unknown error")
             }
-        }
+        )
     }
 
     // Load more games for pagination

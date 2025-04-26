@@ -27,7 +27,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -39,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.Navigator
+import org.koin.compose.koinInject
 import org.sea.rawg.domain.models.Game
 import org.sea.rawg.navigation.NavigationRoutes
 import org.sea.rawg.ui.component.EmptyGamesState
@@ -57,10 +57,10 @@ import org.sea.rawg.ui.viewmodel.UpcomingGamesViewModel
 fun UpcomingGamesScreen(
     navigator: Navigator
 ) {
-    val viewModel = remember { UpcomingGamesViewModel() }
+    val viewModel = koinInject<UpcomingGamesViewModel>()
 
     // State
-    val gamesState by viewModel.gamesState.collectAsState()
+    val gamesState = viewModel.gamesState.value
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val gridState = rememberLazyGridState()
     val scope = rememberCoroutineScope()

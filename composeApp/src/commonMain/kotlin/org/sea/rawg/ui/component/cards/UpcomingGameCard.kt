@@ -85,7 +85,7 @@ fun UpcomingGameCard(
             // Release date badge
             game.released?.let { releaseDate ->
                 Surface(
-                    shape = RoundedCornerShape(4.dp),
+                    shape = RoundedCornerShape(2.dp),
                     color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier
                         .align(Alignment.TopEnd)

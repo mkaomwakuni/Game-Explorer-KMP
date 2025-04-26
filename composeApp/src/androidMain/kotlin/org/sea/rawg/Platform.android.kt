@@ -12,8 +12,4 @@ actual fun getPlatform(): Platform = AndroidPlatform()
 
 
 @Composable
-fun MainView() {
-    PreComposeApp {
-        App()
-    }
-}
+actual fun App() {    CommonApp() }

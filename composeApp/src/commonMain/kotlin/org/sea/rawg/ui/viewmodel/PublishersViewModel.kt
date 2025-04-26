@@ -10,7 +10,7 @@ import org.sea.rawg.domain.models.PagedResponse
 import org.sea.rawg.domain.models.Publisher
 import org.sea.rawg.domain.repository.RawgRepository
 import org.sea.rawg.utils.AppConstant
-import org.sea.rawg.utils.NetworkResource
+import org.sea.rawg.utils.Result
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -104,11 +104,11 @@ class PublishersViewModel(
             val result = withTimeoutOrNull(10000L) { // 10 second timeout
                 repository.getPublishers(page = currentPage, pageSize = 20)
             } ?: run {
-                NetworkResource.Error("Request timed out. Please check your network connection.")
+                Result.Error("Request timed out. Please check your network connection.")
             }
 
             when (result) {
-                is NetworkResource.Success -> {
+                is Result.Success<PagedResponse<Publisher>> -> {
                     val newData = result.data
 
                     // Check if we got empty results but expected data
@@ -140,9 +140,9 @@ class PublishersViewModel(
                     _publishersState.value = PublishersState.Success(filteredPublishers)
                 }
 
-                is NetworkResource.Error -> {
+                is Result.Error -> {
                     _publishersState.value =
-                        PublishersState.Error(result.message ?: "Unknown error occurred")
+                        PublishersState.Error(result.message)
                 }
 
                 else -> {

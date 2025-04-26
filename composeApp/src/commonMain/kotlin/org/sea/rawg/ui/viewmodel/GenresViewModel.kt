@@ -10,7 +10,7 @@ import org.sea.rawg.domain.models.Game
 import org.sea.rawg.domain.models.Genre
 import org.sea.rawg.domain.models.PagedResponse
 import org.sea.rawg.domain.repository.RawgRepository
-import org.sea.rawg.utils.NetworkResource
+import org.sea.rawg.utils.Result
 
 class GenresViewModel(
     private val repository: RawgRepository
@@ -39,16 +39,16 @@ class GenresViewModel(
             _genresState.value = GenresState.Loading
 
             when (val result = repository.getGenres(page = 1, pageSize = 40)) {
-                is NetworkResource.Success -> {
+                is Result.Success<PagedResponse<Genre>> -> {
                     _genresState.value = GenresState.Success(result.data)
                 }
 
-                is NetworkResource.Error -> {
+                is Result.Error -> {
                     _genresState.value =
                         GenresState.Error(result.message)
                 }
                 else -> {
-                    // This shouldn't happen with the current NetworkResource implementation
+                    // This shouldn't happen with the current Result implementation
                     _genresState.value = GenresState.Error("Unknown error occurred")
                 }
             }
@@ -87,7 +87,7 @@ class GenresViewModel(
                 page = currentPage,
                 pageSize = 20
             )) {
-                is NetworkResource.Success -> {
+                is Result.Success<PagedResponse<Game>> -> {
                     val newData = result.data
                     val combinedGames = existingGames + newData.results
 
@@ -104,12 +104,12 @@ class GenresViewModel(
                     )
                 }
 
-                is NetworkResource.Error -> {
+                is Result.Error -> {
                     _gamesByGenreState.value =
-                        GamesByGenreState.Error(result.message ?: "Unknown error occurred")
+                        GamesByGenreState.Error(result.message)
                 }
                 else -> {
-                    // This shouldn't happen with the current NetworkResource implementation
+                    // This shouldn't happen with the current Result implementation
                     _gamesByGenreState.value = GamesByGenreState.Error("Unknown error occurred")
                 }
             }

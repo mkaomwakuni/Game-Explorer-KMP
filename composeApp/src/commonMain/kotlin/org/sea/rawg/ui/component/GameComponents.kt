@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 public @Composable
 fun PlatformChip(name: String) {
     Surface(
-        shape = RoundedCornerShape(4.dp),
+        shape = RoundedCornerShape(2.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
     ) {
@@ -30,7 +30,7 @@ fun PlatformChip(name: String) {
 public @Composable
 fun GenreChip(name: String) {
     Surface(
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(2.dp),
         color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f))
     ) {
@@ -46,7 +46,7 @@ fun GenreChip(name: String) {
 public @Composable
 fun TagChip(name: String) {
     Surface(
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(2.dp),
         color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Text(
@@ -61,7 +61,7 @@ fun TagChip(name: String) {
 public @Composable
 fun DeveloperChip(name: String) {
     Surface(
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(2.dp),
         color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f))
     ) {
@@ -77,7 +77,7 @@ fun DeveloperChip(name: String) {
 public @Composable
 fun PublisherChip(name: String) {
     Surface(
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(2.dp),
         color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f))
     ) {
@@ -93,7 +93,7 @@ fun PublisherChip(name: String) {
 public @Composable
 fun StoreChip(name: String) {
     Surface(
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(2.dp),
         color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Text(

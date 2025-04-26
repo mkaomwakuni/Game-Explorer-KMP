@@ -51,8 +51,8 @@ fun PublisherCard(
 ) {
     // Random height for staggered effect (between 180dp and 260dp)
     val height = remember { 180.dp + (Random.nextInt(5) * 20).dp }
-    // Random corner radius for variety (between 8dp and 16dp)
-    val cornerRadius = remember { 8.dp + (Random.nextInt(3) * 4).dp }
+    // Set fixed corner radius to 2dp
+    val cornerRadius = 2.dp
     // Use safe positive padding values only
     val topPadding = remember { (Random.nextInt(5) * 2).dp }
     val horizontalPadding = remember { (Random.nextInt(3) * 2).dp }
@@ -150,7 +150,7 @@ fun PublisherCard(
                 // Publisher badge with glow effect
                 Surface(
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
-                    shape = RoundedCornerShape(4.dp),
+                    shape = RoundedCornerShape(2.dp),
                     modifier = Modifier.padding(top = 4.dp)
                 ) {
                     Text(

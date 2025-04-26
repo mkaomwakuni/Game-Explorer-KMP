@@ -35,7 +35,7 @@ import org.sea.rawg.navigation.NavigationRoutes
 import org.sea.rawg.ui.component.AsyncImage
 import org.sea.rawg.ui.component.LoadingIndicator
 import org.sea.rawg.ui.viewmodel.PublishersViewModel
-import org.sea.rawg.utils.NetworkResource
+import org.sea.rawg.utils.Result
 
 sealed class GamesByPublisherState {
     object Loading : GamesByPublisherState()
@@ -85,38 +85,44 @@ fun PublisherDetailsScreen(
             try {
                 isLoadingMoreGames.value = true
 
-                val result = repository.getGames(
-                    page = currentPage.value,
-                    pageSize = 20,
-                    ordering = "-added",
-                    additionalParams = mapOf("publishers" to publisherId.toString())
-                )
+                val result = try {
+                    repository.getGames(
+                        page = currentPage.value,
+                        pageSize = 20,
+                        ordering = "-added",
+                        additionalParams = mapOf("publishers" to publisherId.toString())
+                    )
+                } catch (e: Exception) {
+                    Result.Error("Request failed: ${e.message ?: "Unknown error"}")
+                }
 
                 when (result) {
-                    is NetworkResource.Success -> {
+                    is Result.Success -> {
                         val newData = result.data
-                        hasMoreGames.value = newData.next != null
+                        if (newData is PagedResponse<Game>) {
+                            hasMoreGames.value = newData.next != null
 
-                        if (currentPage.value == 1 || refresh) {
-                            gamesByPublisherState.value =
-                                GamesByPublisherState.Success(newData.results)
-                        } else {
-                            // Append to existing games
-                            val currentGames =
-                                (gamesByPublisherState.value as? GamesByPublisherState.Success)?.games
-                                    ?: emptyList()
-                            val combinedGames = currentGames + newData.results
-                            gamesByPublisherState.value =
-                                GamesByPublisherState.Success(combinedGames)
-                        }
+                            if (currentPage.value == 1 || refresh) {
+                                gamesByPublisherState.value =
+                                    GamesByPublisherState.Success(newData.results)
+                            } else {
+                                // Append to existing games
+                                val currentGames =
+                                    (gamesByPublisherState.value as? GamesByPublisherState.Success)?.games
+                                        ?: emptyList()
+                                val combinedGames = currentGames + newData.results
+                                gamesByPublisherState.value =
+                                    GamesByPublisherState.Success(combinedGames)
+                            }
 
-                        // Increment page for next load
-                        if (hasMoreGames.value) {
-                            currentPage.value++
+                            // Increment page for next load
+                            if (hasMoreGames.value) {
+                                currentPage.value++
+                            }
                         }
                     }
 
-                    is NetworkResource.Error -> {
+                    is Result.Error -> {
                         gamesByPublisherState.value = GamesByPublisherState.Error(
                             result.message ?: "Failed to load games"
                         )

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Star
@@ -53,7 +54,7 @@ fun GameGridItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
-                    .clip(MaterialTheme.shapes.small),
+                    .clip(RoundedCornerShape(2.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
@@ -85,7 +86,7 @@ fun GameGridItem(
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
-                                .clip(MaterialTheme.shapes.small)
+                                .clip(RoundedCornerShape(2.dp))
                                 .padding(vertical = 2.dp)
                         ) {
                             Icon(

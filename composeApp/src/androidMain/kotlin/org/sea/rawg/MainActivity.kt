@@ -12,7 +12,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Make system bars (status bar & navigation bar) transparent
         WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
 

@@ -13,5 +13,16 @@ data class RedditPost(
     val username: String? = null,
     val subreddit: String? = null,
     @SerialName("created")
+    val createdAt: String? = null,
+    val comments: List<RedditComment> = emptyList(),
+    val score: Int? = null,
+    val commentsCount: Int? = null
+)
+
+@Serializable
+data class RedditComment(
+    val id: String? = null,
+    val username: String? = null,
+    val text: String? = null,
     val createdAt: String? = null
 )

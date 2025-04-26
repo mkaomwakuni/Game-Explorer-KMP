@@ -1,188 +1,196 @@
 package org.sea.rawg.ui.viewmodel
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.sea.rawg.data.remote.GamesApiService
-import org.sea.rawg.data.remote.GamesApiServiceImpl
-import org.sea.rawg.data.repository.GamesState
-import org.sea.rawg.data.repository.RawgRepositoryImpl
+import org.sea.rawg.domain.models.Game
 import org.sea.rawg.domain.models.PagedResponse
+import org.sea.rawg.domain.repository.RawgRepository
+import org.sea.rawg.domain.usecases.GetPopularGamesUseCase
 import org.sea.rawg.utils.DateUtils
-import org.sea.rawg.utils.NetworkResource
 
-class HomeViewModel {
-    private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    private val apiService: GamesApiService = GamesApiServiceImpl()
-    private val repository = RawgRepositoryImpl(apiService)
+class HomeViewModel(
+    private val repository: RawgRepository,
+    private val getPopularGamesUseCase: GetPopularGamesUseCase
+) : BaseViewModel() {
 
-    private val _upcomingGames = MutableStateFlow<GamesState>(GamesState.Loading)
-    val upcomingGames: StateFlow<GamesState> = _upcomingGames.asStateFlow()
+    private val _popularGamesState = MutableStateFlow<GamesState>(GamesState.Loading)
+    val popularGamesState: StateFlow<GamesState> = _popularGamesState.asStateFlow()
+    
+    private val _upcomingGamesState = MutableStateFlow<GamesState>(GamesState.Loading)
+    val upcomingGamesState: StateFlow<GamesState> = _upcomingGamesState.asStateFlow()
+    
+    private val _newReleasesState = MutableStateFlow<GamesState>(GamesState.Loading)
+    val newReleasesState: StateFlow<GamesState> = _newReleasesState.asStateFlow()
+    
+    private val _topRatedGamesState = MutableStateFlow<GamesState>(GamesState.Loading)
+    val topRatedGamesState: StateFlow<GamesState> = _topRatedGamesState.asStateFlow()
 
-    private val _topRatedGames = MutableStateFlow<GamesState>(GamesState.Loading)
-    val topRatedGames: StateFlow<GamesState> = _topRatedGames.asStateFlow()
-
-    private val _recentReleases = MutableStateFlow<GamesState>(GamesState.Loading)
-    val recentReleases: StateFlow<GamesState> = _recentReleases.asStateFlow()
-
-    private val _popularGames = MutableStateFlow<GamesState>(GamesState.Loading)
-    val popularGames: StateFlow<GamesState> = _popularGames.asStateFlow()
-
-    val upcomingGamesTitle = "Upcoming Games (Future Releases)"
-    val recentReleasesTitle = "Recent Releases (Past 90 Days)"
-    val topRatedGamesTitle = "Top Rated Games"
     val popularGamesTitle = "Popular Games"
+    val topRatedGamesTitle = "Top Rated Games"
+    val recentReleasesTitle = "Recent Releases"
+    val upcomingGamesTitle = "Upcoming Games"
 
-    init {
-        refresh()
-    }
+    val popularGames = popularGamesState
+    val topRatedGames = topRatedGamesState
+    val recentReleases = newReleasesState
+    val upcomingGames = upcomingGamesState
 
-    private fun filterGamesWithReleaseDates(state: GamesState): GamesState {
-        if (state is GamesState.Success) {
-            val filteredResults = state.data.results.filter { game ->
-                game.released != null
+    fun initialize() {
+        viewModelScope.launch {
+            launch {
+                fetchPopularGames()
             }
-
-            val filteredResponse = PagedResponse(
-                count = filteredResults.size,
-                next = state.data.next,
-                previous = state.data.previous,
-                results = filteredResults
-            )
-
-            return GamesState.Success(filteredResponse)
+            launch {
+                fetchUpcomingGames()
+            }
+            launch {
+                fetchRecentReleases()
+            }
+            launch {
+                fetchTopRatedGames()
+            }
         }
-        return state
     }
 
-    private fun loadUpcomingGames() {
-        _upcomingGames.value = GamesState.Loading
-
-        coroutineScope.launch {
-            try {
-                val result = repository.getUpcomingGames(page = 1, pageSize = 10)
-
-                when (result) {
-                    is NetworkResource.Success -> {
-                        println("Upcoming games loaded successfully")
-                        _upcomingGames.value = filterGamesWithReleaseDates(GamesState.Success(result.data))
-                    }
-                    is NetworkResource.Error -> {
-                        println("Error loading upcoming games: ${result.message}")
-                        _upcomingGames.value = GamesState.Error(result.message)
-                    }
-                    else -> {
-                        println("Unexpected state in upcoming games")
-                    }
+    fun fetchPopularGames() {
+        _popularGamesState.value = GamesState.Loading
+        
+        launchWithErrorHandling(
+            block = {
+                getPopularGamesUseCase(page = 1, pageSize = 10)
+            },
+            onSuccess = { result ->
+                result.onSuccess { response ->
+                    _popularGamesState.value = filterGamesWithReleaseDates(
+                        GamesState.Success(response)
+                    )
+                }.onError { message, _ ->
+                    _popularGamesState.value = GamesState.Error(message)
                 }
-            } catch (e: Exception) {
-                println("Exception in loadUpcomingGames: ${e.message}")
-                _upcomingGames.value = GamesState.Error(e.message ?: "Unknown error occurred")
+            },
+            onError = { errorState ->
+                _popularGamesState.value = GamesState.Error(errorState.message)
             }
-        }
+        )
     }
 
-    private fun loadTopRatedGames() {
-        _topRatedGames.value = GamesState.Loading
+    fun fetchUpcomingGames() {
+        _upcomingGamesState.value = GamesState.Loading
+        
+        launchWithErrorHandling(
+            block = {
+                repository.getUpcomingGames(
+                    page = 1, 
+                    pageSize = 10
+                )
+            },
+            onSuccess = { result ->
+                result.onSuccess { response ->
+                    _upcomingGamesState.value = filterGamesWithReleaseDates(
+                        GamesState.Success(response)
+                    )
+                }.onError { message, _ ->
+                    _upcomingGamesState.value = GamesState.Error(message)
+                }
+            },
+            onError = { errorState ->
+                _upcomingGamesState.value = GamesState.Error(errorState.message)
+            }
+        )
+    }
 
-        coroutineScope.launch {
-            try {
-                // Get date range for top rated games - last 5 years up to today
+    fun fetchRecentReleases() {
+        _newReleasesState.value = GamesState.Loading
+        
+        launchWithErrorHandling(
+            block = {
+                repository.getRecentReleases(
+                    page = 1, 
+                    pageSize = 10, 
+                    daysBack = 90
+                )
+            },
+            onSuccess = { result ->
+                result.onSuccess { response ->
+                    _newReleasesState.value = filterGamesWithReleaseDates(
+                        GamesState.Success(response)
+                    )
+                }.onError { message, _ ->
+                    _newReleasesState.value = GamesState.Error(message)
+                }
+            },
+            onError = { errorState ->
+                _newReleasesState.value = GamesState.Error(errorState.message)
+            }
+        )
+    }
+
+    fun fetchTopRatedGames() {
+        _topRatedGamesState.value = GamesState.Loading
+        
+        launchWithErrorHandling(
+            block = {
                 val endDate = DateUtils.getCurrentDate()
-                val startDate = DateUtils.getFutureDate(-5) // 5 years in the past
-
-                // Games sorted by rating from highest to lowest with date filtering
-                val result = repository.getGames(
-                    page = 1,
-                    pageSize = 10,
-                    ordering = "-rating",
+                val startDate = DateUtils.getFutureDate(-5)
+                repository.getGames(
+                    page = 1, 
+                    pageSize = 10, 
+                    ordering = "-rating", 
                     additionalParams = mapOf(
                         "dates" to "$startDate,$endDate"
                     )
                 )
-
-                when (result) {
-                    is NetworkResource.Success -> {
-                        println("Top rated games loaded successfully")
-                        _topRatedGames.value = filterGamesWithReleaseDates(GamesState.Success(result.data))
-                    }
-                    is NetworkResource.Error -> {
-                        println("Error loading top rated games: ${result.message}")
-                        _topRatedGames.value = GamesState.Error(result.message)
-                    }
-                    else -> {
-                        println("Unexpected state in top rated games")
-                    }
+            },
+            onSuccess = { result ->
+                result.onSuccess { response ->
+                    _topRatedGamesState.value = filterGamesWithReleaseDates(
+                        GamesState.Success(response)
+                    )
+                }.onError { message, _ ->
+                    _topRatedGamesState.value = GamesState.Error(message)
                 }
-            } catch (e: Exception) {
-                println("Exception in loadTopRatedGames: ${e.message}")
-                _topRatedGames.value = GamesState.Error(e.message ?: "Unknown error occurred")
+            },
+            onError = { errorState ->
+                _topRatedGamesState.value = GamesState.Error(errorState.message)
             }
+        )
+    }
+    
+    private fun filterGamesWithReleaseDates(state: GamesState): GamesState {
+        return if (state is GamesState.Success) {
+            val filteredGames = state.data.results.filter { 
+                !it.released.isNullOrBlank() 
+            }
+            GamesState.Success(
+                PagedResponse(
+                    count = filteredGames.size,
+                    next = state.data.next,
+                    previous = state.data.previous,
+                    results = filteredGames
+                )
+            )
+        } else {
+            state
         }
     }
 
-    private fun loadRecentReleases() {
-        _recentReleases.value = GamesState.Loading
-
-        coroutineScope.launch {
-            try {
-                val result = repository.getRecentReleases(page = 1, pageSize = 10, daysBack = 90)
-
-                when (result) {
-                    is NetworkResource.Success -> {
-                        println("Recent releases loaded successfully")
-                        _recentReleases.value = filterGamesWithReleaseDates(GamesState.Success(result.data))
-                    }
-                    is NetworkResource.Error -> {
-                        println("Error loading recent releases: ${result.message}")
-                        _recentReleases.value = GamesState.Error(result.message)
-                    }
-                    else -> {
-                        println("Unexpected state in recent releases")
-                    }
-                }
-            } catch (e: Exception) {
-                println("Exception in loadRecentReleases: ${e.message}")
-                _recentReleases.value = GamesState.Error(e.message ?: "Unknown error occurred")
-            }
-        }
-    }
-
-    private fun loadPopularGames() {
-        _popularGames.value = GamesState.Loading
-
-        coroutineScope.launch {
-            try {
-                val result = repository.getMostAnticipatedGames(page = 1, pageSize = 10)
-
-                when (result) {
-                    is NetworkResource.Success -> {
-                        println("Popular games loaded successfully")
-                        _popularGames.value = filterGamesWithReleaseDates(GamesState.Success(result.data))
-                    }
-                    is NetworkResource.Error -> {
-                        println("Error loading popular games: ${result.message}")
-                        _popularGames.value = GamesState.Error(result.message)
-                    }
-                    else -> {
-                        println("Unexpected state in popular games")
-                    }
-                }
-            } catch (e: Exception) {
-                println("Exception in loadPopularGames: ${e.message}")
-                _popularGames.value = GamesState.Error(e.message ?: "Unknown error occurred")
-            }
-        }
+    fun resetStates() {
+        _popularGamesState.value = GamesState.Loading
+        _topRatedGamesState.value = GamesState.Loading
+        _newReleasesState.value = GamesState.Loading
+        _upcomingGamesState.value = GamesState.Loading
     }
 
     fun refresh() {
-        loadUpcomingGames()
-        loadTopRatedGames()
-        loadRecentReleases()
-        loadPopularGames()
+        resetStates()
+        initialize()
     }
+}
+
+sealed class GamesState {
+    object Loading : GamesState()
+    data class Success(val data: PagedResponse<Game>) : GamesState()
+    data class Error(val message: String) : GamesState()
 }
