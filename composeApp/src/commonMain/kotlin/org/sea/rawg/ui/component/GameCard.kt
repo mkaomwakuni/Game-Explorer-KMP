@@ -90,8 +90,15 @@ fun GameCard(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(if (compact) 120.dp else 180.dp)
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                        )
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = game.name.take(1).uppercase(),
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            )
+                        }
                     }
                 )
 
@@ -223,7 +230,8 @@ fun GameCard(
 @Composable
 fun PlatformTag(
     text: String,
-    shape: RoundedCornerShape = RoundedCornerShape(8.dp)) {
+    shape: RoundedCornerShape = RoundedCornerShape(2.dp)
+) {
     Surface(
         shape = shape,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
