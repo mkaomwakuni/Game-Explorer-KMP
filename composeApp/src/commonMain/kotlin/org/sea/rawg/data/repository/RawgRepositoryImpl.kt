@@ -7,7 +7,13 @@ import org.sea.rawg.data.remote.GamesApiService
 import org.sea.rawg.domain.models.*
 import org.sea.rawg.domain.repository.RawgRepository
 import org.sea.rawg.utils.DateUtils
-import org.sea.rawg.utils.NetworkResource
+import org.sea.rawg.utils.Result
+import org.sea.rawg.data.model.DLC
+import org.sea.rawg.data.model.RedditPost
+import kotlinx.coroutines.delay
+import kotlin.random.Random
+import org.sea.rawg.data.model.ErrorType // Added import for ErrorType
+import org.sea.rawg.data.model.RedditComment
 
 class RawgRepositoryImpl(
     private val apiService: GamesApiService,
@@ -20,7 +26,7 @@ class RawgRepositoryImpl(
         pageSize: Int,
         ordering: String,
         additionalParams: Map<String, String>
-    ): NetworkResource<PagedResponse<Game>> {
+    ): Result<PagedResponse<Game>> {
         return withContext(ioDispatcher) {
             try {
                 val response = apiService.getGames(
@@ -37,20 +43,20 @@ class RawgRepositoryImpl(
                     search_exact = additionalParams["search_exact"],
                     search_precise = additionalParams["search_precise"]
                 )
-                NetworkResource.Success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                NetworkResource.Error(e.message ?: "Unknown error occurred")
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
             }
         }
     }
 
-    override suspend fun getGameDetails(gameId: Int): NetworkResource<Game> {
+    override suspend fun getGameDetails(gameId: Int): Result<Game> {
         return withContext(ioDispatcher) {
             try {
                 val response = apiService.getGameDetails(gameId)
-                NetworkResource.Success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                NetworkResource.Error(e.message ?: "Unknown error occurred")
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
             }
         }
     }
@@ -58,13 +64,13 @@ class RawgRepositoryImpl(
     override suspend fun searchGames(
         query: String,
         page: Int
-    ): NetworkResource<PagedResponse<Game>> {
+    ): Result<PagedResponse<Game>> {
         return withContext(ioDispatcher) {
             try {
                 val response = apiService.searchGames(query, page)
-                NetworkResource.Success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                NetworkResource.Error(e.message ?: "Unknown error occurred")
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
             }
         }
     }
@@ -73,7 +79,7 @@ class RawgRepositoryImpl(
         page: Int,
         pageSize: Int,
         yearsAhead: Int
-    ): NetworkResource<PagedResponse<Game>> {
+    ): Result<PagedResponse<Game>> {
         val tomorrow = DateUtils.getTomorrowDate()
         val futureDate = DateUtils.getFutureDate(yearsAhead)
         
@@ -91,7 +97,7 @@ class RawgRepositoryImpl(
         page: Int,
         pageSize: Int,
         daysBack: Int
-    ): NetworkResource<PagedResponse<Game>> {
+    ): Result<PagedResponse<Game>> {
         val today = DateUtils.getCurrentDate()
         val pastDate = DateUtils.getDateDaysAgo(daysBack)
         
@@ -111,7 +117,7 @@ class RawgRepositoryImpl(
         page: Int,
         pageSize: Int,
         ordering: String
-    ): NetworkResource<PagedResponse<Game>> {
+    ): Result<PagedResponse<Game>> {
         return getGames(
             page = page,
             pageSize = pageSize,
@@ -125,7 +131,7 @@ class RawgRepositoryImpl(
     override suspend fun getMostAnticipatedGames(
         page: Int,
         pageSize: Int
-    ): NetworkResource<PagedResponse<Game>> {
+    ): Result<PagedResponse<Game>> {
         val tomorrow = DateUtils.getTomorrowDate()
         val futureDate = DateUtils.getFutureDate(2)
         
@@ -143,13 +149,13 @@ class RawgRepositoryImpl(
     override suspend fun getGenres(
         page: Int,
         pageSize: Int
-    ): NetworkResource<PagedResponse<Genre>> {
+    ): Result<PagedResponse<Genre>> {
         return withContext(ioDispatcher) {
             try {
                 val response = apiService.getGenres(page, pageSize)
-                NetworkResource.Success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                NetworkResource.Error(e.message ?: "Unknown error occurred")
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
             }
         }
     }
@@ -158,7 +164,7 @@ class RawgRepositoryImpl(
         genreId: Int,
         page: Int,
         pageSize: Int
-    ): NetworkResource<PagedResponse<Game>> {
+    ): Result<PagedResponse<Game>> {
         return withContext(ioDispatcher) {
             try {
                 val response = apiService.getGamesByGenre(
@@ -167,9 +173,9 @@ class RawgRepositoryImpl(
                     pageSize = pageSize,
                     ordering = "-added"
                 )
-                NetworkResource.Success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                NetworkResource.Error(e.message ?: "Unknown error occurred")
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
             }
         }
     }
@@ -178,13 +184,13 @@ class RawgRepositoryImpl(
     override suspend fun getPlatforms(
         page: Int,
         pageSize: Int
-    ): NetworkResource<PagedResponse<Platform>> {
+    ): Result<PagedResponse<Platform>> {
         return withContext(ioDispatcher) {
             try {
                 val response = apiService.getPlatforms(page, pageSize)
-                NetworkResource.Success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                NetworkResource.Error(e.message ?: "Unknown error occurred")
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
             }
         }
     }
@@ -193,13 +199,13 @@ class RawgRepositoryImpl(
     override suspend fun getDevelopers(
         page: Int,
         pageSize: Int
-    ): NetworkResource<PagedResponse<Developer>> {
+    ): Result<PagedResponse<Developer>> {
         return withContext(ioDispatcher) {
             try {
                 val response = apiService.getDevelopers(page, pageSize)
-                NetworkResource.Success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                NetworkResource.Error(e.message ?: "Unknown error occurred")
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
             }
         }
     }
@@ -208,25 +214,25 @@ class RawgRepositoryImpl(
     override suspend fun getPublishers(
         page: Int,
         pageSize: Int
-    ): NetworkResource<PagedResponse<Publisher>> {
+    ): Result<PagedResponse<Publisher>> {
         return withContext(ioDispatcher) {
             try {
                 val response = apiService.getPublishers(page, pageSize)
-                NetworkResource.Success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                NetworkResource.Error(e.message ?: "Unknown error occurred")
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
             }
         }
     }
 
     // Tags
-    override suspend fun getTags(page: Int, pageSize: Int): NetworkResource<PagedResponse<Tag>> {
+    override suspend fun getTags(page: Int, pageSize: Int): Result<PagedResponse<Tag>> {
         return withContext(ioDispatcher) {
             try {
                 val response = apiService.getTags(page, pageSize)
-                NetworkResource.Success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                NetworkResource.Error(e.message ?: "Unknown error occurred")
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
             }
         }
     }
@@ -235,14 +241,119 @@ class RawgRepositoryImpl(
     override suspend fun getStores(
         page: Int,
         pageSize: Int
-    ): NetworkResource<PagedResponse<Store>> {
+    ): Result<PagedResponse<Store>> {
         return withContext(ioDispatcher) {
             try {
                 val response = apiService.getStores(page, pageSize)
-                NetworkResource.Success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                NetworkResource.Error(e.message ?: "Unknown error occurred")
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
             }
         }
+    }
+
+    // DLCs
+    override suspend fun getGameDLCs(
+        gameId: Int,
+        page: Int,
+        pageSize: Int
+    ): Result<List<DLC>> {
+        return withContext(ioDispatcher) {
+            try {
+                val response = apiService.getGameDLCs(gameId, page, pageSize)
+
+                // Convert Game objects to DLC objects
+                val dlcs = response.results.map { game ->
+                    DLC(
+                        id = game.id.toString(),
+                        name = game.name,
+                        backgroundImage = game.background_image,
+                        released = game.released,
+                        rating = game.rating
+                    )
+                }
+
+                Result.success(dlcs)
+            } catch (e: Exception) {
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
+            }
+        }
+    }
+
+    // Reddit posts
+    override suspend fun getGameRedditPosts(
+        gameName: String,
+        count: Int
+    ): Result<List<RedditPost>> {
+        return withContext(ioDispatcher) {
+            try {
+                // First search for the game by name to get its ID
+                val searchResponse = apiService.searchGames(
+                    query = gameName,
+                    page = 1
+                )
+
+                // If we can't find the game, return an empty list
+                if (searchResponse.results.isEmpty()) {
+                    return@withContext Result.success(emptyList<RedditPost>())
+                }
+
+                // Find the best match - for simplicity we'll take the first result
+                val gameId = searchResponse.results.first().id
+
+                // Now fetch Reddit posts using the game ID
+                val response = apiService.getGameRedditPosts(gameId)
+
+                // Map the API response to domain model
+                val posts = response.results.map { post ->
+                    RedditPost(
+                        id = post.id ?: "",
+                        name = post.name ?: "",
+                        url = post.url ?: "",
+                        subreddit = post.subreddit,
+                        createdAt = post.createdAt
+                    )
+                }.take(count) // Limit to requested count
+
+                Result.success(posts)
+            } catch (e: Exception) {
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
+            }
+        }
+    }
+
+    override suspend fun getGameScreenshots(
+        gameId: Int,
+        page: Int,
+        pageSize: Int
+    ): Result<List<Screenshot>> {
+        return withContext(ioDispatcher) {
+            try {
+                val response = apiService.getGameScreenshots(gameId)
+                Result.success(response.results)
+            } catch (e: Exception) {
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
+            }
+        }
+    }
+
+    override suspend fun getSimilarGames(
+        gameId: Int,
+        page: Int,
+        pageSize: Int
+    ): Result<List<Game>> {
+        return withContext(ioDispatcher) {
+            try {
+                val response = apiService.getSimilarGames(gameId)
+                Result.success(response.results)
+            } catch (e: Exception) {
+                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
+            }
+        }
+    }
+
+    // Helper to format numbers with leading zeros
+    private fun padWithZero(number: Int): String {
+        return if (number < 10) "0$number" else number.toString()
     }
 }

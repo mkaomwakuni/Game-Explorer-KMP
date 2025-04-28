@@ -24,7 +24,10 @@ data class Game(
     val genres: List<Genre>? = emptyList(),
     val tags: List<Tag>? = emptyList(),
     val publishers: List<Publisher>? = emptyList(),
-    val description_raw: String? = null
+    val description_raw: String? = null,
+    val screenshots: List<Screenshot>? = emptyList(),
+    val similar_games: List<Game>? = emptyList(),
+    val website: String? = null
 ) {
     // Convenience methods to safely access list fields
     fun getPlatformNames(): List<String> =
@@ -60,4 +63,13 @@ data class StoreDetail(
     val id: Int = 0,
     val name: String = "",
     val slug: String = ""
+)
+
+@Serializable
+data class Screenshot(
+    val id: Int = 0,
+    val image: String = "",
+    val hidden: Boolean = false,
+    val width: Int = 0,
+    val height: Int = 0
 )
