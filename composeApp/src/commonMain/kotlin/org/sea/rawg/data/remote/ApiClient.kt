@@ -10,40 +10,53 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.seconds
+import kotlin.properties.Delegates
 
-/**
- * ApiClient singleton for managing HTTP client configuration
- */
 object ApiClient {
-    val client = HttpClient {
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-                ignoreUnknownKeys = true
-                useAlternativeNames = false
-            }, contentType = ContentType.Application.Json)
-        }
 
-        install(HttpTimeout) {
-            requestTimeoutMillis = 30.seconds.inWholeMilliseconds
-            connectTimeoutMillis = 20.seconds.inWholeMilliseconds
-            socketTimeoutMillis = 30.seconds.inWholeMilliseconds
-        }
+    val client: HttpClient by lazy {
+        createHttpClient()
+    }
 
-        install(Logging) {
-            logger = object : Logger {
-                override fun log(message: String) {
-                    println("ApiClient HTTP: $message")
+    var isInitialized: Boolean by Delegates.observable(false) { _, _, _ -> }
+
+    fun createHttpClient(): HttpClient {
+        try {
+            val httpClient = HttpClient {
+                install(ContentNegotiation) {
+                    json(Json {
+                        prettyPrint = true
+                        isLenient = true
+                        ignoreUnknownKeys = true
+                        useAlternativeNames = false
+                    }, contentType = ContentType.Application.Json)
+                }
+
+                install(HttpTimeout) {
+                    requestTimeoutMillis = 30.seconds.inWholeMilliseconds
+                    connectTimeoutMillis = 20.seconds.inWholeMilliseconds
+                    socketTimeoutMillis = 30.seconds.inWholeMilliseconds
+                }
+
+                install(Logging) {
+                    level = LogLevel.NONE
+                }
+
+                defaultRequest {
+                    contentType(ContentType.Application.Json)
+                    accept(ContentType.Application.Json)
+                    header("User-Agent", "RAWG/API/KMP-GameExplorer-App")
                 }
             }
-            level = LogLevel.ALL
+            isInitialized = true
+            return httpClient
+        } catch (ex: Exception) {
+            isInitialized = false
+            throw ex
         }
+    }
 
-        defaultRequest {
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
-            header("User-Agent", "RAWG/API/KMP-GameExplorer-App")
-        }
+    fun createGamesApiService(client: HttpClient = this.client): GamesApiService {
+        return GamesApiServiceImpl(client)
     }
 }
