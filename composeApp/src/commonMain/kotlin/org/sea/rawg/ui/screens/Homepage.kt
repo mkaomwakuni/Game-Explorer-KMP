@@ -26,33 +26,45 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.koin.compose.viewmodel.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
-import org.sea.rawg.data.repository.GamesState
-import org.sea.rawg.navigation.NavigationRoutes
 import org.sea.rawg.ui.FullScreenLoading
 import org.sea.rawg.ui.component.ErrorState
 import org.sea.rawg.ui.component.GameCard
 import org.sea.rawg.ui.component.SectionHeader
+import org.sea.rawg.ui.viewmodel.GamesState
 import org.sea.rawg.ui.viewmodel.HomeViewModel
+import org.sea.rawg.navigation.NavigationRoutes
 
+/**
+ * Homepage screen component that displays various game categories.
+ * 
+ * This screen displays four categories of games:
+ * - Popular Games
+ * - Upcoming Games
+ * - Recent Releases
+ * - Top Rated Games
+ * 
+ * @param navigator Navigation controller for screen transitions
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Homepage(navigator: Navigator) {
-    val viewModel = remember { HomeViewModel() }
+    // Get ViewModel instance using Koin
+    val viewModel = koinViewModel<HomeViewModel>()
+    
+    // Collect all game category states from the ViewModel
+    val popularGamesState = viewModel.popularGamesState.collectAsState().value
+    val upcomingGamesState = viewModel.upcomingGamesState.collectAsState().value
+    val recentReleasesState = viewModel.newReleasesState.collectAsState().value
+    val topRatedGamesState = viewModel.topRatedGamesState.collectAsState().value
 
-    // Collect all four game category states
-    val upcomingGamesState by viewModel.upcomingGames.collectAsState()
-    val topRatedGamesState by viewModel.topRatedGames.collectAsState()
-    val recentReleasesState by viewModel.recentReleases.collectAsState()
-    val popularGamesState by viewModel.popularGames.collectAsState()
-
-    // Load data initially
+    // Initialize data when the screen first composes
     LaunchedEffect(Unit) {
-        viewModel.refresh()
+        viewModel.initialize()
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -97,86 +109,11 @@ fun Homepage(navigator: Navigator) {
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            // 1. Upcoming Games Section (Future Releases)
+            // 1. Popular Games Section
             item {
                 Spacer(modifier = Modifier.height(16.dp))
                 SectionHeader(
-                    title = viewModel.upcomingGamesTitle,
-                    actionText = "View All",
-                    onActionClick = { navigator.navigate(NavigationRoutes.UPCOMING_GAMES) },
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                GameCategoryRow(
-                    gamesState = upcomingGamesState,
-                    onRetry = { viewModel.refresh() },
-                    onGameClick = { gameId ->
-                        navigator.navigate(
-                            NavigationRoutes.gameDetailsRoute(
-                                gameId
-                            )
-                        )
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            // 2. Recent Releases Section (Past Releases)
-            item {
-                SectionHeader(
-                    title = viewModel.recentReleasesTitle,
-                    actionText = "View All",
-                    onActionClick = { /* Navigate to full list */ },
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                GameCategoryRow(
-                    gamesState = recentReleasesState,
-                    onRetry = { viewModel.refresh() },
-                    onGameClick = { gameId ->
-                        navigator.navigate(
-                            NavigationRoutes.gameDetailsRoute(
-                                gameId
-                            )
-                        )
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            // 3. Top Rated Games Section
-            item {
-                SectionHeader(
-                    title = viewModel.topRatedGamesTitle,
-                    actionText = "View All",
-                    onActionClick = { /* Navigate to full list */ },
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                GameCategoryRow(
-                    gamesState = topRatedGamesState,
-                    onRetry = { viewModel.refresh() },
-                    onGameClick = { gameId ->
-                        navigator.navigate(
-                            NavigationRoutes.gameDetailsRoute(
-                                gameId
-                            )
-                        )
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            // 4. Popular Games Section
-            item {
-                SectionHeader(
-                    title = viewModel.popularGamesTitle,
+                    title = "Popular Games",
                     actionText = "View All",
                     onActionClick = { /* Navigate to full list */ },
                     modifier = Modifier.padding(horizontal = 16.dp)
@@ -185,7 +122,82 @@ fun Homepage(navigator: Navigator) {
 
                 GameCategoryRow(
                     gamesState = popularGamesState,
-                    onRetry = { viewModel.refresh() },
+                    onRetry = { viewModel.fetchPopularGames() },
+                    onGameClick = { gameId ->
+                        navigator.navigate(
+                            NavigationRoutes.gameDetailsRoute(
+                                gameId
+                            )
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // 2. Upcoming Games Section
+            item {
+                SectionHeader(
+                    title = "Upcoming Games",
+                    actionText = "View All",
+                    onActionClick = { navigator.navigate(NavigationRoutes.UPCOMING_GAMES) },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                GameCategoryRow(
+                    gamesState = upcomingGamesState,
+                    onRetry = { viewModel.fetchUpcomingGames() },
+                    onGameClick = { gameId ->
+                        navigator.navigate(
+                            NavigationRoutes.gameDetailsRoute(
+                                gameId
+                            )
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // 3. Recent Releases Section
+            item {
+                SectionHeader(
+                    title = "Recent Releases",
+                    actionText = "View All",
+                    onActionClick = { /* Navigate to full list */ },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                GameCategoryRow(
+                    gamesState = recentReleasesState,
+                    onRetry = { viewModel.fetchRecentReleases() },
+                    onGameClick = { gameId ->
+                        navigator.navigate(
+                            NavigationRoutes.gameDetailsRoute(
+                                gameId
+                            )
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // 4. Top Rated Games Section
+            item {
+                SectionHeader(
+                    title = "Top Rated Games",
+                    actionText = "View All",
+                    onActionClick = { /* Navigate to full list */ },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                GameCategoryRow(
+                    gamesState = topRatedGamesState,
+                    onRetry = { viewModel.fetchTopRatedGames() },
                     onGameClick = { gameId ->
                         navigator.navigate(
                             NavigationRoutes.gameDetailsRoute(
@@ -201,6 +213,14 @@ fun Homepage(navigator: Navigator) {
     }
 }
 
+/**
+ * Displays a horizontal row of games based on the current state
+ * 
+ * @param gamesState The current state of the game data (loading, success, error)
+ * @param onRetry Callback to retry loading if there was an error
+ * @param onGameClick Callback when a game is clicked, with the game ID
+ * @param modifier Optional modifier for the layout
+ */
 @Composable
 private fun GameCategoryRow(
     gamesState: GamesState,
