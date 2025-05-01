@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,15 +14,19 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -29,14 +34,21 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.StarHalf
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.Gamepad
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Launch
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,6 +56,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,21 +67,25 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
+import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.Navigator
 import org.sea.rawg.domain.models.Game
+import org.sea.rawg.domain.models.Screenshot
 import org.sea.rawg.presentation.models.GameState
 import org.sea.rawg.ui.FullScreenLoading
 import org.sea.rawg.ui.component.AsyncImage
@@ -79,12 +98,32 @@ import org.sea.rawg.ui.component.StoreChip
 import org.sea.rawg.ui.component.TagChip
 import org.sea.rawg.ui.viewmodel.GameDetailsViewModel
 import kotlin.math.min
+import org.sea.rawg.data.model.DLC
+import org.sea.rawg.data.model.RedditPost
+import org.sea.rawg.ui.component.gamedetail.DLCSection
+import org.sea.rawg.ui.component.gamedetail.RedditDiscussionsSection
+import org.sea.rawg.ui.component.SectionTitle
+import org.sea.rawg.ui.component.gamedetail.GameDetailHeader
+import org.sea.rawg.ui.component.gamedetail.GameRatingBar
+import org.sea.rawg.ui.component.gamedetail.GameQuickStatsSection
+import org.sea.rawg.ui.screens.gamedetail.GameDetailDLCSection
+import org.sea.rawg.ui.screens.gamedetail.GameScreenshotsSection
+import org.sea.rawg.ui.screens.gamedetail.SimilarGamesSection
+import org.sea.rawg.ui.screens.gamedetail.GameWebsiteButtonWithSeparator
+import org.sea.rawg.ui.screens.gamedetail.FullScreenImageViewer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameDetails(navigator: Navigator, gameId: Int) {
     val viewModel = remember { GameDetailsViewModel() }
     val gameState by viewModel.gameDetails.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    // Handle back button press
+    BackHandler {
+        navigator.popBackStack()
+    }
 
     // Load game details initially
     LaunchedEffect(gameId) {
@@ -93,6 +132,30 @@ fun GameDetails(navigator: Navigator, gameId: Int) {
 
     // Track if the game is bookmarked (would be connected to a repository in a real app)
     var isBookmarked by remember { mutableStateOf(false) }
+
+    // Get DLCs and Reddit posts from ViewModel
+    val dlcs by viewModel.dlcs.collectAsState()
+    val redditPosts by viewModel.redditPosts.collectAsState()
+    val isDlcsLoading by viewModel.isDlcsLoading.collectAsState()
+    val isRedditLoading by viewModel.isRedditLoading.collectAsState()
+    val screenshots by viewModel.screenshots.collectAsState()
+    val similarGames by viewModel.similarGames.collectAsState()
+    val isScreenshotsLoading by viewModel.isScreenshotsLoading.collectAsState()
+    val isSimilarGamesLoading by viewModel.isSimilarGamesLoading.collectAsState()
+
+    // State for full screen screenshot viewer
+    var selectedScreenshotUrl by remember { mutableStateOf<String?>(null) }
+
+    // Get the URI handler
+    val uriHandler = LocalUriHandler.current
+
+    // Share action handler
+    val shareGame: () -> Unit = {
+        // In a real implementation, this would share the game details
+        scope.launch {
+            snackbarHostState.showSnackbar("Sharing game details...")
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         when (gameState) {
@@ -109,128 +172,100 @@ fun GameDetails(navigator: Navigator, gameId: Int) {
 
             is GameState.Success -> {
                 val game = (gameState as GameState.Success).data
-                ImmersiveGameDetailsContent(game, navigator, isBookmarked) {
-                    isBookmarked = !isBookmarked
-                }
+                // Debug print to verify website URL
+                println("Game website URL: ${game.website}")
+                GameDetailsContent(
+                    game = game,
+                    isBookmarked = isBookmarked,
+                    dlcs = dlcs,
+                    redditPosts = redditPosts,
+                    screenshots = screenshots,
+                    similarGames = similarGames,
+                    isDlcsLoading = isDlcsLoading,
+                    isRedditLoading = isRedditLoading,
+                    isScreenshotsLoading = isScreenshotsLoading,
+                    isSimilarGamesLoading = isSimilarGamesLoading,
+                    onBackPressed = { navigator.popBackStack() },
+                    onSharePressed = shareGame,
+                    onOpenWebsite = { url ->
+                        uriHandler.openUri(url)
+                    },
+                    onBookmarkToggle = {
+                        isBookmarked = !isBookmarked
+                        // Show a snackbar when bookmarking/unbookmarking
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = if (isBookmarked) "${game.name} added to favorites"
+                                else "${game.name} removed from favorites"
+                            )
+                        }
+                    },
+                    onScreenshotClick = { imageUrl ->
+                        selectedScreenshotUrl = imageUrl
+                    },
+                    onSimilarGameClick = { gameId ->
+                        // Navigate to the selected game detail screen
+                        navigator.navigate("game/$gameId")
+                    }
+                )
             }
         }
+
+        // Full screen image viewer for screenshots
+        selectedScreenshotUrl?.let { imageUrl ->
+            FullScreenImageViewer(
+                imageUrl = imageUrl,
+                onDismiss = { selectedScreenshotUrl = null }
+            )
+        }
+
+        // Snackbar host at the bottom with proper system bars padding
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .systemBarsPadding()
+                .padding(16.dp)
+        )
     }
 }
 
 @Composable
-private fun ImmersiveGameDetailsContent(
+private fun GameDetailsContent(
     game: Game,
-    navigator: Navigator,
     isBookmarked: Boolean,
-    onBookmarkToggle: () -> Unit
+    dlcs: List<DLC>,
+    redditPosts: List<RedditPost>,
+    screenshots: List<Screenshot>,
+    similarGames: List<Game>,
+    isDlcsLoading: Boolean,
+    isRedditLoading: Boolean,
+    isScreenshotsLoading: Boolean,
+    isSimilarGamesLoading: Boolean,
+    onBackPressed: () -> Unit,
+    onSharePressed: () -> Unit,
+    onOpenWebsite: (String) -> Unit,
+    onBookmarkToggle: () -> Unit,
+    onScreenshotClick: (String) -> Unit,
+    onSimilarGameClick: (Int) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val scrollProgress = remember { derivedStateOf { scrollState.value.toFloat() / 400f } }
     val headerParallaxEffect = animateFloatAsState(targetValue = min(scrollProgress.value, 1f))
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val uriHandler = LocalUriHandler.current
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Background header image with parallax effect - extending to status bar
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(400.dp)
-        ) {
-            if (game.background_image != null) {
-                AsyncImage(
-                    url = game.background_image,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer {
-                            // Parallax effect - image moves up as we scroll
-                            translationY = -headerParallaxEffect.value * 150f
-                        }
-                        .blur(radius = (headerParallaxEffect.value * 5).dp) // Reduced blur for better visibility
-                )
-
-                // Gradient overlay for better readability
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Black.copy(alpha = 0.3f), // Darker at top for text visibility
-                                    Color.Black.copy(alpha = 0.1f),
-                                    Color.Black.copy(alpha = 0.7f)
-                                )
-                            )
-                        )
-                )
-            } else {
-                GameImagePlaceholder()
-            }
-        }
-
-        // Top app bar actions (Back button, share, bookmark) positioned at the top
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp) // Safe area padding
-        ) {
-            // Back button at top-start
-            IconButton(
-                onClick = { navigator.popBackStack() },
-                modifier = Modifier.align(Alignment.TopStart)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-
-            // Action buttons at top-end
-            Row(
-                modifier = Modifier.align(Alignment.TopEnd),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                IconButton(onClick = { /* Share functionality */ }) {
-                    Icon(
-                        imageVector = Icons.Filled.Share,
-                        contentDescription = "Share",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-                IconButton(onClick = onBookmarkToggle) {
-                    Icon(
-                        imageVector = if (isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                        contentDescription = if (isBookmarked) "Remove Bookmark" else "Add Bookmark",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-        }
-
-        // Game title text positioned at the top below the navigation bar
-        AnimatedVisibility(
-            visible = true,
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 16.dp, top = 56.dp, end = 16.dp)
-        ) {
-            Text(
-                text = game.name,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 22.sp
-                ),
-                color = Color.White,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+        // Game header with parallax effect
+        GameDetailHeader(
+            game = game,
+            headerParallaxEffect = headerParallaxEffect.value,
+            isBookmarked = isBookmarked,
+            onBackPressed = onBackPressed,
+            onSharePressed = onSharePressed,
+            onBookmarkToggle = onBookmarkToggle
+        )
 
         // Main scrollable content
         Column(
@@ -238,51 +273,8 @@ private fun ImmersiveGameDetailsContent(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
-            // Hero section
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(400.dp)
-                    .padding(horizontal = 16.dp),
-                contentAlignment = Alignment.BottomStart
-            ) {
-                Column(
-                    modifier = Modifier.padding(bottom = 32.dp)
-                ) {
-                    // Title - keeping this for visual balance, will be hidden as user scrolls
-                    Text(
-                        text = game.name,
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 32.sp
-                        ),
-                        color = Color.White,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-
-                    // Release date
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CalendarMonth,
-                            contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.8f),
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = game.released ?: "Release date unknown",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.8f)
-                        )
-                    }
-
-                    // Rating display
-                    RatingBar(rating = game.rating, reviewCount = game.ratings_count)
-                }
-            }
+            // Empty space for the header
+            Spacer(modifier = Modifier.height(400.dp))
 
             // Custom hero section divider
             Box(
@@ -326,7 +318,16 @@ private fun ImmersiveGameDetailsContent(
                         .padding(20.dp)
                 ) {
                     // Quick stats
-                    QuickStatsSection(game)
+                    GameQuickStatsSection(game)
+
+                    SectionDivider()
+
+                    // Screenshots Section
+                    GameScreenshotsSection(
+                        screenshots = screenshots,
+                        onScreenshotClick = onScreenshotClick,
+                        isLoading = isScreenshotsLoading
+                    )
 
                     SectionDivider()
 
@@ -352,6 +353,44 @@ private fun ImmersiveGameDetailsContent(
 
                     // Additional info
                     AdditionalInfoSection(game)
+
+                    SectionDivider()
+
+                    // DLC Section
+                    GameDetailDLCSection(
+                        dlcs = dlcs,
+                        isLoading = isDlcsLoading,
+                        onDLCClick = { dlcId ->
+                            // In a real implementation, this would navigate to DLC details
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Viewing DLC details for: $dlcId")
+                            }
+                        }
+                    )
+
+                    SectionDivider()
+
+                    // Reddit Discussions Section
+                    RedditDiscussionsSection(
+                        posts = redditPosts,
+                        uriHandler = uriHandler,
+                        isLoading = isRedditLoading
+                    )
+
+                    SectionDivider()
+
+                    // Similar Games Section
+                    SimilarGamesSection(
+                        similarGames = similarGames,
+                        onGameClick = onSimilarGameClick,
+                        isLoading = isSimilarGamesLoading
+                    )
+
+                    // Website Button
+                    GameWebsiteButtonWithSeparator(
+                        website = game.website,
+                        onOpenWebsite = onOpenWebsite
+                    )
 
                     // Bottom space
                     Spacer(modifier = Modifier.height(40.dp))
@@ -418,77 +457,70 @@ private fun RatingBar(rating: Float, reviewCount: Int) {
 }
 
 @Composable
-private fun QuickStatsSection(game: Game) {
+private fun ScreenshotsSection(screenshots: List<String>, onScreenshotClick: (String) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        SectionTitle(title = "Quick Stats", icon = Icons.Default.Gamepad)
+        SectionTitle(title = "Screenshots")
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(vertical = 8.dp, horizontal = 4.dp)
         ) {
-            StatCard(
-                title = "Rating",
-                value = "${game.rating}/5",
-                icon = Icons.Default.Star,
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            StatCard(
-                title = "Playtime",
-                value = "${game.playtime} hours",
-                icon = Icons.Default.Schedule,
-                modifier = Modifier.weight(1f)
-            )
+            items(screenshots) { screenshotUrl ->
+                Card(
+                    modifier = Modifier
+                        .width(280.dp)
+                        .height(160.dp)
+                        .clickable { onScreenshotClick(screenshotUrl) },
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    AsyncImage(
+                        url = screenshotUrl,
+                        contentDescription = "Screenshot",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun StatCard(
-    title: String,
-    value: String,
-    icon: ImageVector,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
-        )
+private fun FullScreenImageViewer(imageUrl: String, onDismiss: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.9f))
+            .clickable(onClick = onDismiss)
+            .systemBarsPadding(),  // Add padding for system bars
+        contentAlignment = Alignment.Center
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        AsyncImage(
+            url = imageUrl,
+            contentDescription = "Full-screen image",
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f),
+            contentScale = ContentScale.FillWidth
+        )
+
+        // Close button
+        IconButton(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+                .size(48.dp)
+                .background(Color.Black.copy(alpha = 0.5f), CircleShape)
         ) {
             Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(28.dp)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                imageVector = Icons.Default.Close,
+                contentDescription = "Close",
+                tint = Color.White,
+                modifier = Modifier.size(24.dp)
             )
         }
     }
@@ -497,7 +529,7 @@ private fun StatCard(
 @Composable
 private fun AboutSection(description: String?) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        SectionTitle(title = "About", icon = Icons.Default.ContentCopy)
+        SectionTitle(title = "About")
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -513,7 +545,7 @@ private fun AboutSection(description: String?) {
 @Composable
 private fun PlatformsSection(platforms: List<String>) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        SectionTitle(title = "Available Platforms", icon = Icons.Default.Gamepad)
+        SectionTitle(title = "Available Platforms")
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -541,7 +573,7 @@ private fun PlatformsSection(platforms: List<String>) {
 private fun CategoriesSection(genres: List<String>, tags: List<String>) {
     Column(modifier = Modifier.fillMaxWidth()) {
         // Genres section
-        SectionTitle(title = "Genres", icon = Icons.Default.Tag)
+        SectionTitle(title = "Genres")
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -598,7 +630,7 @@ private fun CategoriesSection(genres: List<String>, tags: List<String>) {
 private fun CreditsSection(developers: List<String>, publishers: List<String>) {
     Column(modifier = Modifier.fillMaxWidth()) {
         // Developers section
-        SectionTitle(title = "Development", icon = null)
+        SectionTitle(title = "Development")
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -660,7 +692,7 @@ private fun CreditsSection(developers: List<String>, publishers: List<String>) {
 @Composable
 private fun AdditionalInfoSection(game: Game) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        SectionTitle(title = "Additional Information", icon = null)
+        SectionTitle(title = "Additional Information")
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -733,31 +765,8 @@ private fun AdditionalInfoSection(game: Game) {
                 fontWeight = FontWeight.SemiBold
             )
         }
-    }
-}
 
-@Composable
-private fun SectionTitle(title: String, icon: ImageVector?) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        if (icon != null) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-        }
-
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onSurface
-        )
+       
     }
 }
 
