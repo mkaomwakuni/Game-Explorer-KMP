@@ -1,9 +1,6 @@
 package org.sea.rawg.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,49 +11,28 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.StarHalf
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Extension
-import androidx.compose.material.icons.filled.Forum
-import androidx.compose.material.icons.filled.Gamepad
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Launch
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarOutline
-import androidx.compose.material.icons.filled.Tag
-import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -71,69 +47,58 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.Navigator
+import org.koin.compose.viewmodel.koinViewModel
+import org.sea.rawg.data.model.DLC
+import org.sea.rawg.data.model.RedditPost
 import org.sea.rawg.domain.models.Game
 import org.sea.rawg.domain.models.Screenshot
 import org.sea.rawg.presentation.models.GameState
 import org.sea.rawg.ui.FullScreenLoading
-import org.sea.rawg.ui.component.AsyncImage
 import org.sea.rawg.ui.component.DeveloperChip
 import org.sea.rawg.ui.component.ErrorState
 import org.sea.rawg.ui.component.GenreChip
 import org.sea.rawg.ui.component.PlatformChip
 import org.sea.rawg.ui.component.PublisherChip
+import org.sea.rawg.ui.component.SectionTitle
 import org.sea.rawg.ui.component.StoreChip
 import org.sea.rawg.ui.component.TagChip
-import org.sea.rawg.ui.viewmodel.GameDetailsViewModel
-import kotlin.math.min
-import org.sea.rawg.data.model.DLC
-import org.sea.rawg.data.model.RedditPost
-import org.sea.rawg.ui.component.gamedetail.DLCSection
-import org.sea.rawg.ui.component.gamedetail.RedditDiscussionsSection
-import org.sea.rawg.ui.component.SectionTitle
 import org.sea.rawg.ui.component.gamedetail.GameDetailHeader
-import org.sea.rawg.ui.component.gamedetail.GameRatingBar
 import org.sea.rawg.ui.component.gamedetail.GameQuickStatsSection
+import org.sea.rawg.ui.component.gamedetail.RedditDiscussionsSection
+import org.sea.rawg.ui.screens.gamedetail.FullScreenImageViewer
 import org.sea.rawg.ui.screens.gamedetail.GameDetailDLCSection
 import org.sea.rawg.ui.screens.gamedetail.GameScreenshotsSection
-import org.sea.rawg.ui.screens.gamedetail.SimilarGamesSection
 import org.sea.rawg.ui.screens.gamedetail.GameWebsiteButtonWithSeparator
-import org.sea.rawg.ui.screens.gamedetail.FullScreenImageViewer
+import org.sea.rawg.ui.screens.gamedetail.SimilarGamesSection
+import org.sea.rawg.ui.viewmodel.GameDetailsViewModel
+import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameDetails(navigator: Navigator, gameId: Int) {
-    val viewModel = remember { GameDetailsViewModel() }
+    val viewModel = koinViewModel<GameDetailsViewModel>()
     val gameState by viewModel.gameDetails.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Handle back button press
     BackHandler {
         navigator.popBackStack()
     }
 
-    // Load game details initially
     LaunchedEffect(gameId) {
         viewModel.loadGameDetails(gameId)
     }
 
-    // Track if the game is bookmarked (would be connected to a repository in a real app)
     var isBookmarked by remember { mutableStateOf(false) }
 
-    // Get DLCs and Reddit posts from ViewModel
     val dlcs by viewModel.dlcs.collectAsState()
     val redditPosts by viewModel.redditPosts.collectAsState()
     val isDlcsLoading by viewModel.isDlcsLoading.collectAsState()
@@ -143,15 +108,11 @@ fun GameDetails(navigator: Navigator, gameId: Int) {
     val isScreenshotsLoading by viewModel.isScreenshotsLoading.collectAsState()
     val isSimilarGamesLoading by viewModel.isSimilarGamesLoading.collectAsState()
 
-    // State for full screen screenshot viewer
     var selectedScreenshotUrl by remember { mutableStateOf<String?>(null) }
 
-    // Get the URI handler
     val uriHandler = LocalUriHandler.current
 
-    // Share action handler
     val shareGame: () -> Unit = {
-        // In a real implementation, this would share the game details
         scope.launch {
             snackbarHostState.showSnackbar("Sharing game details...")
         }
@@ -172,8 +133,6 @@ fun GameDetails(navigator: Navigator, gameId: Int) {
 
             is GameState.Success -> {
                 val game = (gameState as GameState.Success).data
-                // Debug print to verify website URL
-                println("Game website URL: ${game.website}")
                 GameDetailsContent(
                     game = game,
                     isBookmarked = isBookmarked,
@@ -192,7 +151,6 @@ fun GameDetails(navigator: Navigator, gameId: Int) {
                     },
                     onBookmarkToggle = {
                         isBookmarked = !isBookmarked
-                        // Show a snackbar when bookmarking/unbookmarking
                         scope.launch {
                             snackbarHostState.showSnackbar(
                                 message = if (isBookmarked) "${game.name} added to favorites"
@@ -204,14 +162,12 @@ fun GameDetails(navigator: Navigator, gameId: Int) {
                         selectedScreenshotUrl = imageUrl
                     },
                     onSimilarGameClick = { gameId ->
-                        // Navigate to the selected game detail screen
                         navigator.navigate("game/$gameId")
                     }
                 )
             }
         }
 
-        // Full screen image viewer for screenshots
         selectedScreenshotUrl?.let { imageUrl ->
             FullScreenImageViewer(
                 imageUrl = imageUrl,
@@ -219,7 +175,6 @@ fun GameDetails(navigator: Navigator, gameId: Int) {
             )
         }
 
-        // Snackbar host at the bottom with proper system bars padding
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
@@ -257,7 +212,6 @@ private fun GameDetailsContent(
     val uriHandler = LocalUriHandler.current
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Game header with parallax effect
         GameDetailHeader(
             game = game,
             headerParallaxEffect = headerParallaxEffect.value,
@@ -267,16 +221,13 @@ private fun GameDetailsContent(
             onBookmarkToggle = onBookmarkToggle
         )
 
-        // Main scrollable content
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
-            // Empty space for the header
             Spacer(modifier = Modifier.height(400.dp))
 
-            // Custom hero section divider
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -301,7 +252,6 @@ private fun GameDetailsContent(
                 )
             }
 
-            // Main content card (slightly elevated above the background)
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
@@ -317,12 +267,10 @@ private fun GameDetailsContent(
                         .fillMaxWidth()
                         .padding(20.dp)
                 ) {
-                    // Quick stats
                     GameQuickStatsSection(game)
 
                     SectionDivider()
 
-                    // Screenshots Section
                     GameScreenshotsSection(
                         screenshots = screenshots,
                         onScreenshotClick = onScreenshotClick,
@@ -331,37 +279,30 @@ private fun GameDetailsContent(
 
                     SectionDivider()
 
-                    // About section (description)
                     AboutSection(game.description_raw)
 
                     SectionDivider()
 
-                    // Platforms section - using getPlatformNames() from Game model
                     PlatformsSection(game.getPlatformNames())
 
                     SectionDivider()
 
-                    // Genres and tags in a grid - using getGenreNames() and getTagNames() from Game model
                     CategoriesSection(game.getGenreNames(), game.getTagNames())
 
                     SectionDivider()
 
-                    // Credits section (developers and publishers) - using getDeveloperNames() and getPublisherNames() from Game model
                     CreditsSection(game.getDeveloperNames(), game.getPublisherNames())
 
                     SectionDivider()
 
-                    // Additional info
                     AdditionalInfoSection(game)
 
                     SectionDivider()
 
-                    // DLC Section
                     GameDetailDLCSection(
                         dlcs = dlcs,
                         isLoading = isDlcsLoading,
                         onDLCClick = { dlcId ->
-                            // In a real implementation, this would navigate to DLC details
                             scope.launch {
                                 snackbarHostState.showSnackbar("Viewing DLC details for: $dlcId")
                             }
@@ -370,7 +311,6 @@ private fun GameDetailsContent(
 
                     SectionDivider()
 
-                    // Reddit Discussions Section
                     RedditDiscussionsSection(
                         posts = redditPosts,
                         uriHandler = uriHandler,
@@ -379,20 +319,17 @@ private fun GameDetailsContent(
 
                     SectionDivider()
 
-                    // Similar Games Section
                     SimilarGamesSection(
                         similarGames = similarGames,
                         onGameClick = onSimilarGameClick,
                         isLoading = isSimilarGamesLoading
                     )
 
-                    // Website Button
                     GameWebsiteButtonWithSeparator(
                         website = game.website,
                         onOpenWebsite = onOpenWebsite
                     )
 
-                    // Bottom space
                     Spacer(modifier = Modifier.height(40.dp))
                 }
             }
@@ -407,7 +344,6 @@ private fun RatingBar(rating: Float, reviewCount: Int) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(bottom = 8.dp)
     ) {
-        // Convert rating to stars (out of 5)
         val fullStars = rating.toInt()
         val hasHalfStar = rating - fullStars >= 0.5f
         val emptyStars = 5 - fullStars - if (hasHalfStar) 1 else 0
@@ -416,7 +352,7 @@ private fun RatingBar(rating: Float, reviewCount: Int) {
             Icon(
                 imageVector = Icons.Default.Star,
                 contentDescription = null,
-                tint = Color(0xFFFFD700), // Gold color
+                tint = Color(0xFFFFD700),
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -441,7 +377,6 @@ private fun RatingBar(rating: Float, reviewCount: Int) {
 
         Spacer(modifier = Modifier.width(4.dp))
 
-        // Rating text
         Text(
             text = "$rating/5",
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
@@ -453,76 +388,6 @@ private fun RatingBar(rating: Float, reviewCount: Int) {
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White.copy(alpha = 0.7f)
         )
-    }
-}
-
-@Composable
-private fun ScreenshotsSection(screenshots: List<String>, onScreenshotClick: (String) -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        SectionTitle(title = "Screenshots")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(vertical = 8.dp, horizontal = 4.dp)
-        ) {
-            items(screenshots) { screenshotUrl ->
-                Card(
-                    modifier = Modifier
-                        .width(280.dp)
-                        .height(160.dp)
-                        .clickable { onScreenshotClick(screenshotUrl) },
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    AsyncImage(
-                        url = screenshotUrl,
-                        contentDescription = "Screenshot",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun FullScreenImageViewer(imageUrl: String, onDismiss: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.9f))
-            .clickable(onClick = onDismiss)
-            .systemBarsPadding(),  // Add padding for system bars
-        contentAlignment = Alignment.Center
-    ) {
-        AsyncImage(
-            url = imageUrl,
-            contentDescription = "Full-screen image",
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f),
-            contentScale = ContentScale.FillWidth
-        )
-
-        // Close button
-        IconButton(
-            onClick = onDismiss,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-                .size(48.dp)
-                .background(Color.Black.copy(alpha = 0.5f), CircleShape)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Close",
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
-        }
     }
 }
 
@@ -572,7 +437,6 @@ private fun PlatformsSection(platforms: List<String>) {
 @Composable
 private fun CategoriesSection(genres: List<String>, tags: List<String>) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Genres section
         SectionTitle(title = "Genres")
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -597,7 +461,6 @@ private fun CategoriesSection(genres: List<String>, tags: List<String>) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Tags section
         Text(
             text = "Tags",
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
@@ -629,7 +492,6 @@ private fun CategoriesSection(genres: List<String>, tags: List<String>) {
 @Composable
 private fun CreditsSection(developers: List<String>, publishers: List<String>) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Developers section
         SectionTitle(title = "Development")
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -661,7 +523,6 @@ private fun CreditsSection(developers: List<String>, publishers: List<String>) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Publishers section
         Text(
             text = "Publishers",
             style = MaterialTheme.typography.titleMedium,
@@ -696,7 +557,6 @@ private fun AdditionalInfoSection(game: Game) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Stores section
         Text(
             text = "Available on",
             style = MaterialTheme.typography.titleMedium,
@@ -705,7 +565,6 @@ private fun AdditionalInfoSection(game: Game) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Use getStoreNames() from Game model
         val storeNames = game.getStoreNames()
         if (storeNames.isEmpty()) {
             Text(
@@ -726,7 +585,6 @@ private fun AdditionalInfoSection(game: Game) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Game ID
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -747,7 +605,6 @@ private fun AdditionalInfoSection(game: Game) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Game slug
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -765,32 +622,6 @@ private fun AdditionalInfoSection(game: Game) {
                 fontWeight = FontWeight.SemiBold
             )
         }
-
-       
-    }
-}
-
-@Composable
-private fun GameImagePlaceholder() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                    )
-                )
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.Gamepad,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            modifier = Modifier.size(80.dp)
-        )
     }
 }
 
