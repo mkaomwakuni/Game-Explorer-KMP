@@ -12,18 +12,13 @@ object GameMapper {
      * Maps network DTO to domain model
      */
     fun mapToDomain(dto: GameDto): Game {
-        // Debug log for background image
-        println("GameMapper: Background image URL: ${dto.backgroundImage}")
 
-        // Ensure URL is properly formatted - sometimes RAWG API returns incomplete URLs
         val backgroundImageUrl = when {
             dto.backgroundImage == null -> null
             dto.backgroundImage.startsWith("http://") || dto.backgroundImage.startsWith("https://") -> dto.backgroundImage
             dto.backgroundImage.startsWith("//") -> "https:${dto.backgroundImage}"
             else -> "https://${dto.backgroundImage}"
         }
-
-        println("GameMapper: Processed background image URL: $backgroundImageUrl")
 
         return Game(
             id = dto.id,
