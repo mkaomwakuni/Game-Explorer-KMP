@@ -20,11 +20,8 @@ fun GameWebsiteButton(
     onOpenWebsite: (String) -> Unit
 ) {
     if (website.isNullOrEmpty()) {
-        println("Website URL is null or empty")
         return
     }
-
-    println("Website URL: $website")
 
     Column(
         modifier = Modifier
@@ -37,7 +34,7 @@ fun GameWebsiteButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(2.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -53,13 +50,24 @@ fun GameWebsiteButton(
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Visit Official Website",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Column {
+                Text(
+                    text = "Visit Official Website",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = formatWebsiteUrl(website),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                )
+            }
         }
     }
+}
+
+private fun formatWebsiteUrl(url: String): String {
+    return url.replace(Regex("^(https?://)?(www\\.)?"), "").trimEnd('/')
 }
 
 @Composable
@@ -68,14 +76,12 @@ fun GameWebsiteButtonWithSeparator(
     onOpenWebsite: (String) -> Unit
 ) {
     if (website.isNullOrEmpty()) {
-        println("Website URL is null or empty in GameWebsiteButtonWithSeparator")
         return
     }
 
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // Decorative separator
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -95,13 +101,11 @@ fun GameWebsiteButtonWithSeparator(
                 )
         )
 
-        // Website button
         GameWebsiteButton(
             website = website,
             onOpenWebsite = onOpenWebsite
         )
 
-        // Bottom padding
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
