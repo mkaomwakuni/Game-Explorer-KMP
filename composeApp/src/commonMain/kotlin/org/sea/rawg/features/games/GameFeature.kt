@@ -9,21 +9,14 @@ import org.sea.rawg.ui.viewmodel.HomeViewModel
 import org.sea.rawg.ui.viewmodel.GenresViewModel
 import org.sea.rawg.ui.viewmodel.PublishersViewModel
 
-/**
- * Game feature module - Contains all game-related functionality
- * 
- * This helps with organizing code by features rather than by technical layers
- */
+
 object GameFeature {
     
-    /**
-     * Get Koin module for the game feature
-     */
     fun getModule(): Module = module {
-        // Use cases
+        
         factory { GetGameDetailsUseCase(get()) }
         
-        // ViewModels
+        
         factoryOf(::GameDetailsViewModel)
         factoryOf(::HomeViewModel)
         factoryOf(::GenresViewModel)

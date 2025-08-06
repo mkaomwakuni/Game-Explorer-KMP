@@ -1,7 +1,4 @@
 package org.sea.rawg.domain.models
-/**
- * Domain model for Reddit post information
- */
 data class RedditPost(
     val id: String,
     val name: String,

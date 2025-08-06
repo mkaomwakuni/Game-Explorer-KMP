@@ -1,5 +1,4 @@
 package org.sea.rawg.di
-
 import io.ktor.client.HttpClient
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module

@@ -12,7 +12,7 @@ import org.sea.rawg.data.model.ThemePreferences
  * this would be backed by persistent storage like Multiplatform Settings.
  */
 class ThemePreferencesRepository {
-    // In-memory cache of the current theme preferences
+    
     private val _themePreferences = mutableStateOf(ThemePreferences())
     val themePreferences: MutableState<ThemePreferences> = _themePreferences
 
@@ -20,11 +20,11 @@ class ThemePreferencesRepository {
      * Predefined color schemes available for selection
      */
     val predefinedColorSchemes = listOf(
-        ColorScheme("Purple (Default)", Color(0xFF8750FC)), // Default purple
-        ColorScheme("Red", Color(0xFFD72638)), // Red
-        ColorScheme("Teal", Color(0xFF26A69A)), // Teal
-        ColorScheme("Orange", Color(0xFFFF9800)), // Orange
-        ColorScheme("Green", Color(0xFF4CAF50)), // Green
+        ColorScheme("Purple (Default)", Color(0xFF8750FC)), 
+        ColorScheme("Red", Color(0xFFD72638)), 
+        ColorScheme("Teal", Color(0xFF26A69A)), 
+        ColorScheme("Orange", Color(0xFFFF9800)), 
+        ColorScheme("Green", Color(0xFF4CAF50)), 
     )
 
     /**

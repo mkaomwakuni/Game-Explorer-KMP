@@ -3,21 +3,15 @@ package org.sea.rawg.data.mappers
 import org.sea.rawg.data.remote.dto.GameDto
 import org.sea.rawg.domain.models.*
 
-/**
- * Mapper for converting Game DTOs to domain models
- * This provides a clean separation between data and domain layers
- */
+
 object GameMapper {
-    /**
-     * Maps network DTO to domain model
-     */
     fun mapToDomain(dto: GameDto): Game {
 
         val backgroundImageUrl = when {
             dto.backgroundImage == null -> null
-            dto.backgroundImage.startsWith("http://") || dto.backgroundImage.startsWith("https://") -> dto.backgroundImage
-            dto.backgroundImage.startsWith("//") -> "https:${dto.backgroundImage}"
-            else -> "https://${dto.backgroundImage}"
+            dto.backgroundImage.startsWith("http:") -> dto.backgroundImage
+            dto.backgroundImage.startsWith("/") -> "https://media.rawg.io${dto.backgroundImage}"
+            else -> "https:${dto.backgroundImage}"
         }
 
         return Game(
@@ -31,7 +25,7 @@ object GameMapper {
             ratings_count = dto.ratingsCount,
             playtime = dto.playtime,
 
-            // Map the nested objects correctly with null safety
+            
             platforms = dto.platforms?.map {
                 PlatformResponse(
                     platform = it.platform?.let { p ->
@@ -56,7 +50,7 @@ object GameMapper {
                 )
             } ?: emptyList(),
 
-            // Map to the full model classes with all required fields
+            
             developers = dto.developers?.map {
                 Developer(
                     id = it.id,

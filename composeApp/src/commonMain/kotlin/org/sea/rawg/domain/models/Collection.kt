@@ -1,8 +1,5 @@
 package org.sea.rawg.domain.models
 
-/**
- * Represents a game collection that can be browsed by the user
- */
 data class Collection(
     val id: Int,
     val name: String,
@@ -12,9 +9,6 @@ data class Collection(
     val queryFilter: CollectionQueryFilter
 )
 
-/**
- * Filter parameters for a collection query
- */
 data class CollectionQueryFilter(
     val ordering: String = "-added",
     val genres: String? = null,

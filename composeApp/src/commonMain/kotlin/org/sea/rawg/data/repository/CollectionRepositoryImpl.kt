@@ -11,7 +11,7 @@ class CollectionRepositoryImpl(
     private val gamesApiService: GamesApiService
 ) : CollectionRepository {
 
-    // Predefined collections
+    
     private val predefinedCollections = listOf(
         Collection(
             id = 1,
@@ -30,7 +30,7 @@ class CollectionRepositoryImpl(
             imageUrl = "https://media.rawg.io/media/games/da1/da1b267764d77221f07a4386b6548e5a.jpg",
             gameType = "RPG",
             queryFilter = CollectionQueryFilter(
-                genres = "5", // RPG genre ID
+                genres = "5", 
                 ordering = "-added"
             )
         ),
@@ -52,7 +52,7 @@ class CollectionRepositoryImpl(
             imageUrl = "https://media.rawg.io/media/games/b45/b45575f34285f2c4479c9a5f719d972e.jpg",
             gameType = "Action",
             queryFilter = CollectionQueryFilter(
-                genres = "3,4", // Action and Adventure genre IDs
+                genres = "3,4", 
                 ordering = "-added"
             )
         ),
@@ -63,7 +63,7 @@ class CollectionRepositoryImpl(
             imageUrl = "https://media.rawg.io/media/games/0bd/0bd5646a3d8ee0ac3314bced91ea306d.jpg",
             gameType = "Strategy",
             queryFilter = CollectionQueryFilter(
-                genres = "10,14", // Strategy and Simulation genre IDs
+                genres = "10,14", 
                 ordering = "-rating"
             )
         ),
@@ -85,7 +85,7 @@ class CollectionRepositoryImpl(
             imageUrl = "https://media.rawg.io/media/games/618/618c2031a07bbff6b4f611f10b6bcdbc.jpg",
             gameType = "PlayStation",
             queryFilter = CollectionQueryFilter(
-                platforms = "187,18,16", // PS5, PS4, PS3
+                platforms = "187,18,16", 
                 ordering = "-added"
             )
         ),
@@ -96,7 +96,7 @@ class CollectionRepositoryImpl(
             imageUrl = "https://media.rawg.io/media/games/4a0/4a0a1316102366260e6f38fd2a9cfdce.jpg",
             gameType = "Xbox",
             queryFilter = CollectionQueryFilter(
-                platforms = "186,1,14", // Xbox Series S/X, Xbox One, Xbox 360
+                platforms = "186,1,14", 
                 ordering = "-added"
             )
         ),
@@ -107,7 +107,7 @@ class CollectionRepositoryImpl(
             imageUrl = "https://media.rawg.io/media/games/713/713269608dc8f2f40f5a670a14b2de94.jpg",
             gameType = "Nintendo",
             queryFilter = CollectionQueryFilter(
-                platforms = "7,8,9,13,83", // Nintendo platforms
+                platforms = "7,8,9,13,83", 
                 ordering = "-added"
             )
         )

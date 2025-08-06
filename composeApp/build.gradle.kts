@@ -23,7 +23,7 @@ kotlin {
             }
         }
         binaries.executable()
-        // Remove the unsupported compiler flag options
+        
     }
 
     androidTarget {
@@ -54,7 +54,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
             implementation(libs.kamel)
-            // Add direct Coil implementation for better image loading
+            
             implementation("io.coil-kt:coil:2.4.0")
             implementation("io.coil-kt:coil-compose:2.4.0")
         }
@@ -80,11 +80,11 @@ kotlin {
             implementation(libs.compose.material3.adaptive)
             implementation(libs.compose.material3.adaptive.layout)
             implementation(libs.compose.material3.adaptive.navigation.suite)
-            // Koin dependencies
+            
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
-            // Add kotlinx-datetime for date handling
+            
             implementation(libs.kotlinx.datetime)
         }
         desktopMain.dependencies {
@@ -96,7 +96,7 @@ kotlin {
             implementation(libs.kamel)
         }
         wasmJsMain.dependencies {
-            // Add only compatible dependencies for WasmJs
+            
             implementation(compose.runtime)
         }
     }
@@ -144,11 +144,11 @@ compose.desktop {
             packageName = "org.sea.rawg"
             packageVersion = "1.0.0"
             windows {
-                // Ensure proper file association and executable settings
+                
                 menuGroup = "KMP-Game Explorer"
             }
         }
-        // Set JVM arguments if needed
+        
         jvmArgs("-Xmx2G")
     }
 }

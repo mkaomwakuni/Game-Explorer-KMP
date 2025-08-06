@@ -7,7 +7,6 @@ class RawgApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize Koin
         AppModule.init()
     }
 }

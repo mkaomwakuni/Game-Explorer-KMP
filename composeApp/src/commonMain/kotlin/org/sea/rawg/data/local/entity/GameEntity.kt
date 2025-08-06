@@ -17,7 +17,7 @@ data class GameEntity(
     val rating: Double,
     val ratingsCount: Int,
     val playtime: Int,
-    // For a real implementation, we would have relationships
-    // defined to other tables like platforms, genres, etc.
-    // or store complex data as JSON
+    
+    
+    
 )

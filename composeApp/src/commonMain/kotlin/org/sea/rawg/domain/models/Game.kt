@@ -2,10 +2,6 @@ package org.sea.rawg.domain.models
 
 import kotlinx.serialization.Serializable
 
-/**
- * Domain model for Game
- * Includes support to ignore unknown keys and parse nested structures
- */
 @Serializable
 data class Game(
     val id: Int = 0,
@@ -17,7 +13,7 @@ data class Game(
     val ratings_count: Int = 0,
     val playtime: Int = 0,
 
-    // Make all list fields nullable with default empty lists
+    
     val platforms: List<PlatformResponse>? = emptyList(),
     val stores: List<StoreResponse>? = emptyList(),
     val developers: List<Developer>? = emptyList(),
@@ -29,7 +25,7 @@ data class Game(
     val similar_games: List<Game>? = emptyList(),
     val website: String? = null
 ) {
-    // Convenience methods to safely access list fields
+    
     fun getPlatformNames(): List<String> =
         platforms?.mapNotNull { it.platform?.name } ?: emptyList()
 
@@ -39,7 +35,6 @@ data class Game(
     fun getTagNames(): List<String> = tags?.map { it.name } ?: emptyList()
     fun getPublisherNames(): List<String> = publishers?.map { it.name } ?: emptyList()
 }
-
 
 @Serializable
 data class PlatformResponse(

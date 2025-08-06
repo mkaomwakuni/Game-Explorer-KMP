@@ -4,10 +4,7 @@ import org.sea.rawg.domain.models.Game
 import org.sea.rawg.domain.repository.RawgRepository
 import org.sea.rawg.utils.Result
 
-/**
- * Use case for retrieving details of a specific game
- * Following clean architecture principles
- */
+
 class GetGameDetailsUseCase(
     private val repository: RawgRepository
 ) {

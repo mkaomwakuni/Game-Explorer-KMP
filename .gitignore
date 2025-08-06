@@ -8,6 +8,7 @@ local.properties
 .idea
 .md
 .psi
+kotlin-js-store/
 .DS_Store
 captures
 .externalNativeBuild

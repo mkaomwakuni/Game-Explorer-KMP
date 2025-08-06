@@ -12,7 +12,7 @@ import org.sea.rawg.data.model.DLC
 import org.sea.rawg.data.model.RedditPost
 import kotlinx.coroutines.delay
 import kotlin.random.Random
-import org.sea.rawg.data.model.ErrorType // Added import for ErrorType
+import org.sea.rawg.data.model.ErrorType
 import org.sea.rawg.data.model.RedditComment
 
 class RawgRepositoryImpl(
@@ -20,7 +20,6 @@ class RawgRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : RawgRepository {
 
-    // Games
     override suspend fun getGames(
         page: Int,
         pageSize: Int,
@@ -65,14 +64,14 @@ class RawgRepositoryImpl(
         query: String,
         page: Int
     ): Result<PagedResponse<Game>> {
-        return withContext(ioDispatcher) {
-            try {
-                val response = apiService.searchGames(query, page)
-                Result.success(response)
-            } catch (e: Exception) {
-                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
-            }
-        }
+        return getGames(
+            page = page,
+            pageSize = 20,
+            ordering = "",
+            additionalParams = mapOf(
+                "search" to query
+            )
+        )
     }
 
     override suspend fun getUpcomingGames(
@@ -86,7 +85,7 @@ class RawgRepositoryImpl(
         return getGames(
             page = page,
             pageSize = pageSize,
-            ordering = "released", 
+            ordering = "released",
             additionalParams = mapOf(
                 "dates" to "$tomorrow,$futureDate"
             )
@@ -145,7 +144,6 @@ class RawgRepositoryImpl(
         )
     }
 
-    // Genres
     override suspend fun getGenres(
         page: Int,
         pageSize: Int
@@ -165,22 +163,16 @@ class RawgRepositoryImpl(
         page: Int,
         pageSize: Int
     ): Result<PagedResponse<Game>> {
-        return withContext(ioDispatcher) {
-            try {
-                val response = apiService.getGamesByGenre(
-                    genreId = genreId,
-                    page = page,
-                    pageSize = pageSize,
-                    ordering = "-added"
-                )
-                Result.success(response)
-            } catch (e: Exception) {
-                Result.error(e.message ?: "Unknown error occurred", ErrorType.NETWORK)
-            }
-        }
+        return getGames(
+            page = page,
+            pageSize = pageSize,
+            ordering = "-added",
+            additionalParams = mapOf(
+                "genres" to genreId.toString()
+            )
+        )
     }
 
-    // Platforms
     override suspend fun getPlatforms(
         page: Int,
         pageSize: Int
@@ -195,7 +187,6 @@ class RawgRepositoryImpl(
         }
     }
 
-    // Developers
     override suspend fun getDevelopers(
         page: Int,
         pageSize: Int
@@ -210,7 +201,6 @@ class RawgRepositoryImpl(
         }
     }
 
-    // Publishers
     override suspend fun getPublishers(
         page: Int,
         pageSize: Int
@@ -225,7 +215,6 @@ class RawgRepositoryImpl(
         }
     }
 
-    // Tags
     override suspend fun getTags(page: Int, pageSize: Int): Result<PagedResponse<Tag>> {
         return withContext(ioDispatcher) {
             try {
@@ -237,7 +226,6 @@ class RawgRepositoryImpl(
         }
     }
 
-    // Stores
     override suspend fun getStores(
         page: Int,
         pageSize: Int
@@ -252,7 +240,6 @@ class RawgRepositoryImpl(
         }
     }
 
-    // DLCs
     override suspend fun getGameDLCs(
         gameId: Int,
         page: Int,
@@ -262,7 +249,6 @@ class RawgRepositoryImpl(
             try {
                 val response = apiService.getGameDLCs(gameId, page, pageSize)
 
-                // Convert Game objects to DLC objects
                 val dlcs = response.results.map { game ->
                     DLC(
                         id = game.id.toString(),
@@ -280,31 +266,25 @@ class RawgRepositoryImpl(
         }
     }
 
-    // Reddit posts
     override suspend fun getGameRedditPosts(
         gameName: String,
         count: Int
     ): Result<List<RedditPost>> {
         return withContext(ioDispatcher) {
             try {
-                // First search for the game by name to get its ID
                 val searchResponse = apiService.searchGames(
                     query = gameName,
                     page = 1
                 )
 
-                // If we can't find the game, return an empty list
                 if (searchResponse.results.isEmpty()) {
                     return@withContext Result.success(emptyList<RedditPost>())
                 }
 
-                // Find the best match - for simplicity we'll take the first result
                 val gameId = searchResponse.results.first().id
 
-                // Now fetch Reddit posts using the game ID
                 val response = apiService.getGameRedditPosts(gameId)
 
-                // Map the API response to domain model
                 val posts = response.results.map { post ->
                     RedditPost(
                         id = post.id ?: "",
@@ -313,7 +293,7 @@ class RawgRepositoryImpl(
                         subreddit = post.subreddit,
                         createdAt = post.createdAt
                     )
-                }.take(count) // Limit to requested count
+                }.take(count)
 
                 Result.success(posts)
             } catch (e: Exception) {
@@ -352,7 +332,6 @@ class RawgRepositoryImpl(
         }
     }
 
-    // Helper to format numbers with leading zeros
     private fun padWithZero(number: Int): String {
         return if (number < 10) "0$number" else number.toString()
     }

@@ -8,7 +8,7 @@ import org.sea.rawg.data.model.RedditResponse
  * Interface for the RAWG API Service (non-premium endpoints)
  */
 interface GamesApiService {
-    // Games
+    
     suspend fun getGames(
         page: Int,
         pageSize: Int,
@@ -31,7 +31,7 @@ interface GamesApiService {
         page: Int
     ): PagedResponse<Game>
 
-    // Genres
+    
     suspend fun getGenres(
         page: Int,
         pageSize: Int
@@ -47,42 +47,42 @@ interface GamesApiService {
         ordering: String
     ): PagedResponse<Game>
 
-    // Platforms
+    
     suspend fun getPlatforms(
         page: Int,
         pageSize: Int
     ): PagedResponse<Platform>
 
-    // Developers
+    
     suspend fun getDevelopers(
         page: Int,
         pageSize: Int
     ): PagedResponse<Developer>
 
-    // Publishers
+    
     suspend fun getPublishers(
         page: Int,
         pageSize: Int
     ): PagedResponse<Publisher>
 
-    // Tags
+    
     suspend fun getTags(
         page: Int,
         pageSize: Int
     ): PagedResponse<Tag>
 
-    // Stores
+    
     suspend fun getStores(page: Int, pageSize: Int): PagedResponse<Store>
 
-    // DLCs - Get a list of DLC's for the game
+    
     suspend fun getGameDLCs(gameId: Int, page: Int, pageSize: Int): PagedResponse<Game>
 
-    // Screenshots - Get screenshots for the game
+    
     suspend fun getGameScreenshots(gameId: Int): ScreenshotsResponse
 
-    // Reddit posts - Get a list of most recent posts from the game's subreddit
+    
     suspend fun getGameRedditPosts(gameId: Int): RedditResponse
 
-    // Similar games - Get a list of visually similar games
+    
     suspend fun getSimilarGames(gameId: Int): PagedResponse<Game>
 }
