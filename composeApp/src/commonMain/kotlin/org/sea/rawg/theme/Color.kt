@@ -2,31 +2,28 @@ package org.sea.rawg.theme
 
 import androidx.compose.ui.graphics.Color
 
-/**
- * Color system for the RAWG application.
- * Organized by semantic naming to ensure theme consistency.
- */
+
 object RAWGColors {
-    // Brand colors
+    
     val Primary = Color(0xFFF24E1E)
     val Secondary = Color(0xFF2B2B2B)
     val Tertiary = Color(0xFF6F49AC)
 
-    // Neutral colors for backgrounds, surfaces, and text
+    
     object Neutral {
-        // Light theme
+        
         val Light = Color(0xFFFFFFFF)
         val LightVariant = Color(0xFFF5F5F5)
         val LightSurface = Color(0xFFF8F8F8)
         val LightSurfaceVariant = Color(0xFFEEEEEE)
 
-        // Dark theme
+        
         val Dark = Color(0xFF121212)
         val DarkVariant = Color(0xFF1E1E1E)
         val DarkSurface = Color(0xFF242424)
         val DarkSurfaceVariant = Color(0xFF2C2C2C)
 
-        // Text colors
+        
         val TextPrimary = Color(0xFF000000)
         val TextSecondary = Color(0xFF636363)
         val TextTertiary = Color(0xFF9E9E9E)
@@ -35,7 +32,7 @@ object RAWGColors {
         val TextInverseSecondary = Color(0xFFD4D4D4)
     }
 
-    // Feedback colors
+    
     object Feedback {
         val Success = Color(0xFF4CAF50)
         val Error = Color(0xFFE53935)
@@ -43,7 +40,7 @@ object RAWGColors {
         val Info = Color(0xFF2196F3)
     }
 
-    // Game rating colors
+    
     object Rating {
         val Exceptional = Color(0xFF66CC33)
         val Recommended = Color(0xFF66CCFF)
@@ -51,7 +48,7 @@ object RAWGColors {
         val Skip = Color(0xFFFF0000)
     }
 
-    // Platform-specific colors
+    
     object Platform {
         val PlayStation = Color(0xFF003791)
         val Xbox = Color(0xFF107C10)
@@ -61,7 +58,6 @@ object RAWGColors {
     }
 }
 
-// Light Theme Colors - Mid/Faint Brown Palette
 val Sand = Color(0xFFF5EDE0)
 val Linen = Color(0xFFF0E6D9)
 val Wheat = Color(0xFFE9D9C2)
@@ -73,7 +69,6 @@ val CoffeeBean = Color(0xFF6F5743)
 val DarkBrown = Color(0xFF4A3B2F)
 val DeepBrown = Color(0xFF362A20)
 
-// Dark Theme Colors - Deeper Brown Palette
 val DarkSand = Color(0xFF352E25)
 val DarkLinen = Color(0xFF403830)
 val DarkWheat = Color(0xFF4F4438)
@@ -85,26 +80,20 @@ val LightCoffeeBean = Color(0xFF9E9081)
 val LightBrown = Color(0xFFB2A596)
 val LightBeige = Color(0xFFD0C3B2)
 
-// Accent Colors that complement the browns
 val TerraCotta = Color(0xFFD17A5D)
 val SageGreen = Color(0xFF8C9F80)
 val DustyBlue = Color(0xFF7C93A1)
 val MutedGold = Color(0xFFCCA352)
 val BerryRed = Color(0xFFAE4C5E)
 
-// Common Colors
 val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
 val Transparent = Color(0x00000000)
 
-// Game Rating Colors
 val HighRating = Color(0xFF7BAF6E)
 val MediumRating = Color(0xFFF5D247)
 val LowRating = Color(0xFFE05E48)
 
-/**
- * Extension function to get a color with alpha applied
- */
 fun Color.withAlpha(alpha: Float): Color {
     return this.copy(alpha = alpha)
 }

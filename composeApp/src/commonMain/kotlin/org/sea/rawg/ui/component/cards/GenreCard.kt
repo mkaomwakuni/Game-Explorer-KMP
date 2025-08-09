@@ -52,8 +52,7 @@ fun GenreCard(
         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Background image
-            genre.image_background?.let { imageUrl ->
+                        genre.image_background?.let { imageUrl ->
                 AsyncImage(
                     url = imageUrl,
                     contentDescription = "${genre.name} image",
@@ -62,8 +61,7 @@ fun GenreCard(
                 )
             }
 
-            // Gradient overlay
-            Box(
+                        Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
@@ -78,8 +76,7 @@ fun GenreCard(
                     )
             )
 
-            // Genre name and games count
-            Column(
+                        Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(12.dp)

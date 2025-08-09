@@ -59,7 +59,7 @@ fun UpcomingGamesScreen(
 ) {
     val viewModel = koinInject<UpcomingGamesViewModel>()
 
-    // State
+    
     val gamesState = viewModel.gamesState.value
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val gridState = rememberLazyGridState()
@@ -96,7 +96,7 @@ fun UpcomingGamesScreen(
             )
         },
         floatingActionButton = {
-            // Show FAB only when not at the top
+            
             val showScrollToTopButton by remember {
                 derivedStateOf { gridState.firstVisibleItemIndex > 0 }
             }
@@ -125,7 +125,7 @@ fun UpcomingGamesScreen(
                 }
 
                 is UpcomingGamesViewModel.UpcomingGamesState.LoadingMore -> {
-                    // Show existing games with loading indicator
+                    
                     if (state.currentGames.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -202,11 +202,11 @@ fun UpcomingGamesGrid(
     isLoading: Boolean,
     onLoadMore: () -> Unit
 ) {
-    // Group games by release month
+    
     val gamesByMonth = games.groupBy { game ->
         game.released?.let { releaseDateStr ->
             try {
-                // Simple parsing of YYYY-MM-DD format
+                
                 val parts = releaseDateStr.split("-")
                 if (parts.size == 3) {
                     val year = parts[0].toInt()
@@ -228,7 +228,7 @@ fun UpcomingGamesGrid(
             state = gridState,
             modifier = Modifier.fillMaxSize()
         ) {
-            // For each month group
+            
             for (entry in gamesByMonth) {
                 val month = entry.key
                 val monthGames = entry.value
@@ -237,7 +237,7 @@ fun UpcomingGamesGrid(
                     MonthHeader(text = month)
                 }
 
-                // Display games for this month
+                
                 for (game in monthGames) {
                     item {
                         UpcomingGameCard(
@@ -248,9 +248,9 @@ fun UpcomingGamesGrid(
                 }
             }
 
-            // Add pagination loading indicator at the bottom
+            
             item(span = { GridItemSpan(maxLineSpan) }) {
-                // Check if we're near the end of the list to load more
+                
                 val lastVisibleItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
                 val totalItems = gridState.layoutInfo.totalItemsCount
 

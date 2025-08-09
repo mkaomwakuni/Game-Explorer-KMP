@@ -108,7 +108,7 @@ fun SectionHeaderSkeleton(
             .fillMaxWidth()
             .padding(horizontal = spacing.medium, vertical = spacing.small)
     ) {
-        // Title placeholder
+        
         Box(
             modifier = Modifier
                 .width(120.dp)
@@ -121,7 +121,7 @@ fun SectionHeaderSkeleton(
 
         if (showSubtitle) {
             Spacer(modifier = Modifier.height(spacing.extraSmall))
-            // Subtitle placeholder
+            
             Box(
                 modifier = Modifier
                     .width(200.dp)

@@ -242,7 +242,7 @@ private fun PublishersContent(
                     start = 16.dp,
                     end = 16.dp,
                     top = padding.calculateTopPadding() + 8.dp,
-                    bottom = padding.calculateBottomPadding() + 80.dp // Extra space for loading indicator
+                    bottom = padding.calculateBottomPadding() + 80.dp
                 ),
                 verticalItemSpacing = 16.dp,
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -264,7 +264,6 @@ private fun PublishersContent(
                 }
             }
 
-            // Optimized pagination logic
             val shouldLoadMore by remember {
                 derivedStateOf {
                     val layoutInfo = gridState.layoutInfo
@@ -275,23 +274,23 @@ private fun PublishersContent(
                         false
                     } else {
                         val lastVisibleIndex = visibleItems.maxOfOrNull { it.index } ?: 0
-                        val threshold = 10 // Load when 8 items from bottom
+                        val threshold = 10
                         lastVisibleIndex >= totalItems - threshold
                     }
                 }
             }
 
-            // Single LaunchedEffect for pagination with proper debouncing
+            
             LaunchedEffect(shouldLoadMore) {
                 if (shouldLoadMore) {
-                    delay(400) // Debounce rapid scroll events
+                    delay(400) 
                     if (shouldLoadMore && !isLoadingMore && hasMore) {
                         viewModel.loadPublishers()
                     }
                 }
             }
 
-            // Loading indicator overlay at bottom
+            
             if (isLoadingMore) {
                 Box(
                     modifier = Modifier

@@ -31,14 +31,14 @@ expect fun AsyncImage(
             contentAlignment = Alignment.Center
         ) {
             if (url.isEmpty()) {
-                // Empty URL placeholder
+                
                 Icon(
                     imageVector = Icons.Default.BrokenImage,
                     contentDescription = null,
                     tint = Color.Gray
                 )
             } else {
-                // Loading placeholder
+                
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.fillMaxSize(0.3f)

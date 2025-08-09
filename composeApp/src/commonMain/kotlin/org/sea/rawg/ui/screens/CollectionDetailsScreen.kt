@@ -66,16 +66,14 @@ fun CollectionDetailsScreen(navigator: Navigator, collectionId: Int) {
     val viewModel: CollectionsViewModel = koinInject()
     val gridState = rememberLazyGridState()
 
-    // Load the collection when the screen is first shown
-    LaunchedEffect(collectionId) {
+        LaunchedEffect(collectionId) {
         viewModel.loadCollection(collectionId)
     }
 
     val collectionState by viewModel.collectionState.collectAsState()
     val gamesState by viewModel.gamesState.collectAsState()
     
-    // Handle scrolling to load more games
-    LaunchedEffect(gridState) {
+        LaunchedEffect(gridState) {
         snapshotFlow { gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleIndex ->
                 if (lastVisibleIndex != null) {
@@ -85,8 +83,7 @@ fun CollectionDetailsScreen(navigator: Navigator, collectionId: Int) {
                             is PagedDataState.LoadingMore -> state.data.results.size
                             else -> 0
                         }
-                    // If we're close to the end of the list, load more games
-                    if (lastVisibleIndex >= totalItems - 5 && totalItems > 0) {
+                                        if (lastVisibleIndex >= totalItems - 5 && totalItems > 0) {
                         viewModel.loadMoreGames()
                     }
                 }
@@ -94,8 +91,7 @@ fun CollectionDetailsScreen(navigator: Navigator, collectionId: Int) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Content with collection header and games
-        Column(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.fillMaxSize()) {
             when (val state = collectionState) {
                 is DataState.Loading -> {
                     Box(
@@ -110,22 +106,19 @@ fun CollectionDetailsScreen(navigator: Navigator, collectionId: Int) {
 
                 is DataState.Success -> {
                     val collection = state.data
-                    // Collection header with background image and title
-                    Box(
+                                        Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp)
                     ) {
-                        // Background image
-                        AsyncImage(
+                                                AsyncImage(
                             url = collection.imageUrl,
                             contentDescription = collection.name,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )
                         
-                        // Gradient overlay for better text readability
-                        Box(
+                                                Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .background(
@@ -138,8 +131,7 @@ fun CollectionDetailsScreen(navigator: Navigator, collectionId: Int) {
                                 )
                         )
                         
-                        // Top app bar positioned within the header image
-                        TopAppBar(
+                                                TopAppBar(
                             title = { },
                             navigationIcon = {
                                 IconButton(onClick = { navigator.goBack() }) {
@@ -156,8 +148,7 @@ fun CollectionDetailsScreen(navigator: Navigator, collectionId: Int) {
                             )
                         )
 
-                        // Collection info overlay at the bottom
-                        Surface(
+                                                Surface(
                             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -210,8 +201,7 @@ fun CollectionDetailsScreen(navigator: Navigator, collectionId: Int) {
                         }
                     }
                     
-                    // Games section title
-                    Spacer(modifier = Modifier.height(16.dp))
+                                        Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         "Games in this collection",
                         style = MaterialTheme.typography.titleLarge,
@@ -261,8 +251,7 @@ fun CollectionDetailsScreen(navigator: Navigator, collectionId: Int) {
                 }
             }
 
-            // Games grid section
-            when (val state = gamesState) {
+                        when (val state = gamesState) {
                 is PagedDataState.Loading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -280,8 +269,7 @@ fun CollectionDetailsScreen(navigator: Navigator, collectionId: Int) {
                 }
 
                 is PagedDataState.LoadingMore -> {
-                    // Show both the list and a loading indicator
-                    if (state.data.results.isEmpty()) {
+                                        if (state.data.results.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -400,8 +388,7 @@ fun CollectionGamesGrid(
             )
         }
         
-        // Show loading indicator at the bottom while loading more
-        if (isLoading) {
+                if (isLoading) {
             item {
                 Box(
                     modifier = Modifier
@@ -432,15 +419,12 @@ fun CollectionGameCard(
             .clickable(onClick = onClick),
         shape = MaterialTheme.shapes.small, // 2dp rounded corners as per theme definition
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp // No shadow for better blending
-        ),
+            defaultElevation = 0.dp         ),
         colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent // Fully transparent container
-        )
+            containerColor = Color.Transparent         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Game image
-            game.background_image?.let { imageUrl ->
+                        game.background_image?.let { imageUrl ->
                 AsyncImage(
                     url = imageUrl,
                     contentDescription = "${game.name} image",
@@ -449,25 +433,20 @@ fun CollectionGameCard(
                 )
             }
 
-            // Gradient overlay for fading effect
-            Box(
+                        Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(
-                                MaterialTheme.colorScheme.background.copy(alpha = 0.6f), // Fade from background color at top
-                                Color.Transparent, // Transparent in middle
-                                Color.Black.copy(alpha = 0.6f) // Dark at bottom
-                            ),
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.6f),                                 Color.Transparent,                                 Color.Black.copy(alpha = 0.6f)                             ),
                             startY = 0f,
                             endY = Float.POSITIVE_INFINITY
                         )
                     )
             )
 
-            // Game info at the bottom
-            Column(
+                        Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -482,8 +461,7 @@ fun CollectionGameCard(
                     color = Color.White
                 )
 
-                // Rating if available
-                game.rating?.let { rating ->
+                                game.rating?.let { rating ->
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

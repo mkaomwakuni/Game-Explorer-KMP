@@ -54,25 +54,21 @@ fun PublisherDetailsScreen(
     val gridState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
 
-    // State for publisher games
-    val gamesByPublisherState =
+        val gamesByPublisherState =
         remember { mutableStateOf<GamesByPublisherState>(GamesByPublisherState.Loading) }
     var currentPage = remember { mutableStateOf(1) }
     var isLoadingMoreGames = remember { mutableStateOf(false) }
     var hasMoreGames = remember { mutableStateOf(true) }
 
-    // Repository for direct API access
-    val repository = koinInject<RawgRepository>()
+        val repository = koinInject<RawgRepository>()
 
-    // Find the selected publisher from the publishers list
-    val selectedPublisher = remember(publishersState, publisherId) {
+        val selectedPublisher = remember(publishersState, publisherId) {
         if (publishersState is PublishersViewModel.PublishersState.Success) {
             (publishersState as PublishersViewModel.PublishersState.Success).publishers.find { it.id == publisherId }
         } else null
     }
 
-    // Function to load games by publisher
-    fun loadGamesByPublisher(refresh: Boolean = false) {
+        fun loadGamesByPublisher(refresh: Boolean = false) {
         if (refresh) {
             currentPage.value = 1
             hasMoreGames.value = true
@@ -106,8 +102,7 @@ fun PublisherDetailsScreen(
                                 gamesByPublisherState.value =
                                     GamesByPublisherState.Success(newData.results)
                             } else {
-                                // Append to existing games
-                                val currentGames =
+                                                                val currentGames =
                                     (gamesByPublisherState.value as? GamesByPublisherState.Success)?.games
                                         ?: emptyList()
                                 val combinedGames = currentGames + newData.results
@@ -115,8 +110,7 @@ fun PublisherDetailsScreen(
                                     GamesByPublisherState.Success(combinedGames)
                             }
 
-                            // Increment page for next load
-                            if (hasMoreGames.value) {
+                                                        if (hasMoreGames.value) {
                                 currentPage.value++
                             }
                         }
@@ -129,8 +123,7 @@ fun PublisherDetailsScreen(
                     }
 
                     else -> {
-                        // Handle other states if needed
-                    }
+                                            }
                 }
             } catch (e: Exception) {
                 gamesByPublisherState.value = GamesByPublisherState.Error(e.message)
@@ -140,21 +133,18 @@ fun PublisherDetailsScreen(
         }
     }
 
-    // Load games when screen appears
-    LaunchedEffect(publisherId) {
+        LaunchedEffect(publisherId) {
         loadGamesByPublisher(refresh = true)
     }
 
-    // Handle scroll to load more
-    LaunchedEffect(gridState) {
+        LaunchedEffect(gridState) {
         snapshotFlow { gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleIndex ->
                 if (lastVisibleIndex != null) {
                     val gamesList =
                         (gamesByPublisherState.value as? GamesByPublisherState.Success)?.games
                             ?: emptyList()
-                    // If we're close to the end of the list, load more games
-                    if (lastVisibleIndex >= gamesList.size - 5 && gamesList.isNotEmpty() && hasMoreGames.value && !isLoadingMoreGames.value) {
+                                        if (lastVisibleIndex >= gamesList.size - 5 && gamesList.isNotEmpty() && hasMoreGames.value && !isLoadingMoreGames.value) {
                         loadGamesByPublisher(refresh = false)
                     }
                 }
@@ -163,28 +153,24 @@ fun PublisherDetailsScreen(
 
     Scaffold(
         topBar = {
-            // Removed TopAppBar here
-        }
+                    }
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Publisher header
-            selectedPublisher?.let { publisher ->
+                        selectedPublisher?.let { publisher ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    // Publisher header with background image
-                    Box(
+                                        Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp)
                     ) {
-                        // Background image
-                        publisher.image_background?.let { imageUrl ->
+                                                publisher.image_background?.let { imageUrl ->
                             AsyncImage(
                                 url = imageUrl,
                                 contentDescription = "${publisher.name} background",
@@ -193,8 +179,7 @@ fun PublisherDetailsScreen(
                             )
                         }
                         
-                        // Gradient overlay for better text readability
-                        Box(
+                                                Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .background(
@@ -207,8 +192,7 @@ fun PublisherDetailsScreen(
                                 )
                         )
                         
-                        // Top app bar positioned within the header image
-                        TopAppBar(
+                                                TopAppBar(
                             title = { 
                                 Column {
                                     Text(
@@ -242,8 +226,7 @@ fun PublisherDetailsScreen(
                             )
                         )
 
-                        // Overlay with publisher info
-                        Surface(
+                                                Surface(
                             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -286,8 +269,7 @@ fun PublisherDetailsScreen(
                         }
                     }
 
-                    // Games by this publisher section
-                    Spacer(modifier = Modifier.height(16.dp))
+                                        Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         "Games by ${publisher.name}",
                         style = MaterialTheme.typography.titleLarge,
@@ -364,8 +346,7 @@ fun PublisherDetailsScreen(
                                         )
                                     }
 
-                                    // Show loading indicator at the bottom while loading more
-                                    if (isLoadingMoreGames.value) {
+                                                                        if (isLoadingMoreGames.value) {
                                         item {
                                             Box(
                                                 modifier = Modifier
@@ -432,8 +413,7 @@ fun PublisherDetailsScreen(
                     }
                 }
             } ?: run {
-                // Publisher not found
-                Box(
+                                Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
@@ -501,15 +481,12 @@ private fun PublisherGameCard(
             .clickable(onClick = onClick),
         shape = MaterialTheme.shapes.small,
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp // No shadow for better blending
-        ),
+            defaultElevation = 0.dp         ),
         colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent // Fully transparent container
-        )
+            containerColor = Color.Transparent         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Game image
-            game.background_image?.let { imageUrl ->
+                        game.background_image?.let { imageUrl ->
                 AsyncImage(
                     url = imageUrl,
                     contentDescription = "${game.name} image",
@@ -518,25 +495,20 @@ private fun PublisherGameCard(
                 )
             }
 
-            // Gradient overlay for fading effect
-            Box(
+                        Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(
-                                MaterialTheme.colorScheme.background.copy(alpha = 0.6f), // Fade from background color at top
-                                Color.Transparent, // Transparent in middle
-                                Color.Black.copy(alpha = 0.6f) // Dark at bottom
-                            ),
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.6f),                                 Color.Transparent,                                 Color.Black.copy(alpha = 0.6f)                             ),
                             startY = 0f,
                             endY = Float.POSITIVE_INFINITY
                         )
                     )
             )
 
-            // Game info at the bottom
-            Column(
+                        Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -551,8 +523,7 @@ private fun PublisherGameCard(
                     color = Color.White
                 )
 
-                // Rating if available
-                game.rating?.let { rating ->
+                                game.rating?.let { rating ->
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

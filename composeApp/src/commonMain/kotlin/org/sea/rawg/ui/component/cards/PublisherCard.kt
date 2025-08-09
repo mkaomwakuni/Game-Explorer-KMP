@@ -49,11 +49,11 @@ fun PublisherCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Random height for staggered effect (between 180dp and 260dp)
+    
     val height = remember { 180.dp + (Random.nextInt(5) * 20).dp }
-    // Set fixed corner radius to 2dp
+    
     val cornerRadius = 2.dp
-    // Use safe positive padding values only
+    
     val topPadding = remember { (Random.nextInt(5) * 2).dp }
     val horizontalPadding = remember { (Random.nextInt(3) * 2).dp }
 
@@ -70,7 +70,7 @@ fun PublisherCard(
         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Background image with gradient overlay
+            
             publisher.image_background?.let { imageUrl ->
                 AsyncImage(
                     url = imageUrl,
@@ -82,7 +82,7 @@ fun PublisherCard(
                         .drawWithCache {
                             onDrawWithContent {
                                 drawContent()
-                                // Create a more dramatic gradient fade effect at the bottom
+                                
                                 drawRect(
                                     brush = Brush.verticalGradient(
                                         colors = listOf(
@@ -100,7 +100,7 @@ fun PublisherCard(
                 )
             }
 
-            // Colored overlay circle for logo/icon
+            
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
@@ -119,14 +119,14 @@ fun PublisherCard(
                 }
             }
 
-            // Publisher name and games count
+            
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomStart)
                     .padding(16.dp)
             ) {
-                // Publisher name with larger font
+                
                 Text(
                     text = publisher.name,
                     style = MaterialTheme.typography.headlineSmall,
@@ -138,7 +138,7 @@ fun PublisherCard(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Games count badge
+                
                 Text(
                     text = "${publisher.games_count} games",
                     style = MaterialTheme.typography.bodyMedium,
@@ -147,7 +147,7 @@ fun PublisherCard(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Publisher badge with glow effect
+                
                 Surface(
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
                     shape = RoundedCornerShape(2.dp),

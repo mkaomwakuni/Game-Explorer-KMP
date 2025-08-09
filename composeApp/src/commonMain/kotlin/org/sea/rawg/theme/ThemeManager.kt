@@ -10,11 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import org.sea.rawg.ui.component.ColorSchemeUi
 
-/**
- * Singleton Theme preferences state holder
- */
+
 object ThemeManager {
-    // Theme state
+    
     private val _isDarkTheme = mutableStateOf(false)
     val isDarkTheme: MutableState<Boolean> = _isDarkTheme
 
@@ -27,48 +25,30 @@ object ThemeManager {
     private val _selectedColorIndex = mutableStateOf(0)
     val selectedColorIndex: MutableState<Int> = _selectedColorIndex
 
-    /**
-     * Predefined color schemes available for selection
-     * Each item is represented by ColorSchemeUi
-     */
     val predefinedColorSchemes = listOf(
-        ColorSchemeUi("Purple (Default)", Color(0xFF8750FC)), // Default purple
-        ColorSchemeUi("Red", Color(0xFFD72638)), // Red
-        ColorSchemeUi("Teal", Color(0xFF26A69A)), // Teal
-        ColorSchemeUi("Orange", Color(0xFFFF9800)), // Orange
-        ColorSchemeUi("Green", Color(0xFF4CAF50))  // Green
+        ColorSchemeUi("Purple (Default)", Color(0xFF8750FC)), 
+        ColorSchemeUi("Red", Color(0xFFD72638)), 
+        ColorSchemeUi("Teal", Color(0xFF26A69A)), 
+        ColorSchemeUi("Orange", Color(0xFFFF9800)), 
+        ColorSchemeUi("Green", Color(0xFF4CAF50))  
     )
 
     private val _primaryColor = mutableStateOf(predefinedColorSchemes[0].color)
     val primaryColor: MutableState<Color> = _primaryColor
 
-    /**
-     * Sets the theme mode
-     * @param darkMode True for dark theme, false for light theme
-     * @param useSystemSettings True to follow system theme
-     */
     fun setThemeMode(darkMode: Boolean, useSystemSettings: Boolean) {
         _isDarkTheme.value = darkMode
         _isSystemTheme.value = useSystemSettings
     }
 
-    /**
-     * Updates the primary theme color
-     */
     fun setPrimaryColor(color: Color) {
         _primaryColor.value = color
     }
 
-    /**
-     * Enables or disables dynamic colors (Material You)
-     */
     fun setUseDynamicColors(useDynamicColors: Boolean) {
         _useDynamicColors.value = useDynamicColors
     }
 
-    /**
-     * Selects a predefined color scheme by index
-     */
     fun selectColorScheme(index: Int) {
         if (index in predefinedColorSchemes.indices) {
             _selectedColorIndex.value = index
@@ -76,9 +56,6 @@ object ThemeManager {
         }
     }
 
-    /**
-     * Reset all theme preferences to default values
-     */
     fun resetToDefaults() {
         _isDarkTheme.value = false
         _isSystemTheme.value = true
@@ -87,9 +64,6 @@ object ThemeManager {
         _primaryColor.value = predefinedColorSchemes[0].color
     }
 
-    /**
-     * Creates a color scheme based on current theme preferences
-     */
     @Composable
     fun getColorScheme(useDarkTheme: Boolean = effectiveDarkThemeState()): ColorScheme {
         val primary = primaryColor.value
@@ -101,12 +75,12 @@ object ThemeManager {
                 primaryContainer = primary.copy(alpha = 0.2f),
                 onPrimaryContainer = primary,
 
-                secondary = Color(0xFFD72638), // Secondary red
+                secondary = Color(0xFFD72638), 
                 onSecondary = Color.White,
                 secondaryContainer = Color(0xFFD72638).copy(alpha = 0.2f),
                 onSecondaryContainer = Color(0xFFD72638),
 
-                tertiary = Color(0xFF26A69A), // Tertiary teal
+                tertiary = Color(0xFF26A69A), 
                 onTertiary = Color.White,
                 tertiaryContainer = Color(0xFF26A69A).copy(alpha = 0.2f),
                 onTertiaryContainer = Color(0xFF26A69A),
@@ -131,12 +105,12 @@ object ThemeManager {
                 primaryContainer = primary.copy(alpha = 0.1f),
                 onPrimaryContainer = primary,
 
-                secondary = Color(0xFFD72638), // Secondary red
+                secondary = Color(0xFFD72638), 
                 onSecondary = Color.White,
                 secondaryContainer = Color(0xFFD72638).copy(alpha = 0.1f),
                 onSecondaryContainer = Color(0xFFD72638),
 
-                tertiary = Color(0xFF26A69A), // Tertiary teal
+                tertiary = Color(0xFF26A69A), 
                 onTertiary = Color.White,
                 tertiaryContainer = Color(0xFF26A69A).copy(alpha = 0.1f),
                 onTertiaryContainer = Color(0xFF26A69A),
@@ -157,9 +131,6 @@ object ThemeManager {
         }
     }
 
-    /**
-     * Determines whether dark theme should be used based on settings and system
-     */
     @Composable
     fun effectiveDarkThemeState(): Boolean {
         val systemDarkTheme = isSystemInDarkTheme()

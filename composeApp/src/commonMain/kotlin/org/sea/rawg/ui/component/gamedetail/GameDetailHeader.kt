@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -41,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.sea.rawg.domain.models.Game
 import org.sea.rawg.ui.component.AsyncImage
+import org.sea.rawg.ui.component.rememberStatusBarHeight
 
 @Composable
 fun GameDetailHeader(
@@ -56,7 +56,7 @@ fun GameDetailHeader(
             .fillMaxWidth()
             .height(400.dp)
     ) {
-        // Background image with parallax effect
+        
         if (game.background_image != null) {
             AsyncImage(
                 url = game.background_image,
@@ -65,13 +65,13 @@ fun GameDetailHeader(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
-                        // Parallax effect - image moves up as we scroll
+                        
                         translationY = -headerParallaxEffect * 150f
                     }
                     .blur(radius = (headerParallaxEffect * 2).dp)
             )
 
-            // Gradient overlay for better readability
+            
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -89,14 +89,13 @@ fun GameDetailHeader(
             GameImagePlaceholder()
         }
 
-        // Top app bar actions (Back button, share, bookmark)
+        
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(horizontal = 8.dp, vertical = rememberStatusBarHeight() + 8.dp)
         ) {
-            // Back button at top-start
+            // Back button
             IconButton(
                 onClick = onBackPressed,
                 modifier = Modifier
@@ -112,12 +111,12 @@ fun GameDetailHeader(
                 )
             }
 
-            // Action buttons at top-end
+            
             Row(
                 modifier = Modifier.align(Alignment.TopEnd),
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
             ) {
-                // Share button
+                
                 IconButton(
                     onClick = onSharePressed,
                     modifier = Modifier
@@ -132,7 +131,7 @@ fun GameDetailHeader(
                     )
                 }
 
-                // Bookmark button
+                
                 IconButton(
                     onClick = onBookmarkToggle,
                     modifier = Modifier
@@ -149,7 +148,7 @@ fun GameDetailHeader(
             }
         }
 
-        // Game title and info at the bottom of the header
+        
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -160,7 +159,7 @@ fun GameDetailHeader(
             Column(
                 modifier = Modifier.padding(bottom = 24.dp)
             ) {
-                // Title
+                
                 Text(
                     text = game.name,
                     style = MaterialTheme.typography.headlineMedium.copy(
@@ -171,7 +170,7 @@ fun GameDetailHeader(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                // Rating bar
+                
                 if (game.rating > 0) {
                     GameRatingBar(
                         rating = game.rating,
@@ -181,7 +180,7 @@ fun GameDetailHeader(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
 
-                // Release date
+                
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(bottom = 12.dp)
@@ -200,7 +199,7 @@ fun GameDetailHeader(
                     )
                 }
 
-                // Platforms in chips
+                
                 val platforms = game.getPlatformNames()
                 if (platforms.isNotEmpty()) {
                     Box(

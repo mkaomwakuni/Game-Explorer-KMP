@@ -33,7 +33,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.sea.rawg.domain.models.Game
 
-// Constants for reuse
 private val CARD_CORNER_SHAPE = RoundedCornerShape(2.dp)
 private val INNER_CORNER_SHAPE = RoundedCornerShape(2.dp)
 private val EXTRA_SMALL_PADDING = 4.dp
@@ -70,9 +69,9 @@ fun GameCard(
         )
     ) {
         Column {
-            // Game image section
+            
             Box {
-                // Game cover image
+                
                 AsyncImage(
                     url = game.background_image ?: "",
                     contentDescription = "Cover image for ${game.name}",
@@ -102,7 +101,7 @@ fun GameCard(
                     }
                 )
 
-                // Gradient overlay for better text visibility
+                
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -118,14 +117,14 @@ fun GameCard(
                         )
                 )
 
-                // Rating badge if enabled and available
+                
                 if (showRating && game.rating > 0) {
                     val isExceptional = game.rating >= 4.5
                     val ratingColor = when {
-                        game.rating >= 4.5 -> Color(0xFF66CC33) // Exceptional
-                        game.rating >= 3.5 -> Color(0xFF0066CC) // Recommended
-                        game.rating >= 2.5 -> Color(0xFFFFCC33) // Meh
-                        else -> Color(0xFFCC3333) // Skip
+                        game.rating >= 4.5 -> Color(0xFF66CC33) 
+                        game.rating >= 3.5 -> Color(0xFF0066CC) 
+                        game.rating >= 2.5 -> Color(0xFFFFCC33) 
+                        else -> Color(0xFFCC3333) 
                     }
 
                     Surface(
@@ -160,23 +159,23 @@ fun GameCard(
                     }
                 }
 
-                // Platform tags
+                
                 Row(
                     modifier = Modifier
                         .padding(SMALL_PADDING)
                         .align(Alignment.BottomStart),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Display limited platforms based on space, using the convenience method
+                    
                     val platformNames = game.getPlatformNames()
                     val platformCount = if (compact) 2 else 3
 
-                    // Take only as many platforms as we have space for
+                    
                     platformNames.take(platformCount).forEach { platformName ->
                         PlatformTag(text = platformName, shape = INNER_CORNER_SHAPE)
                     }
 
-                    // Show "+X" if there are more platforms
+                    
                     if (platformNames.size > platformCount) {
                         PlatformTag(
                             text = "+${platformNames.size - platformCount}",
@@ -186,11 +185,11 @@ fun GameCard(
                 }
             }
 
-            // Game info section
+            
             Column(
                 modifier = Modifier.padding(MEDIUM_PADDING)
             ) {
-                // Game name
+                
                 Text(
                     text = game.name,
                     style = MaterialTheme.typography.titleMedium,
@@ -201,7 +200,7 @@ fun GameCard(
 
                 Spacer(modifier = Modifier.height(EXTRA_SMALL_PADDING))
 
-                // Release date
+                
                 if (game.released != null) {
                     Text(
                         text = "Released: ${game.released}",
@@ -210,7 +209,7 @@ fun GameCard(
                     )
                 }
 
-                // Game genres (if not in compact mode), using the convenience method
+                
                 val genreNames = game.getGenreNames()
                 if (!compact && genreNames.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(SMALL_PADDING))

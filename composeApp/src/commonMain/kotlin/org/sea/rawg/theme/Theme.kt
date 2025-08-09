@@ -10,32 +10,27 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-// Define CompositionLocal providers
 val LocalSpacing = compositionLocalOf { Spacing() }
 
-/**
- * RAWG application theme
- * Provides consistent theming across the entire application
- */
 @Composable
 fun RAWGTheme(
     useDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    // Use the singleton ThemeManager
+    
     val themeManager = ThemeManager
 
-    // Determine if we should use dark theme based on user preferences or the passed parameter
+    
     val effectiveDarkTheme = if (themeManager.isSystemTheme.value) {
         useDarkTheme
     } else {
         themeManager.isDarkTheme.value
     }
 
-    // Get the primary color from theme manager
+    
     val primaryColor = themeManager.primaryColor.value
 
-    // Create base color scheme based on theme
+    
     val baseColorScheme = if (effectiveDarkTheme) {
         darkColorScheme(
             primary = primaryColor,
@@ -43,12 +38,12 @@ fun RAWGTheme(
             primaryContainer = primaryColor.copy(alpha = 0.2f),
             onPrimaryContainer = primaryColor,
 
-            secondary = Color(0xFFD72638), // Secondary red
+            secondary = Color(0xFFD72638), 
             onSecondary = Color.White,
             secondaryContainer = Color(0xFFD72638).copy(alpha = 0.2f),
             onSecondaryContainer = Color(0xFFD72638),
 
-            tertiary = Color(0xFF26A69A), // Tertiary teal
+            tertiary = Color(0xFF26A69A), 
             onTertiary = Color.White,
             tertiaryContainer = Color(0xFF26A69A).copy(alpha = 0.2f),
             onTertiaryContainer = Color(0xFF26A69A),
@@ -73,12 +68,12 @@ fun RAWGTheme(
             primaryContainer = primaryColor.copy(alpha = 0.1f),
             onPrimaryContainer = primaryColor,
 
-            secondary = Color(0xFFD72638), // Secondary red
+            secondary = Color(0xFFD72638), 
             onSecondary = Color.White,
             secondaryContainer = Color(0xFFD72638).copy(alpha = 0.1f),
             onSecondaryContainer = Color(0xFFD72638),
 
-            tertiary = Color(0xFF26A69A), // Tertiary teal
+            tertiary = Color(0xFF26A69A), 
             onTertiary = Color.White,
             tertiaryContainer = Color(0xFF26A69A).copy(alpha = 0.1f),
             onTertiaryContainer = Color(0xFF26A69A),
@@ -110,45 +105,28 @@ fun RAWGTheme(
     }
 }
 
-/**
- * Object to access theme values from anywhere in the application
- */
+
 object RAWGTheme {
-    /**
-     * Access to spacing values from anywhere in the application
-     */
     val spacing: Spacing
         @Composable
         @ReadOnlyComposable
         get() = LocalSpacing.current
 
-    /**
-     * Access to typography from the MaterialTheme
-     */
     val typography: androidx.compose.material3.Typography
         @Composable
         @ReadOnlyComposable
         get() = MaterialTheme.typography
 
-    /**
-     * Access to color scheme from the MaterialTheme
-     */
     val colorScheme: androidx.compose.material3.ColorScheme
         @Composable
         @ReadOnlyComposable
         get() = MaterialTheme.colorScheme
 
-    /**
-     * Access to shapes from the MaterialTheme
-     */
     val shapes: androidx.compose.material3.Shapes
         @Composable
         @ReadOnlyComposable
         get() = MaterialTheme.shapes
 
-    /**
-     * Access to theme manager from anywhere in the application
-     */
     val themeManager: ThemeManager
         get() = ThemeManager
 }

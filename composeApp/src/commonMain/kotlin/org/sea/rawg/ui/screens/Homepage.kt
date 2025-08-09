@@ -39,36 +39,21 @@ import org.sea.rawg.ui.viewmodel.GamesState
 import org.sea.rawg.ui.viewmodel.HomeViewModel
 import org.sea.rawg.navigation.NavigationRoutes
 
-/**
- * Homepage screen component that displays various game categories.
- * 
- * This screen displays four categories of games:
- * - Popular Games
- * - Upcoming Games
- * - Recent Releases
- * - Top Rated Games
- * 
- * @param navigator Navigation controller for screen transitions
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Homepage(navigator: Navigator) {
-    // Get ViewModel instance using Koin
     val viewModel = koinViewModel<HomeViewModel>()
     
-    // Collect all game category states from the ViewModel
     val popularGamesState = viewModel.popularGamesState.collectAsState().value
     val upcomingGamesState = viewModel.upcomingGamesState.collectAsState().value
     val recentReleasesState = viewModel.newReleasesState.collectAsState().value
     val topRatedGamesState = viewModel.topRatedGamesState.collectAsState().value
 
-    // Initialize data when the screen first composes
     LaunchedEffect(Unit) {
         viewModel.initialize()
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // App Bar
         TopAppBar(
             title = {
                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
@@ -104,18 +89,16 @@ fun Homepage(navigator: Navigator) {
             modifier = Modifier.height(100.dp)
         )
 
-        // Content
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            // 1. Popular Games Section
             item {
                 Spacer(modifier = Modifier.height(16.dp))
                 SectionHeader(
                     title = "Popular Games",
                     actionText = "View All",
-                    onActionClick = { /* Navigate to full list */ },
+                    onActionClick = { },
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -135,7 +118,6 @@ fun Homepage(navigator: Navigator) {
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // 2. Upcoming Games Section
             item {
                 SectionHeader(
                     title = "Upcoming Games",
@@ -160,12 +142,11 @@ fun Homepage(navigator: Navigator) {
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // 3. Recent Releases Section
             item {
                 SectionHeader(
                     title = "Recent Releases",
                     actionText = "View All",
-                    onActionClick = { /* Navigate to full list */ },
+                    onActionClick = { },
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -185,12 +166,11 @@ fun Homepage(navigator: Navigator) {
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // 4. Top Rated Games Section
             item {
                 SectionHeader(
                     title = "Top Rated Games",
                     actionText = "View All",
-                    onActionClick = { /* Navigate to full list */ },
+                    onActionClick = { },
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -213,14 +193,6 @@ fun Homepage(navigator: Navigator) {
     }
 }
 
-/**
- * Displays a horizontal row of games based on the current state
- * 
- * @param gamesState The current state of the game data (loading, success, error)
- * @param onRetry Callback to retry loading if there was an error
- * @param onGameClick Callback when a game is clicked, with the game ID
- * @param modifier Optional modifier for the layout
- */
 @Composable
 private fun GameCategoryRow(
     gamesState: GamesState,

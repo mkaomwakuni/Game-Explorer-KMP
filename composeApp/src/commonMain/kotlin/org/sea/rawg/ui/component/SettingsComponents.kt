@@ -233,7 +233,7 @@ fun ColorSchemeSelector(
             }
         }
 
-        // Preview section
+        
         if (selectedIndex in colorSchemes.indices) {
             val selectedColor = colorSchemes[selectedIndex].color
             ColorPreview(selectedColor)
@@ -269,7 +269,7 @@ fun ColorPreview(color: Color) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Button with primary color
+                
                 Button(
                     onClick = { },
                     colors = ButtonDefaults.buttonColors(containerColor = color)
@@ -277,7 +277,7 @@ fun ColorPreview(color: Color) {
                     Text("Button")
                 }
 
-                // Surface with primary container color
+                
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()

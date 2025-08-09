@@ -7,19 +7,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-/**
- * Type scale for the RAWG application.
- * Provides consistent typography across the app.
- */
 @Immutable
 object RAWGTypography {
 
-    /**
-     * Default typography system based on Material 3 guidelines
-     * with custom adjustments for our application
-     */
     val default: Typography = Typography(
-        // Display styles - for large headers
+        
         displayLarge = TextStyle(
             fontWeight = FontWeight.Bold,
             fontSize = 57.sp,
@@ -39,7 +31,7 @@ object RAWGTypography {
             letterSpacing = 0.sp
         ),
 
-        // Headline styles - for section headers
+        
         headlineLarge = TextStyle(
             fontWeight = FontWeight.SemiBold,
             fontSize = 32.sp,
@@ -59,7 +51,7 @@ object RAWGTypography {
             letterSpacing = 0.sp
         ),
 
-        // Title styles - for card titles and dialog titles
+        
         titleLarge = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 22.sp,
@@ -79,7 +71,7 @@ object RAWGTypography {
             letterSpacing = 0.1.sp
         ),
 
-        // Body styles - for general text content
+        
         bodyLarge = TextStyle(
             fontWeight = FontWeight.Normal,
             fontSize = 16.sp,
@@ -99,7 +91,7 @@ object RAWGTypography {
             letterSpacing = 0.4.sp
         ),
 
-        // Label styles - for buttons and inputs
+        
         labelLarge = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
@@ -120,9 +112,6 @@ object RAWGTypography {
         )
     )
 
-    /**
-     * Game title text style - used for game titles in list items
-     */
     val gameTitle = TextStyle(
         fontWeight = FontWeight.Bold,
         fontSize = 18.sp,
@@ -130,9 +119,6 @@ object RAWGTypography {
         letterSpacing = 0.sp
     )
 
-    /**
-     * Game description text style - used for game descriptions
-     */
     val gameDescription = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
@@ -140,9 +126,6 @@ object RAWGTypography {
         letterSpacing = 0.25.sp
     )
 
-    /**
-     * Rating text style - used for game ratings
-     */
     val ratingText = TextStyle(
         fontWeight = FontWeight.Bold,
         fontSize = 16.sp,

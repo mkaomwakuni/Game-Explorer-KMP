@@ -31,13 +31,12 @@ fun MainScreen() {
     val currentEntry by navigator.currentEntry.collectAsState(null)
     val currentRoute = currentEntry?.route?.route ?: NavigationRoutes.HOME
 
-    // Mobile UI with bottom navigation
     Scaffold(
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                tonalElevation = 8.dp
+                tonalElevation = 0.dp
             ) {
                 BottomNavItem.items.forEach { item ->
                     NavigationBarItem(
@@ -75,9 +74,7 @@ fun MainScreen() {
                 SettingsScreen()
             }
             scene(NavigationRoutes.GAME_DETAILS_WITH_PARAM) { backStackEntry ->
-                // Extract the gameId parameter from the route parameters
                 val gameId = backStackEntry.pathMap["gameId"]?.toIntOrNull()
-                // If gameId exists, display the game details screen
                 if (gameId != null) {
                     GameDetails(navigator = navigator, gameId = gameId)
                 }
@@ -86,25 +83,19 @@ fun MainScreen() {
                 UpcomingGamesScreen(navigator = navigator)
             }
             scene(NavigationRoutes.GENRE_DETAILS_WITH_PARAM) { backStackEntry ->
-                // Extract the genreId parameter from the route parameters
                 val genreId = backStackEntry.pathMap["genreId"]?.toIntOrNull()
-                // If genreId exists, display the genre details screen
                 if (genreId != null) {
                     GenreDetailsScreen(navigator = navigator, genreId = genreId)
                 }
             }
             scene(NavigationRoutes.PUBLISHER_DETAILS_WITH_PARAM) { backStackEntry ->
-                // Extract the publisherId parameter from the route parameters
                 val publisherId = backStackEntry.pathMap["publisherId"]?.toIntOrNull()
-                // If publisherId exists, display the publisher details screen
                 if (publisherId != null) {
                     PublisherDetailsScreen(navigator = navigator, publisherId = publisherId)
                 }
             }
             scene(NavigationRoutes.COLLECTION_DETAILS_WITH_PARAM) { backStackEntry ->
-                // Extract the collectionId parameter from the route parameters
                 val collectionId = backStackEntry.pathMap["collectionId"]?.toIntOrNull()
-                // If collectionId exists, display the collection details screen
                 if (collectionId != null) {
                     CollectionDetailsScreen(navigator = navigator, collectionId = collectionId)
                 }

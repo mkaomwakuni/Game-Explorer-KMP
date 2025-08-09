@@ -44,7 +44,7 @@ fun SettingsScreen() {
 
     val themeManager = ThemeManager
 
-    // Local UI state
+    
     val isDarkTheme = themeManager.isDarkTheme.value
     val isSystemTheme = themeManager.isSystemTheme.value
     val useDynamicColors = themeManager.useDynamicColors.value
@@ -54,7 +54,7 @@ fun SettingsScreen() {
     val scrollState = rememberScrollState()
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Top App Bar
+        
         TopAppBar(
             title = {
                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
@@ -80,21 +80,21 @@ fun SettingsScreen() {
             modifier = Modifier.height(100.dp)
         )
 
-        // Settings Content in Scrollable Column
+        
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(bottom = 24.dp)
         ) {
-            // Theme Section
+            
             ThemeModeSelector(
                 isDarkTheme = isDarkTheme,
                 isSystemTheme = isSystemTheme,
                 onThemeModeChanged = themeManager::setThemeMode
             )
 
-            // Material You (Dynamic Colors)
+            
             SwitchSettingItem(
                 title = "Use Dynamic Colors",
                 description = "Use Material You dynamic theming on Android 12+ devices",
@@ -110,7 +110,7 @@ fun SettingsScreen() {
                 onCheckedChange = themeManager::setUseDynamicColors
             )
 
-            // Color Scheme Selector
+            
             val predefinedSchemes = listOf(
                 ColorSchemeUi("Purple (Default)", Color(0xFF8750FC)),
                 ColorSchemeUi("Red", Color(0xFFD72638)),
@@ -128,7 +128,7 @@ fun SettingsScreen() {
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-            // About App Section
+            
             SettingItemWithDivider(
                 title = "About RAWG Explorer",
                 description = "Version 1.0.0",
@@ -142,7 +142,7 @@ fun SettingsScreen() {
                 }
             )
 
-            // Reset Settings
+            
             SettingItem(
                 title = "Reset Settings",
                 description = "Restore default app settings",
@@ -159,7 +159,7 @@ fun SettingsScreen() {
         }
     }
 
-    // Reset Settings Confirmation Dialog
+    
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },

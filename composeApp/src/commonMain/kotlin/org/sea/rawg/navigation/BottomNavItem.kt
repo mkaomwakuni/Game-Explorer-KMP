@@ -20,7 +20,6 @@ sealed class BottomNavItem(
         icon = Icons.Default.Gamepad
     )
 
-
     object Genres : BottomNavItem(
         route = NavigationRoutes.GENRES,
         title = "Genres",
