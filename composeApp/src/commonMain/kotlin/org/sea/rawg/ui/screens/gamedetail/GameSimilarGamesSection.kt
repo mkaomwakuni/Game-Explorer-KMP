@@ -38,13 +38,11 @@ fun SimilarGamesSection(
     if (similarGames.isNullOrEmpty()) return
 
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        // Section header
-        SectionTitle(title = "Similar Games", count = similarGames.size)
+                SectionTitle(title = "Similar Games", count = similarGames.size)
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Instruction text
-        Text(
+                Text(
             text = "You might also like these games",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
@@ -52,8 +50,7 @@ fun SimilarGamesSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Similar games carousel
-        LazyRow(
+                LazyRow(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
         ) {
@@ -81,8 +78,7 @@ fun SimilarGameCard(game: Game, onClick: () -> Unit) {
         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Game image
-            game.background_image?.let { bgImage ->
+                        game.background_image?.let { bgImage ->
                 AsyncImage(
                     url = bgImage,
                     contentDescription = game.name,
@@ -118,8 +114,7 @@ fun SimilarGameCard(game: Game, onClick: () -> Unit) {
                 )
             }
 
-            // Gradient overlay for better text visibility
-            Box(
+                        Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
@@ -136,15 +131,13 @@ fun SimilarGameCard(game: Game, onClick: () -> Unit) {
                     )
             )
 
-            // Game info overlay
-            Column(
+                        Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .fillMaxWidth()
                     .padding(12.dp)
             ) {
-                // Game name
-                Text(
+                                Text(
                     text = game.name,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
@@ -155,8 +148,7 @@ fun SimilarGameCard(game: Game, onClick: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Rating row
-                if (game.rating > 0) {
+                                if (game.rating > 0) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Star,
@@ -184,8 +176,7 @@ private fun SimilarGamesSectionLoading() {
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        // Title placeholder
-        Box(
+                Box(
             modifier = Modifier
                 .width(180.dp)
                 .height(24.dp)
@@ -195,8 +186,7 @@ private fun SimilarGamesSectionLoading() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Game cards placeholder
-        Row(
+                Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             repeat(3) {

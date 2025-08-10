@@ -52,12 +52,12 @@ import org.sea.rawg.ui.viewmodel.PublishersViewModel
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun WebGamesScreen(navigator: Navigator) {
-    // Get ViewModels from KoinInject
+    
     val homeViewModel = koinInject<HomeViewModel>()
     val genresViewModel = koinInject<GenresViewModel>()
     val publishersViewModel = koinInject<PublishersViewModel>()
 
-    // Tab state
+    
     val tabItems = listOf("Games", "Genres", "Publishers")
     val pagerState = rememberPagerState(initialPage = 0) { tabItems.size }
     val coroutineScope = rememberCoroutineScope()
@@ -65,7 +65,7 @@ fun WebGamesScreen(navigator: Navigator) {
     val selectedTabIndex = pagerState.currentPage
     var searchVisible by remember { mutableStateOf(false) }
 
-    // Load data based on current tab
+    
     LaunchedEffect(selectedTabIndex) {
         when (selectedTabIndex) {
             0 -> homeViewModel.refresh()
@@ -75,7 +75,7 @@ fun WebGamesScreen(navigator: Navigator) {
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Top App Bar
+        
         Surface(
             color = MaterialTheme.colorScheme.surface,
             modifier = Modifier.fillMaxWidth(),
@@ -85,7 +85,7 @@ fun WebGamesScreen(navigator: Navigator) {
                 modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Back button, if available in navigation history
+                
                 val canGoBack by navigator.canGoBack.collectAsState(false)
                 if (canGoBack) {
                     IconButton(
@@ -100,7 +100,7 @@ fun WebGamesScreen(navigator: Navigator) {
                     }
                 }
 
-                // App title at left
+                
                 Text(
                     "KMP Game Explorer",
                     fontWeight = FontWeight.Bold,
@@ -152,7 +152,7 @@ fun WebGamesScreen(navigator: Navigator) {
                     }
                 )
 
-                // Search icon at right
+                
                 IconButton(onClick = { searchVisible = !searchVisible }) {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -163,7 +163,7 @@ fun WebGamesScreen(navigator: Navigator) {
             }
         }
 
-        // Search field
+        
         AnimatedVisibility(
             visible = searchVisible,
             enter = fadeIn(),
@@ -188,7 +188,7 @@ fun WebGamesScreen(navigator: Navigator) {
             )
         }
 
-        // Tab Content
+        
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
@@ -214,7 +214,7 @@ fun GamesTab(homeViewModel: HomeViewModel, navigator: Navigator) {
         contentPadding = PaddingValues(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        // Popular Games Section
+        
         item {
             SectionHeader(
                 title = homeViewModel.popularGamesTitle,
@@ -256,7 +256,7 @@ fun GamesTab(homeViewModel: HomeViewModel, navigator: Navigator) {
             }
         }
 
-        // Top Rated Games Section
+        
         item {
             SectionHeader(
                 title = homeViewModel.topRatedGamesTitle,
@@ -298,7 +298,7 @@ fun GamesTab(homeViewModel: HomeViewModel, navigator: Navigator) {
             }
         }
 
-        // Recent Releases Section
+        
         item {
             SectionHeader(
                 title = homeViewModel.recentReleasesTitle,
@@ -340,7 +340,7 @@ fun GamesTab(homeViewModel: HomeViewModel, navigator: Navigator) {
             }
         }
 
-        // Upcoming Games Section
+        
         item {
             SectionHeader(
                 title = homeViewModel.upcomingGamesTitle,
@@ -382,7 +382,7 @@ fun GamesTab(homeViewModel: HomeViewModel, navigator: Navigator) {
             }
         }
 
-        // Footer spacing
+        
         item {
             Spacer(modifier = Modifier.height(60.dp))
         }

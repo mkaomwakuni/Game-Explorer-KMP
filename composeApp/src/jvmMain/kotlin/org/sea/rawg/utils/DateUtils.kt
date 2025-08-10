@@ -1,59 +1,87 @@
 package org.sea.rawg.utils
 
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
-/**
- * JVM implementation of DateUtils using java.text.SimpleDateFormat
- */
 actual object DateUtils {
-    /**
-     * Get current date in YYYY-MM-DD format
-     */
     actual fun getCurrentDate(): String {
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        return formatter.format(Date())
+        val now = Clock.System.now()
+        val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
+        return "${localDateTime.year}-${localDateTime.monthNumber}-${localDateTime.dayOfMonth}"
     }
 
-    /**
-     * Get tomorrow's date in YYYY-MM-DD format
-     */
-    actual fun getTomorrowDate(): String {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_MONTH, 1)
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        return formatter.format(calendar.time)
+    actual fun formatReleaseDate(releaseDate: String?): String {
+        if (releaseDate.isNullOrEmpty()) return "TBA"
+
+        try {
+            val date = LocalDate.parse(releaseDate)
+            return "${date.month.name.lowercase().capitalize()} ${date.dayOfMonth}, ${date.year}"
+        } catch (e: Exception) {
+            return releaseDate
+        }
     }
 
-    /**
-     * Get date for specified number of days ago in YYYY-MM-DD format
-     */
-    actual fun getDateDaysAgo(daysAgo: Int): String {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_MONTH, -daysAgo)
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        return formatter.format(calendar.time)
+    actual fun getRelativeDateString(dateString: String?): String {
+        if (dateString.isNullOrEmpty()) return "Unknown"
+
+        try {
+            val date = LocalDate.parse(dateString)
+            val now = Clock.System.now()
+            val currentDate = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+            val days = daysBetween(date, currentDate)
+
+            return when {
+                days == 0 -> "Today"
+                days == 1 -> "Yesterday"
+                days < 0 -> "${-days} days from now"
+                days <= 30 -> "$days days ago"
+                days <= 365 -> "${days / 30} months ago"
+                else -> "${days / 365} years ago"
+            }
+        } catch (e: Exception) {
+            return dateString
+        }
     }
 
-    /**
-     * Get date for a month ago in YYYY-MM-DD format
-     */
-    actual fun getLastMonthDate(): String {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.MONTH, -1)
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        return formatter.format(calendar.time)
+    actual fun getDaysSinceRelease(releaseDate: String?): Int {
+        if (releaseDate.isNullOrEmpty()) return 0
+
+        try {
+            val date = LocalDate.parse(releaseDate)
+            val now = Clock.System.now()
+            val currentDate = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+            return daysBetween(date, currentDate)
+        } catch (e: Exception) {
+            return 0
+        }
     }
 
-    /**
-     * Get future date for specified number of years ahead in YYYY-MM-DD format
-     */
-    actual fun getFutureDate(yearsAhead: Int): String {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.YEAR, yearsAhead)
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        return formatter.format(calendar.time)
+    actual fun isUpcoming(releaseDate: String?): Boolean {
+        if (releaseDate.isNullOrEmpty()) return false
+
+        try {
+            val date = LocalDate.parse(releaseDate)
+            val now = Clock.System.now()
+            val currentDate = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+            return date > currentDate
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
+    private fun daysBetween(startDate: LocalDate, endDate: LocalDate): Int {
+        return daysSinceEpoch(endDate) - daysSinceEpoch(startDate)
+    }
+
+    private fun daysSinceEpoch(date: LocalDate): Int {
+        val startDateInstant = Instant.parse("${date}T00:00:00Z")
+        val epochInstant = Instant.parse("1970-01-01T00:00:00Z")
+        return ((startDateInstant.toEpochMilliseconds() - epochInstant.toEpochMilliseconds()) / (24 * 60 * 60 * 1000)).toInt()
     }
 }

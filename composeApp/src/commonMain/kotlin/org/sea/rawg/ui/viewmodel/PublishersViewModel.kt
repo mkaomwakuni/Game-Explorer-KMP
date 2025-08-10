@@ -18,33 +18,33 @@ class PublishersViewModel(
     private val repository: RawgRepository
 ) : ViewModel() {
 
-    // State for publishers list
+    
     private val _publishersState = MutableStateFlow<PublishersState>(PublishersState.Loading)
     val publishersState: StateFlow<PublishersState> = _publishersState.asStateFlow()
 
-    // State for search query
+    
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    // Loading more indicator for pagination
+    
     private val _isLoadingMore = MutableStateFlow(false)
     val isLoadingMore: StateFlow<Boolean> = _isLoadingMore.asStateFlow()
 
-    // Current pagination state
+    
     private var currentPage = 1
     private var hasMorePublishers = true
     private var isSearching = false
     private var storedPublishers = listOf<Publisher>()
 
-    // Track if a load operation is already in progress
+    
     private var isLoadingInProgress = false
 
-    // Track API call attempts
+    
     private var loadAttempts = 0
     private val maxAttempts = 3
 
     init {
-        // Don't check isLoadingInProgress during initial load, since we want to force it
+        
         viewModelScope.launch {
             loadPublishersInternal(resetList = true, forceLoad = true)
         }
@@ -76,7 +76,7 @@ class PublishersViewModel(
             loadAttempts = 0
             _publishersState.value = PublishersState.Loading
         } else if (!hasMorePublishers || (_publishersState.value is PublishersState.Loading && !forceLoad)) {
-            // Don't load more if we're at the end or already loading (unless forced)
+            
             isLoadingInProgress = false
             return
         }
@@ -92,7 +92,7 @@ class PublishersViewModel(
         try {
             loadAttempts++
 
-            // Simplified error handling
+            
             if (loadAttempts > maxAttempts) {
                 _publishersState.value = PublishersState.Error("Failed to load publishers")
                 _isLoadingMore.value = false
@@ -100,7 +100,7 @@ class PublishersViewModel(
                 return
             }
 
-            // Add timeout to avoid indefinite waiting
+            
             val result = withTimeoutOrNull(10000L) { // 10 second timeout
                 repository.getPublishers(page = currentPage, pageSize = 20)
             } ?: run {
@@ -111,9 +111,9 @@ class PublishersViewModel(
                 is Result.Success<PagedResponse<Publisher>> -> {
                     val newData = result.data
 
-                    // Check if we got empty results but expected data
+                    
                     if (newData.results.isEmpty() && newData.count > 0) {
-                        // This is unexpected - retry with different page
+                        
                         if (currentPage > 1) {
                             currentPage--
                             loadPublishers(false)
@@ -128,7 +128,7 @@ class PublishersViewModel(
 
                     storedPublishers = combinedPublishers
 
-                    // Apply search filter if needed
+                    
                     val filteredPublishers = if (searchQuery.value.isNotEmpty()) {
                         combinedPublishers.filter {
                             it.name.contains(searchQuery.value, ignoreCase = true)
@@ -161,7 +161,7 @@ class PublishersViewModel(
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
 
-        // Filter existing results
+        
         if (_publishersState.value is PublishersState.Success) {
             val filteredPublishers = if (query.isNotEmpty()) {
                 storedPublishers.filter { it.name.contains(query, ignoreCase = true) }
@@ -172,12 +172,12 @@ class PublishersViewModel(
         }
     }
 
-    // Expose whether there are more items to load
+    
     fun hasMoreItems(): Boolean {
         return hasMorePublishers
     }
 
-    // State classes for UI representation
+    
     sealed class PublishersState {
         object Loading : PublishersState()
         data class Success(val publishers: List<Publisher>) : PublishersState()

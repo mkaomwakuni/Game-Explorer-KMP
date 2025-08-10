@@ -38,12 +38,10 @@ fun GameDetailDLCSection(
     if (dlcs.isNullOrEmpty()) return
 
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        // Section header with modern design
         SectionTitle(title = "DLC's", count = dlcs.size)
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Instruction text
         Text(
             text = "Swipe to see all available DLCs",
             style = MaterialTheme.typography.bodySmall,
@@ -79,7 +77,6 @@ fun DLCCard(dlc: DLC, onClick: () -> Unit) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Custom image loading implementation
             if (!dlc.backgroundImage.isNullOrEmpty()) {
                 AsyncImage(
                     url = dlc.backgroundImage,
@@ -102,7 +99,6 @@ fun DLCCard(dlc: DLC, onClick: () -> Unit) {
                     }
                 )
             } else {
-                // Placeholder for missing images
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -125,7 +121,6 @@ fun DLCCard(dlc: DLC, onClick: () -> Unit) {
                 }
             }
 
-            // Gradient overlay for better text visibility
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -144,14 +139,12 @@ fun DLCCard(dlc: DLC, onClick: () -> Unit) {
                     )
             )
 
-            // DLC info overlay
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                // DLC Name
                 dlc.name?.let {
                     Text(
                         text = it,
@@ -170,7 +163,6 @@ fun DLCCard(dlc: DLC, onClick: () -> Unit) {
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp)
                 ) {
-                    // Release Date
                     dlc.released?.let {
                         Text(
                             text = it,
@@ -186,7 +178,6 @@ fun DLCCard(dlc: DLC, onClick: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    // Rating with Star icon
                     dlc.rating?.let {
                         Surface(
                             color = Color(0xFFFFC107).copy(alpha = 0.9f),
@@ -226,7 +217,6 @@ private fun DLCSectionLoading() {
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        // Title placeholder
         Box(
             modifier = Modifier
                 .width(200.dp)
@@ -237,7 +227,6 @@ private fun DLCSectionLoading() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // DLC cards placeholder - showing shimmer effect
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -258,7 +247,6 @@ private fun DLCSectionLoading() {
                         Box(
                             modifier = Modifier.fillMaxWidth(0.8f).fillMaxHeight(0.7f)
                         ) {
-                            // Shimmer effect for loading
                             CircularProgressIndicator(
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(32.dp).align(Alignment.Center),

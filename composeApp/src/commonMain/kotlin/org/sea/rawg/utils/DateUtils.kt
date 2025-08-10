@@ -1,8 +1,5 @@
 package org.sea.rawg.utils
 
-/**
- * Interface for platform-specific date utilities
- */
 expect object DateUtils {
     fun getCurrentDate(): String
     fun getTomorrowDate(): String

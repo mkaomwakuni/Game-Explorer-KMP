@@ -43,7 +43,6 @@ fun FullScreenImageViewer(
             },
         contentAlignment = Alignment.Center
     ) {
-        // Image
         AsyncImage(
             url = imageUrl,
             contentDescription = "Full-screen image",
@@ -64,7 +63,6 @@ fun FullScreenImageViewer(
             }
         )
 
-        // Close button
         IconButton(
             onClick = onDismiss,
             modifier = Modifier

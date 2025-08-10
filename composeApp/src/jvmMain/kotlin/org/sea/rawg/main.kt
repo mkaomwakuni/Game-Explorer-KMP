@@ -5,7 +5,6 @@ import androidx.compose.ui.window.application
 import org.sea.rawg.di.AppModule
 
 fun main() {
-    // Initialize Koin
     AppModule.init()
 
     application {

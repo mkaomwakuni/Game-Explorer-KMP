@@ -16,20 +16,20 @@ class GenresViewModel(
     private val repository: RawgRepository
 ) : ViewModel() {
 
-    // State for genres list
+    
     private val _genresState = MutableStateFlow<GenresState>(GenresState.Loading)
     val genresState: StateFlow<GenresState> = _genresState.asStateFlow()
 
-    // State for games by genre
+    
     private val _gamesByGenreState = MutableStateFlow<GamesByGenreState>(GamesByGenreState.Initial)
     val gamesByGenreState: StateFlow<GamesByGenreState> = _gamesByGenreState.asStateFlow()
 
-    // Current pagination state for games by genre
+    
     private var currentGenreId: Int? = null
     private var currentPage = 1
     private var hasMoreGames = true
 
-    // Initialize by loading genres
+    
     init {
         loadGenres()
     }
@@ -48,7 +48,7 @@ class GenresViewModel(
                         GenresState.Error(result.message)
                 }
                 else -> {
-                    // This shouldn't happen with the current Result implementation
+                    
                     _genresState.value = GenresState.Error("Unknown error occurred")
                 }
             }
@@ -62,7 +62,7 @@ class GenresViewModel(
             currentGenreId = genreId
             _gamesByGenreState.value = GamesByGenreState.Loading
         } else if (!hasMoreGames || _gamesByGenreState.value is GamesByGenreState.Loading) {
-            // Don't load more if we're at the end or already loading
+            
             return
         }
 
@@ -109,7 +109,7 @@ class GenresViewModel(
                         GamesByGenreState.Error(result.message)
                 }
                 else -> {
-                    // This shouldn't happen with the current Result implementation
+                    
                     _gamesByGenreState.value = GamesByGenreState.Error("Unknown error occurred")
                 }
             }
@@ -129,7 +129,6 @@ class GenresViewModel(
     }
 }
 
-// State classes for UI representation
 sealed class GenresState {
     object Loading : GenresState()
     data class Success(val data: PagedResponse<Genre>) : GenresState()

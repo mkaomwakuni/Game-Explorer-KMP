@@ -37,13 +37,11 @@ fun GameScreenshotsSection(
     if (screenshots.isNullOrEmpty()) return
 
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        // Section header
-        SectionTitle(title = "Screenshots", count = screenshots.size)
+                SectionTitle(title = "Screenshots", count = screenshots.size)
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Instruction text
-        Text(
+                Text(
             text = "Tap to view full screen",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
@@ -51,8 +49,7 @@ fun GameScreenshotsSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Screenshots carousel
-        LazyRow(
+                LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
         ) {
@@ -80,8 +77,7 @@ fun ScreenshotCard(screenshot: Screenshot, onClick: () -> Unit) {
         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Display screenshot image
-            AsyncImage(
+                        AsyncImage(
                 url = screenshot.image,
                 contentDescription = "Game screenshot",
                 contentScale = ContentScale.Crop,
@@ -112,7 +108,6 @@ private fun ScreenshotsSectionLoading() {
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        // Title placeholder
         Box(
             modifier = Modifier
                 .width(180.dp)
@@ -123,8 +118,7 @@ private fun ScreenshotsSectionLoading() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Screenshot cards placeholder
-        Row(
+                Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             repeat(2) {

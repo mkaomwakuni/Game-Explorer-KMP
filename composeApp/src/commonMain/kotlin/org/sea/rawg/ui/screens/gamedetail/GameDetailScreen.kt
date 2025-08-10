@@ -61,20 +61,16 @@ fun GameDetailScreen(navigator: Navigator, gameId: Int) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Handle back button press
     BackHandler {
         navigator.popBackStack()
     }
 
-    // Load game details initially
     LaunchedEffect(gameId) {
         viewModel.loadGameDetails(gameId)
     }
 
-    // Track if the game is bookmarked
     var isBookmarked by remember { mutableStateOf(false) }
 
-    // Handle UI states
     Box(modifier = Modifier.fillMaxSize()) {
         when (gameState) {
             is GameState.Loading -> {
@@ -109,7 +105,6 @@ fun GameDetailScreen(navigator: Navigator, gameId: Int) {
             }
         }
 
-        // Snackbar host
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
@@ -137,21 +132,17 @@ fun ModernGameDetailContent(
     val scrollProgress = derivedStateOf { (scrollState.value / headerHeightPx).coerceIn(0f, 1f) }
     val uriHandler = LocalUriHandler.current
 
-    // Track expanded description state
     var isDescriptionExpanded by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Scrollable content
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(bottom = 24.dp)
         ) {
-            // Header placeholder
             Spacer(modifier = Modifier.height(headerHeight - 40.dp))
 
-            // Main content card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -167,13 +158,11 @@ fun ModernGameDetailContent(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    // Game title and meta information (overlapping with the header)
                     Column(
                         modifier = Modifier
                             .offset(y = (-40).dp)
                             .fillMaxWidth()
                     ) {
-                        // Title section with drop shadow
                         Text(
                             text = game.name,
                             style = MaterialTheme.typography.headlineMedium,
@@ -183,7 +172,6 @@ fun ModernGameDetailContent(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Release date
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -203,7 +191,6 @@ fun ModernGameDetailContent(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Ratings
                         if (game.rating > 0) {
                             GameRatingBar(
                                 rating = game.rating,
@@ -212,7 +199,6 @@ fun ModernGameDetailContent(
                         }
                     }
 
-                    // Platform chips in horizontal scrollable row
                     val platforms = game.getPlatformNames()
                     if (platforms.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
@@ -241,7 +227,6 @@ fun ModernGameDetailContent(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // About section with expandable text
                     Column(modifier = Modifier.fillMaxWidth()) {
                         SectionTitle(title = "About")
 
@@ -293,7 +278,6 @@ fun ModernGameDetailContent(
                     Spacer(modifier = Modifier.height(24.dp))
                     HorizontalDivider()
 
-                    // DLC Section
                     GameDetailDLCSection(
                         dlcs = dlcs,
                         isLoading = isDlcLoading
@@ -301,18 +285,15 @@ fun ModernGameDetailContent(
 
                     HorizontalDivider()
 
-                    // Reddit discussions section
                     RedditDiscussionsSection(
                         posts = redditPosts ?: emptyList(),
                         uriHandler = uriHandler,
                         isLoading = isRedditLoading
                     )
 
-                    // Genres and Tags
                     if (!game.genres.isNullOrEmpty() || !game.tags.isNullOrEmpty()) {
                         HorizontalDivider()
 
-                        // Genres
                         if (!game.genres.isNullOrEmpty()) {
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 SectionTitle(title = "Genres")
@@ -347,7 +328,6 @@ fun ModernGameDetailContent(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
-                        // Tags (limited to 8 to avoid cluttering)
                         if (!game.tags.isNullOrEmpty()) {
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 SectionTitle(title = "Tags", count = game.tags!!.size)
@@ -375,7 +355,6 @@ fun ModernGameDetailContent(
                                         }
                                     }
 
-                                    // Show "+X more" if there are more tags
                                     if (game.tags!!.size > 8) {
                                         Surface(
                                             shape = RoundedCornerShape(2.dp),
@@ -400,13 +379,12 @@ fun ModernGameDetailContent(
             }
         }
 
-        // Fixed parallax header at the top
         GameDetailHeader(
             game = game,
             headerParallaxEffect = scrollProgress.value,
             isBookmarked = isBookmarked,
             onBackPressed = { navigator.popBackStack() },
-            onSharePressed = { /* Implement share action */ },
+            onSharePressed = { },
             onBookmarkToggle = onBookmarkToggle
         )
     }
@@ -426,18 +404,15 @@ private fun FlowRow(
         val horizontalSpacer = horizontalArrangement.spacing.roundToPx()
         val verticalSpacer = verticalArrangement.spacing.roundToPx()
 
-        // Measure and place children
         val placeables =
             measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
 
-        // Track position of each row
         val rows = mutableListOf<Int>()
         var rowMaxHeight = 0
         var rowWidth = 0
         var totalHeight = 0
 
         placeables.forEachIndexed { index, placeable ->
-            // Check if we need to move to the next row
             if (index > 0 && rowWidth + placeable.width + horizontalSpacer > constraints.maxWidth) {
                 totalHeight += rowMaxHeight + verticalSpacer
                 rows.add(rowMaxHeight)
@@ -448,14 +423,12 @@ private fun FlowRow(
             rowWidth += placeable.width + if (rowWidth > 0) horizontalSpacer else 0
             rowMaxHeight = maxOf(rowMaxHeight, placeable.height)
 
-            // Handle the last row
             if (index == placeables.lastIndex) {
                 rows.add(rowMaxHeight)
                 totalHeight += rowMaxHeight
             }
         }
 
-        // Set the layout's dimensions
         layout(
             width = constraints.maxWidth,
             height = totalHeight
@@ -466,7 +439,6 @@ private fun FlowRow(
             var rowItemCount = 0
 
             placeables.forEach { placeable ->
-                // Check if we need to move to the next row
                 if (x + placeable.width > constraints.maxWidth) {
                     x = 0
                     y += rows[rowIndex] + verticalSpacer
@@ -474,7 +446,6 @@ private fun FlowRow(
                     rowItemCount = 0
                 }
 
-                // Add horizontal spacing if not the first item in the row
                 if (rowItemCount > 0) {
                     x += horizontalSpacer
                 }

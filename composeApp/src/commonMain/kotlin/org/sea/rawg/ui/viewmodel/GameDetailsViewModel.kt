@@ -13,35 +13,31 @@ import org.sea.rawg.domain.usecases.GetGameDetailsUseCase
 import org.sea.rawg.presentation.models.GameState
 import org.sea.rawg.utils.Result
 
-/**
- * ViewModel for Game Details screen
- * Using StateFlow for reactive UI updates
- */
 class GameDetailsViewModel(
     private val repository: RawgRepository,
     private val getGameDetailsUseCase: GetGameDetailsUseCase
 ) : BaseViewModel() {
-    // UI state
+    
     private val _gameDetails = MutableStateFlow<GameState>(GameState.Loading)
     val gameDetails: StateFlow<GameState> = _gameDetails.asStateFlow()
 
-    // DLCs state
+    
     private val _dlcs = MutableStateFlow<List<DLC>>(emptyList())
     val dlcs: StateFlow<List<DLC>> = _dlcs.asStateFlow()
 
-    // Reddit posts state
+    
     private val _redditPosts = MutableStateFlow<List<RedditPost>>(emptyList())
     val redditPosts: StateFlow<List<RedditPost>> = _redditPosts.asStateFlow()
 
-    // Screenshots state
+    
     private val _screenshots = MutableStateFlow<List<Screenshot>>(emptyList())
     val screenshots: StateFlow<List<Screenshot>> = _screenshots.asStateFlow()
 
-    // Similar games state
+    
     private val _similarGames = MutableStateFlow<List<Game>>(emptyList())
     val similarGames: StateFlow<List<Game>> = _similarGames.asStateFlow()
 
-    // Loading states
+    
     private val _isDlcsLoading = MutableStateFlow(false)
     val isDlcsLoading: StateFlow<Boolean> = _isDlcsLoading.asStateFlow()
 
@@ -54,10 +50,6 @@ class GameDetailsViewModel(
     private val _isSimilarGamesLoading = MutableStateFlow(false)
     val isSimilarGamesLoading: StateFlow<Boolean> = _isSimilarGamesLoading.asStateFlow()
 
-    /**
-     * Load game details by ID
-     * Also triggers loading of related content (DLCs, reddit posts, screenshots, similar games)
-     */
     fun loadGameDetails(gameId: Int) {
         _gameDetails.value = GameState.Loading
 
@@ -67,7 +59,7 @@ class GameDetailsViewModel(
                     is Result.Success<Game> -> {
                         _gameDetails.value = GameState.Success(result.data)
 
-                        // Load related content in parallel
+                        
                         loadRelatedContent(gameId, result.data.name)
                     }
                     is Result.Error -> {
@@ -81,9 +73,6 @@ class GameDetailsViewModel(
         }
     }
 
-    /**
-     * Load all related content for a game in parallel
-     */
     private fun loadRelatedContent(gameId: Int, gameName: String) {
         viewModelScope.launch { loadGameDLCs(gameId) }
         viewModelScope.launch { loadGameRedditPosts(gameName) }
@@ -91,9 +80,6 @@ class GameDetailsViewModel(
         viewModelScope.launch { loadSimilarGames(gameId) }
     }
 
-    /**
-     * Load game DLCs
-     */
     private fun loadGameDLCs(gameId: Int) {
         _isDlcsLoading.value = true
 
@@ -108,9 +94,6 @@ class GameDetailsViewModel(
         }
     }
 
-    /**
-     * Load game Reddit posts
-     */
     private fun loadGameRedditPosts(gameName: String) {
         _isRedditLoading.value = true
 
@@ -125,9 +108,6 @@ class GameDetailsViewModel(
         }
     }
 
-    /**
-     * Load game screenshots
-     */
     private fun loadGameScreenshots(gameId: Int) {
         _isScreenshotsLoading.value = true
 
@@ -142,9 +122,6 @@ class GameDetailsViewModel(
         }
     }
 
-    /**
-     * Load similar games
-     */
     private fun loadSimilarGames(gameId: Int) {
         _isSimilarGamesLoading.value = true
 

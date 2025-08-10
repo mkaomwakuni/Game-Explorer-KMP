@@ -1,167 +1,132 @@
 package org.sea.rawg.ui.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.unit.IntSize
 import kotlinx.browser.document
 import kotlinx.browser.window
+import org.sea.rawg.theme.placeholder
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLImageElement
-import org.w3c.dom.events.Event
+import org.w3c.dom.events.EventListener
+import kotlin.math.roundToInt
 
-/**
- * WasmJs implementation of AsyncImage using direct DOM image element
- */
 @Composable
 actual fun AsyncImage(
-    url: String,
+    url: String?,
     contentDescription: String?,
     modifier: Modifier,
+    alignment: Alignment,
     contentScale: ContentScale,
-    placeholder: @Composable () -> Unit
+    alpha: Float,
+    placeholder: @Composable BoxScope.() -> Unit
 ) {
-    // Generate a unique ID for this instance
-    val imageId = remember { "async-image-${url.hashCode()}" }
-    
-    // Track loading state
+    val uniqueId = remember { "img_${(Math.random() * 1000000).toInt()}" }
     var isLoading by remember { mutableStateOf(true) }
-    var isError by remember { mutableStateOf(false) }
-    
-    // Normalize URL to ensure it has proper protocol
-    val normalizedUrl = when {
-        url.isBlank() -> ""
-        url.startsWith("http://") || url.startsWith("https://") -> url.trim()
-        url.startsWith("//") -> "https:${url.trim()}"
-        else -> "https://${url.trim()}"
-    }
-    
-    if (normalizedUrl.isBlank()) {
-        placeholder()
-        return
+
+    val normalizedUrl = remember(url) {
+        when {
+            url.isNullOrBlank() -> null
+            url.startsWith("http://") || url.startsWith("https://") -> url.trim()
+            url.startsWith("//") -> "https:${url.trim()}"
+            else -> "https://${url.trim()}"
+        }
     }
 
-    // Always show placeholder during loading or error
-    if (isLoading || isError) {
-        placeholder()
+    var boxSize by remember { mutableStateOf(IntSize.Zero) }
+    var boxPosition by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+
+    if (isLoading || normalizedUrl == null) {
+        Box(
+            modifier = modifier.background(Color.LightGray.copy(alpha = 0.2f)).placeholder(),
+            contentAlignment = alignment
+        ) {
+            placeholder()
+        }
     }
 
-    // Create a box that will position our image
     Box(
-        modifier = modifier.onGloballyPositioned { coordinates ->
-            // Get size and position for the image
-            val width = coordinates.size.width
-            val height = coordinates.size.height
-            val position = coordinates.positionInWindow()
-
-            // Get the DOM element
-            val element = document.getElementById(imageId)
-
-            if (element != null && width > 0 && height > 0) {
-                // Position the element absolutely within the viewport
-                val visibility = if (isLoading || isError) "hidden" else "visible"
-                
-                element.setAttribute("style", """
-                    position: absolute;
-                    left: ${position.x}px;
-                    top: ${position.y}px;
-                    width: ${width}px;
-                    height: ${height}px;
-                    background-image: url('$normalizedUrl');
-                    background-size: ${contentScale.toCssBackgroundSize()};
-                    background-repeat: no-repeat;
-                    background-position: center;
-                    z-index: 1;
-                    pointer-events: none;
-                    visibility: $visibility;
-                """.trimIndent())
-            }
-        }
+        modifier = modifier
+            .onGloballyPositioned { coordinates ->
+                boxSize = coordinates.size
+                boxPosition = coordinates.positionInRoot()
+            },
+        contentAlignment = alignment
     ) {
-        // This empty Box acts as a placeholder for layout
-    }
-
-    // Create and manage the DOM element
-    DisposableEffect(normalizedUrl) {
-        // Remove any existing element with this ID
-        document.getElementById(imageId)?.let {
-            it.parentElement?.removeChild(it)
-        }
-
-        // Create a new div element for the background image
-        val div = document.createElement("div") as HTMLDivElement
-        div.id = imageId
-
-        // Create a hidden image element to track loading
-        val img = document.createElement("img") as HTMLImageElement
-        img.setAttribute("style", "display: none;") // Hidden image for load tracking
-        img.src = normalizedUrl
-
-        if (contentDescription != null) {
-            div.setAttribute("aria-label", contentDescription)
-            img.alt = contentDescription
-        }
-
-        // Track loading state
-        img.addEventListener("load", { _: Event ->
-            isLoading = false
-            isError = false
-
-            // Make the div visible when image loads successfully
-            val element = document.getElementById(imageId)
-            if (element != null) {
-                element.setAttribute("style", element.getAttribute("style")?.replace("visibility: hidden", "visibility: visible") ?: "")
+        DisposableEffect(normalizedUrl, boxSize, boxPosition) {
+            document.getElementById(uniqueId)?.let {
+                document.body?.removeChild(it)
             }
-        })
 
-        img.addEventListener("error", { _: Event ->
-            isLoading = false
-            isError = true
-        })
+            if (normalizedUrl != null && boxSize.width > 0 && boxSize.height > 0) {
+                val div = document.createElement("div") as HTMLDivElement
+                div.id = uniqueId
+                div.style.position = "absolute"
+                div.style.left = "${boxPosition.x.roundToInt()}px"
+                div.style.top = "${boxPosition.y.roundToInt()}px"
+                div.style.width = "${boxSize.width}px"
+                div.style.height = "${boxSize.height}px"
+                div.style.objectFit = when (contentScale) {
+                    ContentScale.Crop -> "cover"
+                    ContentScale.Fit -> "contain"
+                    else -> "cover"
+                }
+                div.style.opacity = alpha.toString()
+                div.style.backgroundSize = when (contentScale) {
+                    ContentScale.Crop -> "cover"
+                    ContentScale.Fit -> "contain"
+                    else -> "cover"
+                }
+                div.style.backgroundPosition = "center"
+                div.style.backgroundRepeat = "no-repeat"
 
-        // Add the tracking image to the div
-        div.appendChild(img)
+                val img = document.createElement("img") as HTMLImageElement
+                img.setAttribute("style", "display: none;")
+                img.setAttribute("alt", contentDescription ?: "")
+                
+                val loadHandler = EventListener {
+                    isLoading = false
+                    div.style.backgroundImage = "url('$normalizedUrl')"
+                    div.style.backgroundColor = "transparent"
+                }
+                
+                val errorHandler = EventListener {
+                    isLoading = false
+                }
+                
+                img.addEventListener("load", loadHandler)
+                img.addEventListener("error", errorHandler)
+                img.src = normalizedUrl
 
-        // Add the div to the document body (most reliable placement)
-        document.body?.appendChild(div)
+                div.appendChild(img)
+                document.body?.appendChild(div)
+            }
 
-        // Listen for window resize
-        val resizeListener: (Event) -> Unit = { 
-            // Force recomposition on resize to update position
-            val dummy = isLoading // Read state to force recomposition
-        }
+            val resizeListener = {
+                // Force recomposition on resize to update position
+                isLoading = isLoading
+            }
+            
+            window.addEventListener("resize", resizeListener)
 
-        window.addEventListener("resize", resizeListener)
-
-        // Cleanup on disposal
-        onDispose {
-            window.removeEventListener("resize", resizeListener)
-            document.getElementById(imageId)?.let {
-                it.parentElement?.removeChild(it)
+            onDispose {
+                document.getElementById(uniqueId)?.let {
+                    document.body?.removeChild(it)
+                }
+                window.removeEventListener("resize", resizeListener)
             }
         }
-    }
-}
 
-/**
- * Convert ContentScale to CSS background-size value
- */
-private fun ContentScale.toCssBackgroundSize(): String {
-    return when (this) {
-        ContentScale.Crop -> "cover"
-        ContentScale.FillWidth -> "100% auto"
-        ContentScale.FillHeight -> "auto 100%"
-        ContentScale.FillBounds -> "100% 100%"
-        ContentScale.Fit -> "contain"
-        ContentScale.Inside -> "contain"
-        ContentScale.None -> "auto"
-        else -> "cover"
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Empty box to ensure proper layout
+        }
     }
 }

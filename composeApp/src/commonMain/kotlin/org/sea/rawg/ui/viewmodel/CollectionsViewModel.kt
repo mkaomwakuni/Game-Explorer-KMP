@@ -21,25 +21,25 @@ class CollectionsViewModel(
     private val getGamesForCollectionUseCase: GetGamesForCollectionUseCase
 ) : BaseViewModel() {
 
-    // Collections list UI state
+    
     private val _collectionsListState =
         MutableStateFlow<DataState<List<Collection>>>(DataState.Loading)
     val collectionsListState: StateFlow<DataState<List<Collection>>> =
         _collectionsListState.asStateFlow()
 
-    // Single collection UI state
+    
     private val _collectionState = MutableStateFlow<DataState<Collection>>(DataState.Loading)
     val collectionState: StateFlow<DataState<Collection>> = _collectionState.asStateFlow()
 
-    // Games in collection state
+    
     private val _gamesState =
         MutableStateFlow<PagedDataState<PagedResponse<Game>>>(PagedDataState.Loading)
     val gamesState: StateFlow<PagedDataState<PagedResponse<Game>>> = _gamesState.asStateFlow()
 
-    // Currently displayed collection ID
+    
     private var currentCollectionId: Int? = null
 
-    // Pagination data
+    
     private var currentPage = 1
     private var hasMoreGames = true
     private val pageSize = 20
@@ -71,7 +71,7 @@ class CollectionsViewModel(
      */
     fun loadCollection(collectionId: Int) {
         if (currentCollectionId != collectionId) {
-            // Reset pagination when switching to a new collection
+            
             currentPage = 1
             hasMoreGames = true
             currentCollectionId = collectionId
@@ -94,7 +94,7 @@ class CollectionsViewModel(
             }
         )
 
-        // Also load games for this collection
+        
         loadGamesForCollection(resetList = true)
     }
 
@@ -109,11 +109,11 @@ class CollectionsViewModel(
             hasMoreGames = true
             _gamesState.value = PagedDataState.Loading
         } else if (!hasMoreGames || _gamesState.value is PagedDataState.LoadingMore) {
-            // Don't load more if we're at the end or already loading more
+            
             return
         }
 
-        // Get existing games if we're loading more
+        
         val existingGames =
             if (_gamesState.value is PagedDataState.Success && !resetList) {
                 (_gamesState.value as PagedDataState.Success<PagedResponse<Game>>).data.results
@@ -121,7 +121,7 @@ class CollectionsViewModel(
                 emptyList()
             }
 
-        // If loading more, show the loading more state
+        
         if (!resetList) {
             _gamesState.value = PagedDataState.LoadingMore(
                 PagedResponse(
@@ -142,18 +142,18 @@ class CollectionsViewModel(
                 )
             },
             onSuccess = { gamesResponse ->
-                // Update pagination state
+                
                 hasMoreGames = gamesResponse.next != null
                 if (hasMoreGames) currentPage++
 
-                // Combine existing and new games if loading more
+                
                 val combinedResults = if (!resetList) {
                     existingGames + gamesResponse.results
                 } else {
                     gamesResponse.results
                 }
 
-                // Update the state with the combined results
+                
                 _gamesState.value = PagedDataState.Success(
                     PagedResponse(
                         count = gamesResponse.count,
@@ -169,22 +169,22 @@ class CollectionsViewModel(
         )
     }
 
-    // Load more games for pagination
+    
     fun loadMoreGames() {
         loadGamesForCollection(resetList = false)
     }
 
-    // Retry loading collections
+    
     fun retryCollections() {
         loadCollections()
     }
 
-    // Retry loading the current collection
+    
     fun retryCollection() {
         currentCollectionId?.let { loadCollection(it) }
     }
 
-    // Retry loading games for the current collection
+    
     fun retryGames() {
         loadGamesForCollection(resetList = true)
     }
