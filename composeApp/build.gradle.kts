@@ -22,6 +22,10 @@ kotlin {
             }
         }
         binaries.executable()
+        compilerOptions {
+            // Disable deprecation warnings for the web target
+            freeCompilerArgs.add("-Xsuppress-deprecated-call-warnings")
+        }
     }
 
     androidTarget {
@@ -51,6 +55,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
+            implementation(libs.kamel)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -81,9 +86,11 @@ kotlin {
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(libs.kamel)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+            implementation(libs.kamel)
         }
     }
 }
@@ -124,7 +131,7 @@ android {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "org.sea.rawg.MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "org.sea.rawg"
