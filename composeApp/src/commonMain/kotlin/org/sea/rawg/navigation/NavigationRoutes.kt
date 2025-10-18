@@ -14,9 +14,11 @@ object NavigationRoutes {
     const val GAME_DETAILS_WITH_PARAM = "game_details/{gameId}"
     const val GENRE_DETAILS_WITH_PARAM = "genre_details/{genreId}"
     const val PUBLISHER_DETAILS_WITH_PARAM = "publisher_details/{publisherId}"
+    const val COLLECTION_DETAILS_WITH_PARAM = "collection_details/{collectionId}"
 
     // Functions to create routes with parameters
     fun gameDetailsRoute(gameId: Int): String = "game_details/$gameId"
     fun genreDetailsRoute(genreId: Int): String = "genre_details/$genreId"
     fun publisherDetailsRoute(publisherId: Int): String = "publisher_details/$publisherId"
+    fun collectionDetailsRoute(collectionId: Int): String = "collection_details/$collectionId"
 }
