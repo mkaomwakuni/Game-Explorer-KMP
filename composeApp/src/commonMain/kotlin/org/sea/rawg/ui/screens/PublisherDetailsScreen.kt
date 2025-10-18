@@ -1,5 +1,6 @@
 package org.sea.rawg.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -15,6 +16,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -154,37 +157,7 @@ fun PublisherDetailsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            selectedPublisher?.name ?: "Publisher Games",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        if (selectedPublisher != null) {
-                            Text(
-                                "${selectedPublisher.games_count} games",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                            )
-                        }
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navigator.goBack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Go back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
+            // Removed TopAppBar here
         }
     ) { paddingValues ->
         Box(
@@ -213,6 +186,55 @@ fun PublisherDetailsScreen(
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
+                        
+                        // Gradient overlay for better text readability
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color.Black.copy(alpha = 0.6f),
+                                            Color.Black.copy(alpha = 0.3f)
+                                        )
+                                    )
+                                )
+                        )
+                        
+                        // Top app bar positioned within the header image
+                        TopAppBar(
+                            title = { 
+                                Column {
+                                    Text(
+                                        selectedPublisher?.name ?: "Publisher Games",
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    if (selectedPublisher != null) {
+                                        Text(
+                                            "${selectedPublisher.games_count} games",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                        )
+                                    }
+                                }
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = { navigator.goBack() }) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Go back",
+                                        tint = Color.White
+                                    )
+                                }
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = Color.Transparent,
+                                titleContentColor = Color.White
+                            )
+                        )
 
                         // Overlay with publisher info
                         Surface(
@@ -471,7 +493,13 @@ private fun PublisherGameCard(
             .height(220.dp)
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = MaterialTheme.shapes.medium,
+        shape = MaterialTheme.shapes.small,
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp // No shadow for better blending
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent // Fully transparent container
+        )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             // Game image
@@ -484,48 +512,63 @@ private fun PublisherGameCard(
                 )
             }
 
-            // Game name at the bottom
-            Surface(
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+            // Gradient overlay for fading effect
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.6f), // Fade from background color at top
+                                Color.Transparent, // Transparent in middle
+                                Color.Black.copy(alpha = 0.6f) // Dark at bottom
+                            ),
+                            startY = 0f,
+                            endY = Float.POSITIVE_INFINITY
+                        )
+                    )
+            )
+
+            // Game info at the bottom
+            Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
+                    .padding(12.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Text(
-                        text = game.name,
-                        style = MaterialTheme.typography.titleSmall,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        fontWeight = FontWeight.Bold
-                    )
+                Text(
+                    text = game.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
 
-                    // Rating if available
-                    game.rating?.let { rating ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = "${rating.toFloat()}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                            )
+                // Rating if available
+                game.rating?.let { rating ->
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "${rating.toFloat()}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
 
-                            LinearProgressIndicator(
-                                progress = { rating.toFloat() / 5f },
-                                modifier = Modifier
-                                    .height(4.dp)
-                                    .width(40.dp),
-                                color = when {
-                                    rating >= 4.0 -> MaterialTheme.colorScheme.primary
-                                    rating >= 3.0 -> MaterialTheme.colorScheme.tertiary
-                                    else -> MaterialTheme.colorScheme.error
-                                }
-                            )
-                        }
+                        LinearProgressIndicator(
+                            progress = { rating.toFloat() / 5f },
+                            modifier = Modifier
+                                .height(4.dp)
+                                .width(40.dp),
+                            color = when {
+                                rating >= 4.0 -> MaterialTheme.colorScheme.primary
+                                rating >= 3.0 -> MaterialTheme.colorScheme.tertiary
+                                else -> MaterialTheme.colorScheme.error
+                            }
+                        )
                     }
                 }
             }
