@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
  */
 val RAWGShapes = Shapes(
     // Small components like buttons, chips
-    small = RoundedCornerShape(4.dp),
+    small = RoundedCornerShape(2.dp),
 
     // Medium components like cards, text fields
     medium = RoundedCornerShape(8.dp),
@@ -25,9 +25,9 @@ val RAWGShapes = Shapes(
  * Custom shape definitions for specific components
  */
 object CustomShapes {
-    val GameCard = RoundedCornerShape(8.dp)
+    val GameCard = RoundedCornerShape(2.dp)
     val BottomSheet = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     val SearchBar = RoundedCornerShape(24.dp)
     val RatingPill = RoundedCornerShape(16.dp)
-    val PlatformTag = RoundedCornerShape(4.dp)
+    val PlatformTag = RoundedCornerShape(2.dp)
 }
