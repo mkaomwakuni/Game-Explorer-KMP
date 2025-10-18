@@ -88,6 +88,14 @@ fun MainScreen() {
                     PublisherDetailsScreen(navigator = navigator, publisherId = publisherId)
                 }
             }
+            scene(NavigationRoutes.COLLECTION_DETAILS_WITH_PARAM) { backStackEntry ->
+                // Extract the collectionId parameter from the route parameters
+                val collectionId = backStackEntry.pathMap["collectionId"]?.toIntOrNull()
+                // If collectionId exists, display the collection details screen
+                if (collectionId != null) {
+                    CollectionDetailsScreen(navigator = navigator, collectionId = collectionId)
+                }
+            }
         }
     }
 }
