@@ -8,7 +8,7 @@
 ![badge-desktop](http://img.shields.io/badge/Platform-Desktop-4D76CD.svg?style=flat)
 ![badge-web](https://img.shields.io/badge/Platform-Web-blueviolet.svg?style=flat)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
-<a href="https://github.com/Mkaomwakuni"><img alt="License" src="https://img.shields.io/static/v1?label=GitHub&message=Mkaomwakuni&color=C51162"/></a>
+[![GitHub](https://img.shields.io/static/v1?label=GitHub&message=Mkaomwakuni&color=C51162)](https://github.com/Mkaomwakuni)
 
 KMP-Game Explorer app built with Compose Multiplatform, supporting Android, iOS, Desktop, and Web.
 The app
@@ -23,11 +23,11 @@ the [Rawg Video Game Database API](https://rawg.io/apidocs).
 - Desktop
 - Web
 
-<p float="center">
-  <img width="100%" height="50%" src="screenshots/home_screenshot.png"/> </br></br>
-  <img width="100%" height="50%" src="screenshots/game_detail_screenshot.png" /></br></br>
-  <img width="100%" height="50%" src="screenshots/app_demo.gif" />
-</p>
+<!-- Mobile App Demo -->
+![Mobile Demo](raw/mobile.mp4)
+
+<!-- Desktop App Demo -->
+![Desktop Demo](raw/30.10.2025_16.56.55_REC.mp4)
 
 # Main Features
 
