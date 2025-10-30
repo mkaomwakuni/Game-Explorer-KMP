@@ -73,6 +73,9 @@ fun MainScreen() {
             scene(NavigationRoutes.SETTINGS) {
                 SettingsScreen()
             }
+            scene(NavigationRoutes.SEARCH) {
+                SearchScreen(navigator = navigator)
+            }
             scene(NavigationRoutes.GAME_DETAILS_WITH_PARAM) { backStackEntry ->
                 val gameId = backStackEntry.pathMap["gameId"]?.toIntOrNull()
                 if (gameId != null) {

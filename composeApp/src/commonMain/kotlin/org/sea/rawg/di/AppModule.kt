@@ -23,6 +23,7 @@ import org.sea.rawg.ui.viewmodel.HomeViewModel
 import org.sea.rawg.ui.viewmodel.PublishersViewModel
 import org.sea.rawg.ui.viewmodel.SettingsViewModel
 import org.sea.rawg.ui.viewmodel.UpcomingGamesViewModel
+import org.sea.rawg.ui.viewmodel.SearchViewModel
 
 object AppModule {
 
@@ -63,6 +64,7 @@ object AppModule {
         factoryOf(::PublishersViewModel)
         factoryOf(::UpcomingGamesViewModel)
         factoryOf(::SettingsViewModel)
+        factoryOf(::SearchViewModel)
     }
     
     private val preferencesModule = module {

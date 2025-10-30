@@ -2,6 +2,8 @@ package org.sea.rawg.ui.component.gamedetail
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Gamepad
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
@@ -14,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.sea.rawg.domain.models.Game
 import org.sea.rawg.ui.component.SectionTitle
+import org.sea.rawg.utils.DateUtils
 
 /**
  * Quick stats section showing rating and playtime
@@ -35,6 +38,16 @@ fun GameQuickStatsSection(game: Game) {
                 title = "Rating",
                 value = "${game.rating}/5",
                 icon = Icons.Default.Star,
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // PC Release Date Card
+            StatCard(
+                title = game.platforms.toString(),
+                value = game.released.toString(),
+                icon = Icons.Default.Computer,
                 modifier = Modifier.weight(1f)
             )
 
