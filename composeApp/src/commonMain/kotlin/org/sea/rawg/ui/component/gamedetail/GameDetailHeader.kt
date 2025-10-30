@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.sea.rawg.domain.models.Game
 import org.sea.rawg.ui.component.AsyncImage
-import org.sea.rawg.ui.component.rememberStatusBarHeight
 
 @Composable
 fun GameDetailHeader(
@@ -93,7 +92,7 @@ fun GameDetailHeader(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = rememberStatusBarHeight() + 8.dp)
+                .padding(horizontal = 8.dp, vertical = 24.dp)
         ) {
             // Back button
             IconButton(
