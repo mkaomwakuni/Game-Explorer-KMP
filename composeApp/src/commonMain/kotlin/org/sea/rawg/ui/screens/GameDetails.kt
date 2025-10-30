@@ -265,9 +265,9 @@ private fun GameDetailsContent(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp)
+                        .padding(horizontal = 4.dp)
                 ) {
-                    GameQuickStatsSection(game)
+                    GameQuickStatsSection(game = game)
 
                     SectionDivider()
 
@@ -334,60 +334,6 @@ private fun GameDetailsContent(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun RatingBar(rating: Float, reviewCount: Int) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(bottom = 8.dp)
-    ) {
-        val fullStars = rating.toInt()
-        val hasHalfStar = rating - fullStars >= 0.5f
-        val emptyStars = 5 - fullStars - if (hasHalfStar) 1 else 0
-
-        repeat(fullStars) {
-            Icon(
-                imageVector = Icons.Default.Star,
-                contentDescription = null,
-                tint = Color(0xFFFFD700),
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
-        if (hasHalfStar) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.StarHalf,
-                contentDescription = null,
-                tint = Color(0xFFFFD700),
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
-        repeat(emptyStars) {
-            Icon(
-                imageVector = Icons.Default.StarOutline,
-                contentDescription = null,
-                tint = Color(0xFFFFD700).copy(alpha = 0.5f),
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(4.dp))
-
-        Text(
-            text = "$rating/5",
-            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-            color = Color.White
-        )
-
-        Text(
-            text = "($reviewCount reviews)",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.7f)
-        )
     }
 }
 
