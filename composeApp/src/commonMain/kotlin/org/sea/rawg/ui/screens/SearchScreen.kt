@@ -80,7 +80,7 @@ fun SearchScreen(
             TopAppBar(
                 title = { Text("Search Games") },
                 navigationIcon = {
-                    IconButton(onClick = { navigator.navigateUp() }) {
+                    IconButton(onClick = { navigator.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -136,9 +136,12 @@ fun SearchScreen(
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                    cursorColor = MaterialTheme.colorScheme.primary
                 ),
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = {
