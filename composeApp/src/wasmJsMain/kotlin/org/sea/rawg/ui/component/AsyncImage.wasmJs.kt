@@ -21,20 +21,19 @@ import kotlin.math.roundToInt
 
 @Composable
 actual fun AsyncImage(
-    url: String?,
+    url: String,
     contentDescription: String?,
     modifier: Modifier,
-    alignment: Alignment,
     contentScale: ContentScale,
-    alpha: Float,
-    placeholder: @Composable BoxScope.() -> Unit
+    placeholder: @Composable () -> Unit
 ) {
     val uniqueId = remember { "img_${(Math.random() * 1000000).toInt()}" }
     var isLoading by remember { mutableStateOf(true) }
+    var isError by remember { mutableStateOf(false) }
 
     val normalizedUrl = remember(url) {
         when {
-            url.isNullOrBlank() -> null
+            url.isBlank() -> ""
             url.startsWith("http://") || url.startsWith("https://") -> url.trim()
             url.startsWith("//") -> "https:${url.trim()}"
             else -> "https://${url.trim()}"
@@ -44,10 +43,10 @@ actual fun AsyncImage(
     var boxSize by remember { mutableStateOf(IntSize.Zero) }
     var boxPosition by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
 
-    if (isLoading || normalizedUrl == null) {
+    if (isLoading || normalizedUrl.isBlank() || isError) {
         Box(
-            modifier = modifier.background(Color.LightGray.copy(alpha = 0.2f)).placeholder(),
-            contentAlignment = alignment
+            modifier = modifier.background(Color.LightGray.copy(alpha = 0.2f)),
+            contentAlignment = Alignment.Center
         ) {
             placeholder()
         }
@@ -59,14 +58,14 @@ actual fun AsyncImage(
                 boxSize = coordinates.size
                 boxPosition = coordinates.positionInRoot()
             },
-        contentAlignment = alignment
+        contentAlignment = Alignment.Center
     ) {
         DisposableEffect(normalizedUrl, boxSize, boxPosition) {
             document.getElementById(uniqueId)?.let {
                 document.body?.removeChild(it)
             }
 
-            if (normalizedUrl != null && boxSize.width > 0 && boxSize.height > 0) {
+            if (normalizedUrl.isNotBlank() && boxSize.width > 0 && boxSize.height > 0) {
                 val div = document.createElement("div") as HTMLDivElement
                 div.id = uniqueId
                 div.style.position = "absolute"
@@ -79,7 +78,6 @@ actual fun AsyncImage(
                     ContentScale.Fit -> "contain"
                     else -> "cover"
                 }
-                div.style.opacity = alpha.toString()
                 div.style.backgroundSize = when (contentScale) {
                     ContentScale.Crop -> "cover"
                     ContentScale.Fit -> "contain"
@@ -100,6 +98,8 @@ actual fun AsyncImage(
                 
                 val errorHandler = EventListener {
                     isLoading = false
+                    isError = true
+                    console.error("Failed to load image: $normalizedUrl")
                 }
                 
                 img.addEventListener("load", loadHandler)

@@ -9,9 +9,10 @@ object GameMapper {
 
         val backgroundImageUrl = when {
             dto.backgroundImage == null -> null
-            dto.backgroundImage.startsWith("http:") -> dto.backgroundImage
+            dto.backgroundImage.startsWith("http://") || dto.backgroundImage.startsWith("https://") -> dto.backgroundImage
+            dto.backgroundImage.startsWith("//") -> "https:${dto.backgroundImage}"
             dto.backgroundImage.startsWith("/") -> "https://media.rawg.io${dto.backgroundImage}"
-            else -> "https:${dto.backgroundImage}"
+            else -> "https://media.rawg.io/${dto.backgroundImage.removePrefix("media/")}"
         }
 
         return Game(

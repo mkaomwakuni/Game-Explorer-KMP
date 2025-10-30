@@ -7,9 +7,4 @@ expect object DateUtils {
     fun getLastMonthDate(): String
     fun getFutureDate(yearsAhead: Int): String
 
-    // Add the missing functions that are implemented in platform-specific code
-    fun formatReleaseDate(releaseDate: String?): String
-    fun getRelativeDateString(dateString: String?): String
-    fun getDaysSinceRelease(releaseDate: String?): Int
-    fun isUpcoming(releaseDate: String?): Boolean
 }
