@@ -23,11 +23,12 @@ the [Rawg Video Game Database API](https://rawg.io/apidocs).
 - Desktop
 - Web
 
+<!-- App Demos -->
 <!-- Mobile App Demo -->
-![Mobile Demo](raw/mobile.mp4)
+https://github.com/user-attachments/assets/6f97200f-692a-445f-8789-cd5adbb8598d
 
 <!-- Desktop App Demo -->
-![Desktop Demo](raw/30.10.2025_16.56.55_REC.mp4)
+https://github.com/user-attachments/assets/4c5453a2-075b-4a1f-98b2-4ecc9ebac928
 
 # Main Features
 
