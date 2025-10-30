@@ -5,12 +5,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -38,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import org.sea.rawg.domain.models.Game
 import org.sea.rawg.ui.component.AsyncImage
 
@@ -77,8 +81,11 @@ fun GameDetailHeader(
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
-                                Color.Black.copy(alpha = 0.6f),
+                                Color.Transparent,
+                                Color.Transparent,
+                                Color.Transparent,
                                 Color.Black.copy(alpha = 0.2f),
+                                Color.Black.copy(alpha = 0.6f),
                                 Color.Black.copy(alpha = 0.9f)
                             )
                         )
@@ -92,7 +99,7 @@ fun GameDetailHeader(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 24.dp)
+                .padding(horizontal = 8.dp)
         ) {
             // Back button
             IconButton(
@@ -271,7 +278,7 @@ private fun GameImagePlaceholder() {
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = androidx.compose.material.icons.Icons.Default.CalendarMonth,
+            imageVector = Icons.Default.CalendarMonth,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             modifier = Modifier.size(80.dp)

@@ -38,4 +38,17 @@ actual object DateUtils {
         val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         return formatter.format(calendar.time)
     }
+
+    actual fun formatReleaseDate(dateString: String?): String {
+        if (dateString.isNullOrEmpty()) return "TBA"
+
+        return try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            val outputFormat = SimpleDateFormat("MMM d, yyyy", Locale.US)
+            val date = inputFormat.parse(dateString)
+            outputFormat.format(date)
+        } catch (e: Exception) {
+            dateString
+        }
+    }
 }

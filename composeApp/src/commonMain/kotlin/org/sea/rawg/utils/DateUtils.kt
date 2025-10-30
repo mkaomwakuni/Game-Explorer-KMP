@@ -6,5 +6,5 @@ expect object DateUtils {
     fun getDateDaysAgo(daysAgo: Int): String
     fun getLastMonthDate(): String
     fun getFutureDate(yearsAhead: Int): String
-
+    fun formatReleaseDate(dateString: String?): String
 }

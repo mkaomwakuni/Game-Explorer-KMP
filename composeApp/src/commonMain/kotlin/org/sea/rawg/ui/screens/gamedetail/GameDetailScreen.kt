@@ -1,6 +1,7 @@
 package org.sea.rawg.ui.screens.gamedetail
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -30,6 +31,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.Navigator
@@ -133,24 +137,32 @@ fun ModernGameDetailContent(
 
     var isDescriptionExpanded by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets(0, 0, 0, 0)) // Allow content to extend edge to edge
+    ) {
+        // Scrollable content
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(bottom = 24.dp)
+                .zIndex(0f)
         ) {
-            Spacer(modifier = Modifier.height(headerHeight - 40.dp))
+            Spacer(modifier = Modifier.height(headerHeight - 60.dp))
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .zIndex(2f),
                 shape = RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
             ) {
                 Column(
                     modifier = Modifier
@@ -159,7 +171,7 @@ fun ModernGameDetailContent(
                 ) {
                     Column(
                         modifier = Modifier
-                            .offset(y = (-40).dp)
+                            .offset(y = (-60).dp)
                             .fillMaxWidth()
                     ) {
                         Text(
@@ -244,7 +256,7 @@ fun ModernGameDetailContent(
                                         text = description,
                                         style = MaterialTheme.typography.bodyLarge,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = if (isDescriptionExpanded) Int.MAX_VALUE else 4,
+                                        maxLines = if (isDescriptionExpanded) Int.MAX_VALUE else 5,
                                         overflow = TextOverflow.Ellipsis
                                     )
 
@@ -253,14 +265,22 @@ fun ModernGameDetailContent(
                                             onClick = { isDescriptionExpanded = true },
                                             contentPadding = PaddingValues(0.dp)
                                         ) {
-                                            Text("Read more")
+                                            Text(
+                                                text = "Read more",
+                                                color = MaterialTheme.colorScheme.primary,
+                                                fontWeight = FontWeight.Medium
+                                            )
                                         }
                                     } else if (isDescriptionExpanded) {
                                         TextButton(
                                             onClick = { isDescriptionExpanded = false },
                                             contentPadding = PaddingValues(0.dp)
                                         ) {
-                                            Text("Show less")
+                                            Text(
+                                                text = "Show less",
+                                                color = MaterialTheme.colorScheme.primary,
+                                                fontWeight = FontWeight.Medium
+                                            )
                                         }
                                     }
                                 }

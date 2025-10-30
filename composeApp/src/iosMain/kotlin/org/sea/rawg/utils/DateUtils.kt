@@ -79,4 +79,25 @@ actual object DateUtils {
         }
         return formatter.stringFromDate(futureDate)
     }
+
+    actual fun formatReleaseDate(dateString: String?): String {
+        if (dateString.isNullOrEmpty()) return "TBA"
+
+        val inputFormatter = NSDateFormatter().apply {
+            dateFormat = "yyyy-MM-dd"
+            locale = NSLocale.currentLocale
+        }
+
+        val date = inputFormatter.dateFromString(dateString)
+
+        return if (date != null) {
+            val outputFormatter = NSDateFormatter().apply {
+                dateFormat = "MMM d, yyyy"
+                locale = NSLocale.currentLocale
+            }
+            outputFormatter.stringFromDate(date)
+        } else {
+            dateString
+        }
+    }
 }

@@ -194,28 +194,6 @@ fun EmptyState(
 }
 
 /**
- * Specialized empty state for no search results
- */
-@Composable
-fun EmptySearchState(
-    query: String = "",
-    modifier: Modifier = Modifier
-) {
-    val message = if (query.isNotEmpty()) {
-        "No results found for \"$query\". Try different keywords."
-    } else {
-        "No results found. Try searching for something else."
-    }
-
-    EmptyState(
-        title = "No Results",
-        message = message,
-        icon = Icons.Default.Search,
-        modifier = modifier
-    )
-}
-
-/**
  * Specialized empty state for no games
  */
 @Composable
@@ -328,52 +306,6 @@ fun FullScreenError(
                 errorType = errorType,
                 modifier = Modifier.fillMaxWidth(0.8f)
             )
-        }
-    }
-}
-
-/**
- * Inline error component for displaying in lists or content areas
- */
-@Composable
-fun InlineError(
-    message: String,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val spacing = 8.dp
-
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Error,
-                contentDescription = "Error",
-                tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onErrorContainer,
-                modifier = Modifier.weight(1f)
-            )
-
-            TextButton(onClick = onRetry) {
-                Text(text = "Retry")
-            }
         }
     }
 }

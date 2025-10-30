@@ -42,4 +42,30 @@ actual object DateUtils {
             date.monthNumber.toString().padStart(2, '0')
         }-${date.dayOfMonth.toString().padStart(2, '0')}"
     }
+
+    actual fun formatReleaseDate(dateString: String?): String {
+        if (dateString.isNullOrEmpty()) return "TBA"
+
+        return try {
+            val date = LocalDate.parse(dateString)
+            val month = when (date.monthNumber) {
+                1 -> "Jan"
+                2 -> "Feb"
+                3 -> "Mar"
+                4 -> "Apr"
+                5 -> "May"
+                6 -> "Jun"
+                7 -> "Jul"
+                8 -> "Aug"
+                9 -> "Sep"
+                10 -> "Oct"
+                11 -> "Nov"
+                12 -> "Dec"
+                else -> date.monthNumber.toString()
+            }
+            "$month ${date.dayOfMonth}, ${date.year}"
+        } catch (e: Exception) {
+            dateString
+        }
+    }
 }
