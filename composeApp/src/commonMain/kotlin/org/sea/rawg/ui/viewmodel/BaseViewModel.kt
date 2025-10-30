@@ -57,10 +57,6 @@ abstract class BaseViewModel : ViewModel() {
         _error.value = ErrorState(message, type)
     }
 
-    fun clearError() {
-        _error.value = null
-    }
-
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()

@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
@@ -49,7 +48,7 @@ import org.sea.rawg.ui.component.gamedetail.RedditDiscussionsSection
 import org.sea.rawg.ui.screens.gamedetail.GameDetailDLCSection
 import org.sea.rawg.ui.viewmodel.GameDetailsViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun GameDetailScreen(navigator: Navigator, gameId: Int) {
     val viewModel = koinViewModel<GameDetailsViewModel>()
@@ -276,14 +275,22 @@ fun ModernGameDetailContent(
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
-                    HorizontalDivider()
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 24.dp),
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                    )
 
                     GameDetailDLCSection(
                         dlcs = dlcs,
                         isLoading = isDlcLoading
                     )
 
-                    HorizontalDivider()
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 24.dp),
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                    )
 
                     RedditDiscussionsSection(
                         posts = redditPosts ?: emptyList(),
@@ -292,7 +299,11 @@ fun ModernGameDetailContent(
                     )
 
                     if (!game.genres.isNullOrEmpty() || !game.tags.isNullOrEmpty()) {
-                        HorizontalDivider()
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 24.dp),
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                        )
 
                         if (!game.genres.isNullOrEmpty()) {
                             Column(modifier = Modifier.fillMaxWidth()) {
@@ -300,7 +311,7 @@ fun ModernGameDetailContent(
 
                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                FlowRow(
+                                androidx.compose.foundation.layout.FlowRow(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
@@ -334,7 +345,7 @@ fun ModernGameDetailContent(
 
                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                FlowRow(
+                                androidx.compose.foundation.layout.FlowRow(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
@@ -388,81 +399,4 @@ fun ModernGameDetailContent(
             onBookmarkToggle = onBookmarkToggle
         )
     }
-}
-
-@Composable
-private fun FlowRow(
-    modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
-    content: @Composable () -> Unit
-) {
-    Layout(
-        content = content,
-        modifier = modifier
-    ) { measurables, constraints ->
-        val horizontalSpacer = horizontalArrangement.spacing.roundToPx()
-        val verticalSpacer = verticalArrangement.spacing.roundToPx()
-
-        val placeables =
-            measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
-
-        val rows = mutableListOf<Int>()
-        var rowMaxHeight = 0
-        var rowWidth = 0
-        var totalHeight = 0
-
-        placeables.forEachIndexed { index, placeable ->
-            if (index > 0 && rowWidth + placeable.width + horizontalSpacer > constraints.maxWidth) {
-                totalHeight += rowMaxHeight + verticalSpacer
-                rows.add(rowMaxHeight)
-                rowMaxHeight = 0
-                rowWidth = 0
-            }
-
-            rowWidth += placeable.width + if (rowWidth > 0) horizontalSpacer else 0
-            rowMaxHeight = maxOf(rowMaxHeight, placeable.height)
-
-            if (index == placeables.lastIndex) {
-                rows.add(rowMaxHeight)
-                totalHeight += rowMaxHeight
-            }
-        }
-
-        layout(
-            width = constraints.maxWidth,
-            height = totalHeight
-        ) {
-            var x = 0
-            var y = 0
-            var rowIndex = 0
-            var rowItemCount = 0
-
-            placeables.forEach { placeable ->
-                if (x + placeable.width > constraints.maxWidth) {
-                    x = 0
-                    y += rows[rowIndex] + verticalSpacer
-                    rowIndex++
-                    rowItemCount = 0
-                }
-
-                if (rowItemCount > 0) {
-                    x += horizontalSpacer
-                }
-
-                placeable.placeRelative(x, y)
-                x += placeable.width
-                rowItemCount++
-            }
-        }
-    }
-}
-
-@Composable
-fun HorizontalDivider() {
-    HorizontalDivider(
-        modifier = Modifier.padding(vertical = 24.dp),
-        thickness = 1.dp,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-    )
 }
