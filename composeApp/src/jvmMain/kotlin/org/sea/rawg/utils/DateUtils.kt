@@ -10,7 +10,55 @@ actual object DateUtils {
     actual fun getCurrentDate(): String {
         val now = Clock.System.now()
         val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
-        return "${localDateTime.year}-${localDateTime.monthNumber}-${localDateTime.dayOfMonth}"
+        return "${localDateTime.year}-${padWithZero(localDateTime.monthNumber)}-${
+            padWithZero(
+                localDateTime.dayOfMonth
+            )
+        }"
+    }
+
+    actual fun getTomorrowDate(): String {
+        val now = Clock.System.now()
+        val tomorrow = now.plus(kotlinx.datetime.DateTimePeriod(days = 1))
+        val localDateTime = tomorrow.toLocalDateTime(TimeZone.currentSystemDefault())
+        return "${localDateTime.year}-${padWithZero(localDateTime.monthNumber)}-${
+            padWithZero(
+                localDateTime.dayOfMonth
+            )
+        }"
+    }
+
+    actual fun getDateDaysAgo(daysAgo: Int): String {
+        val now = Clock.System.now()
+        val pastDate = now.minus(kotlinx.datetime.DateTimePeriod(days = daysAgo))
+        val localDateTime = pastDate.toLocalDateTime(TimeZone.currentSystemDefault())
+        return "${localDateTime.year}-${padWithZero(localDateTime.monthNumber)}-${
+            padWithZero(
+                localDateTime.dayOfMonth
+            )
+        }"
+    }
+
+    actual fun getLastMonthDate(): String {
+        val now = Clock.System.now()
+        val lastMonth = now.minus(kotlinx.datetime.DateTimePeriod(months = 1))
+        val localDateTime = lastMonth.toLocalDateTime(TimeZone.currentSystemDefault())
+        return "${localDateTime.year}-${padWithZero(localDateTime.monthNumber)}-${
+            padWithZero(
+                localDateTime.dayOfMonth
+            )
+        }"
+    }
+
+    actual fun getFutureDate(yearsAhead: Int): String {
+        val now = Clock.System.now()
+        val futureDate = now.plus(kotlinx.datetime.DateTimePeriod(years = yearsAhead))
+        val localDateTime = futureDate.toLocalDateTime(TimeZone.currentSystemDefault())
+        return "${localDateTime.year}-${padWithZero(localDateTime.monthNumber)}-${
+            padWithZero(
+                localDateTime.dayOfMonth
+            )
+        }"
     }
 
     actual fun formatReleaseDate(releaseDate: String?): String {
@@ -83,5 +131,9 @@ actual object DateUtils {
         val startDateInstant = Instant.parse("${date}T00:00:00Z")
         val epochInstant = Instant.parse("1970-01-01T00:00:00Z")
         return ((startDateInstant.toEpochMilliseconds() - epochInstant.toEpochMilliseconds()) / (24 * 60 * 60 * 1000)).toInt()
+    }
+
+    private fun padWithZero(number: Int): String {
+        return if (number < 10) "0$number" else number.toString()
     }
 }
